@@ -5,14 +5,50 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Unique Color Palette - Not AI Typical */
+    --sunset-orange: #FF6B35;
+    --deep-teal: #00A896;
+    --warm-gray: #2D3748;
+    --cream-white: #FFF8F3;
+    --accent-red: #E63946;
+    --soft-purple: #9D4EDD;
+    --mint-green: #52B788;
+    --coral-pink: #FF6B9D;
+    
+    /* Gradients */
+    --sunset-gradient: linear-gradient(135deg, #FF6B35, #F7931E);
+    --ocean-gradient: linear-gradient(135deg, #00A896, #004643);
+    --warm-gradient: linear-gradient(135deg, #FFF8F3, #FFE5D9);
+    --coral-gradient: linear-gradient(135deg, #FF6B9D, #C9184A);
+    --teal-gradient: linear-gradient(135deg, #52B788, #2D6A4F);
+  }
+  
   html {
     font-family: 'Inter', sans-serif;
   }
   
   body {
-    @apply bg-dark-900 text-gray-100;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    @apply text-gray-100;
+    background: 
+      /* Image-based background */
+      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2300A896" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,106.7C1248,96,1344,96,1392,96L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>'),
+      linear-gradient(135deg, #2D3748 0%, #1A202C 50%, #2D3748 100%);
+    background-attachment: fixed;
     min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+  
+  #root {
+    height: 100%;
+    overflow: auto;
   }
 }
 
@@ -450,12 +486,152 @@
 
 /* Advanced Glass Effects */
 .glass-3d {
-  @apply glass-dark;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 248, 243, 0.15) 0%, rgba(255, 107, 53, 0.05) 100%);
+  border: 1px solid rgba(255, 248, 243, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(45, 55, 72, 0.37), inset 0 1px 0 rgba(255, 248, 243, 0.2);
+}
+
+/* Unique Card Styles */
+.card-real {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: var(--warm-gradient);
+  box-shadow: 0 20px 40px rgba(45, 55, 72, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card-real:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(45, 55, 72, 0.4);
+}
+
+.image-overlay-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: var(--warm-gray);
+}
+
+.image-overlay-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(45, 55, 72, 0.9) 0%, transparent 60%);
+  z-index: 1;
+}
+
+.image-overlay-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.image-overlay-card:hover img {
+  transform: scale(1.1);
+}
+
+/* Unique Button Styles */
+.btn-sunset {
+  background: var(--sunset-gradient);
+  color: var(--cream-white);
+  padding: 1rem 2rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sunset::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--coral-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-sunset:hover::before {
+  opacity: 1;
+}
+
+.btn-sunset span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Unique Text Effects */
+.text-sunset {
+  background: var(--sunset-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  filter: drop-shadow(0 2px 4px rgba(255, 107, 53, 0.3));
+}
+
+.text-teal {
+  background: var(--ocean-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  filter: drop-shadow(0 2px 4px rgba(0, 168, 150, 0.3));
+}
+
+/* Parallax Backgrounds */
+.parallax-bg {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  background: 
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="%23FF6B35" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100%" height="100%" fill="%232D3748"/><rect width="100%" height="100%" fill="url(%23grid)"/></svg>'),
+    linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
+  background-size: cover, auto;
+  background-attachment: fixed;
+  background-position: center center;
+}
+
+/* Floating Elements with Images */
+.floating-image {
+  position: absolute;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(45, 55, 72, 0.3);
+  animation: float3d 8s ease-in-out infinite;
+}
+
+.floating-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Unique Hero Section */
+.hero-unique {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-unique::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080"><defs><radialGradient id="grad1" cx="50%" cy="50%" r="50%"><stop offset="0%" style="stop-color:%23FF6B35;stop-opacity:0.1" /><stop offset="100%" style="stop-color:%2300A896;stop-opacity:0.05" /></radialGradient></defs><rect width="100%" height="100%" fill="url(%23grad1)"/></svg>'),
+    linear-gradient(135deg, rgba(45, 55, 72, 0.8) 0%, rgba(26, 32, 44, 0.9) 100%);
+  z-index: 1;
 }
 
 /* Neon Gradient Text */
@@ -559,4 +735,28 @@
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(236, 72, 153, 0.1), rgba(251, 146, 60, 0.05));
   border-color: rgba(236, 72, 153, 0.2);
   box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Scrollbar for Recommended Teammates */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.4);
 }
