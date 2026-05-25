@@ -167,7 +167,9 @@ const Chat = () => {
       <div className="absolute inset-0 bg-black/80 z-0" />
       <div className="relative z-10 flex w-full">
       {/* Conversations List */}
-      <div className="w-80 border-r border-gray-700 flex flex-col bg-black/40 backdrop-blur-sm">
+      <div className={`${
+        selectedConversation ? 'hidden md:flex' : 'flex'
+      } w-full md:w-80 border-r border-gray-700 flex-col bg-black/40 backdrop-blur-sm`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white flex items-center mb-4">
@@ -314,12 +316,23 @@ const Chat = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className={`${
+        selectedConversation ? 'flex' : 'hidden md:flex'
+      } flex-1 flex-col`}>
         
         {selectedConversation ? (
           <>
             {/* Chat Header */}
             <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+              {/* Back button - mobile only */}
+              <button
+                className="md:hidden mr-2 p-1 rounded-lg hover:bg-gray-700 transition-colors"
+                onClick={() => setSelectedConversation(null)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
               <div className="flex items-center space-x-3">
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
