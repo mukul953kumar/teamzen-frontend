@@ -157,9 +157,17 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex bg-gray-900">
+    <div className="h-[calc(100vh-8rem)] flex relative"
+      style={{
+        backgroundImage: 'url("/images/image3.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
+      <div className="absolute inset-0 bg-black/80 z-0" />
+      <div className="relative z-10 flex w-full">
       {/* Conversations List */}
-      <div className="w-80 border-r border-gray-700 flex flex-col">
+      <div className="w-80 border-r border-gray-700 flex flex-col bg-black/40 backdrop-blur-sm">
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white flex items-center mb-4">
@@ -492,6 +500,7 @@ const Chat = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   )
