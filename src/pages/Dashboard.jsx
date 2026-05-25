@@ -190,17 +190,7 @@ const Dashboard = () => {
             Here's what's happening with your teams and projects today.
           </p>
         </div>
-        <button
-          onClick={() => {
-            refetchDashboard()
-            refetchTeammates()
-          }}
-          className="btn-secondary flex items-center"
-          title="Refresh dashboard"
-        >
-          <Search className="w-4 h-4 mr-2" />
-          Refresh
-        </button>
+
       </div>
 
       {/* Stats Grid */}
