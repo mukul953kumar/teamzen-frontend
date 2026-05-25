@@ -287,9 +287,10 @@ const LandingPage = () => {
       {/* Hero Section with Vanta.js 3D Background - Clean, no overlay */}
        <section className="py-24 relative"
                style={{
-                 backgroundImage: 'url("https://static.vecteezy.com/system/resources/previews/027/762/741/non_2x/futuristic-technology-lines-on-dark-blue-background-vector.jpg")',
+                 backgroundImage: 'url("https://img.magnific.com/free-photo/abstract-digital-grid-black-background_53876-97647.jpg?semt=ais_hybrid&w=740&q=80")',
                  backgroundRepeat: 'no-repeat',
-                 position: 'relative'
+                 position: 'relative',
+                 backgroundSize: 'cover'
                }}>
         {/* Dark Overlay */}
         <div style={{

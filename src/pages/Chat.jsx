@@ -307,6 +307,7 @@ const Chat = () => {
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
+        
         {selectedConversation ? (
           <>
             {/* Chat Header */}
