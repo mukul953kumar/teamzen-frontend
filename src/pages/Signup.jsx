@@ -10,12 +10,9 @@ const Signup = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedSkills, setSelectedSkills] = useState([])
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm()
+  const { register, handleSubmit, formState: { errors } } = useForm()
 
   const branches = ['CSE', 'ECE', 'EEE', 'MECH', 'CIVIL', 'IT', 'Other']
   const years = [1, 2, 3, 4]
@@ -25,37 +22,23 @@ const Signup = () => {
     'Blockchain', 'IoT', 'AWS', 'Docker', 'Git', 'TypeScript', 'Express.js'
   ]
 
+  const toggleSkill = (skill) => {
+    setSelectedSkills(prev =>
+      prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill]
+    )
+  }
+
   const onSubmit = async (data) => {
     setIsLoading(true)
     try {
-      // Handle skills array properly - convert to array if it's not
-      let skillsArray = []
-      if (data.skills) {
-        if (Array.isArray(data.skills)) {
-          skillsArray = data.skills
-        } else if (typeof data.skills === 'object') {
-          skillsArray = Object.keys(data.skills).filter(key => data.skills[key])
-        }
-      }
-      
-      const formData = {
-        ...data,
-        skills: skillsArray
-      }
-      
-      const result = await signup(formData)
+      const result = await signup({ ...data, skills: selectedSkills })
       if (result.success) {
-        // Navigate to verification page with email
-        navigate('/verify-code', { 
-          state: { email: data.email },
-          replace: true 
-        })
+        toast.success('Account created! Please check your email for verification code.')
+        navigate('/verify-code', { state: { email: data.email }, replace: true })
       } else {
-        console.error('Signup failed:', result.message)
         toast.error(result.message)
       }
-    } catch (error) {
-      console.error('Signup error:', error)
+    } catch {
       toast.error('Signup failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -249,29 +232,29 @@ const Signup = () => {
 
             {/* Skills */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-3">
                 <Code className="inline w-4 h-4 mr-1" />
-                Skills (Select multiple)
+                Skills
+                {selectedSkills.length > 0 && (
+                  <span className="ml-2 text-xs text-primary-400">{selectedSkills.length} selected</span>
+                )}
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="flex flex-wrap gap-2">
                 {commonSkills.map((skill) => (
-                  <label
+                  <button
                     key={skill}
-                    className="flex items-center space-x-2 cursor-pointer p-3 rounded-lg glass hover:bg-white/20 transition-colors"
+                    type="button"
+                    onClick={() => toggleSkill(skill)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
+                      selectedSkills.includes(skill)
+                        ? 'bg-primary-600/30 border-primary-400 text-primary-300'
+                        : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
+                    }`}
                   >
-                    <input
-                      type="checkbox"
-                      value={skill}
-                      className="rounded border-gray-300 bg-transparent text-primary-600 focus:ring-primary-500"
-                      {...register('skills')}
-                    />
-                    <span className="text-sm text-gray-300">{skill}</span>
-                  </label>
+                    {skill}
+                  </button>
                 ))}
               </div>
-              {errors.skills && (
-                <p className="mt-1 text-sm text-red-400">{errors.skills.message}</p>
-              )}
             </div>
 
             {/* Submit Button */}
