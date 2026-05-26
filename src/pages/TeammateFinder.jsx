@@ -303,21 +303,8 @@ const TeammateFinder = () => {
                 : 0
 
               return (
-                <div key={user._id} className="group relative overflow-hidden rounded-2xl transition-all duration-500 hover:scale-[1.02]"
-                     style={{
-                       background: 'linear-gradient(145deg, rgba(26, 32, 44, 0.95) 0%, rgba(13, 17, 23, 0.98) 100%)',
-                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)'
-                     }}>
-                  {/* Animated gradient border */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                       style={{
-                         background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent)',
-                         transform: 'translateX(-100%)',
-                         animation: 'none'
-                       }} />
-                  
-                  <div className="p-6 relative z-10">
+                <div key={user._id} className="glass-3d rounded-2xl border border-white/10 hover:border-orange-400/30 transition-all duration-300 group">
+                  <div className="p-6">
                     {/* Header with Avatar - Enhanced */}
                     <div className="flex items-start space-x-4 mb-4">
                       {/* Avatar with glow effect */}

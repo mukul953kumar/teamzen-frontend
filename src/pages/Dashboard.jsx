@@ -162,7 +162,7 @@ const Dashboard = () => {
             ) : teams.length > 0 ? (
               <div className="space-y-4">
                 {teams.slice(0, 3).map((team) => (
-                  <div key={team._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors border border-primary-400/20">
+                  <div key={team._id} className="p-4 rounded-xl glass-3d hover:border-orange-400/30 transition-all duration-300 border border-primary-400/20">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -236,7 +236,7 @@ const Dashboard = () => {
             ) : projects.length > 0 ? (
               <div className="space-y-4">
                 {projects.slice(0, 3).map((project) => (
-                  <div key={project._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors border border-purple-400/20">
+                  <div key={project._id} className="p-4 rounded-xl glass-3d hover:border-orange-400/30 transition-all duration-300 border border-purple-400/20">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-medium text-white">{project.title}</h3>
                       <span className={`px-2 py-0.5 rounded-full text-xs ${
@@ -291,7 +291,7 @@ const Dashboard = () => {
             {actionNotifications.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
                 {actionNotifications.map((notification) => (
-                  <div key={notification._id} className="p-3 rounded-lg bg-orange-400/10 border border-orange-400/30 hover:bg-orange-400/20 transition-colors">
+                  <div key={notification._id} className="p-3 rounded-lg glass-3d border border-orange-400/30 hover:border-orange-400/50 transition-all duration-300">
                     <p className="text-sm text-white font-medium">{notification.title}</p>
                     <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
                     <div className="flex items-center gap-2 mt-3">
@@ -330,7 +330,7 @@ const Dashboard = () => {
             {recommendedTeammates.length > 0 ? (
               <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                 {recommendedTeammates.map((teammate, index) => (
-                  <div key={teammate._id || index} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
+                  <div key={teammate._id || index} className="p-4 rounded-xl glass-3d hover:border-orange-400/20 transition-all duration-300">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0">
                         {teammate.profile_image ? (

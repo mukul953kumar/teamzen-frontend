@@ -298,7 +298,7 @@ const Projects = () => {
         ) : projects.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project._id} className="card card-hover group">
+              <div key={project._id} className="glass-3d rounded-2xl border border-white/10 hover:border-orange-400/30 transition-all duration-300 group">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
