@@ -128,9 +128,18 @@ const Achievements = () => {
   }
 
   const onDeleteAchievement = (id) => {
-    if (confirm('Are you sure you want to delete this achievement?')) {
-      deleteAchievementMutation.mutate(id)
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium">Delete this achievement? This cannot be undone.</p>
+          <div className="flex gap-2">
+            <button onClick={() => { deleteAchievementMutation.mutate(id); toast.dismiss(t.id) }} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+            <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-gray-600 text-white rounded text-sm">Cancel</button>
+          </div>
+        </div>
+      ),
+      { duration: 10000 }
+    )
   }
 
   const onEditAchievement = (achievement) => {

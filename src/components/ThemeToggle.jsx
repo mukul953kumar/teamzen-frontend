@@ -8,30 +8,22 @@ const ThemeToggle = ({ className = '' }) => {
   return (
     <button
       onClick={toggleTheme}
-      className={`
-        relative p-2 rounded-lg transition-all duration-300
-        ${isDarkMode 
-          ? 'bg-dark-700 hover:bg-dark-600 text-yellow-400' 
-          : 'bg-white hover:bg-gray-100 text-orange-500 shadow-md'
-        }
-        ${className}
-      `}
       title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      className={`relative flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300 ${
+        isDarkMode
+          ? 'bg-slate-800 border-slate-600 hover:border-slate-400'
+          : 'bg-amber-50 border-amber-200 hover:border-amber-400'
+      } ${className}`}
     >
-      <div className="relative w-5 h-5">
-        <Sun 
-          className={`
-            absolute inset-0 w-5 h-5 transition-all duration-300
-            ${isDarkMode ? 'opacity-0 rotate-90 scale-0' : 'opacity-100 rotate-0 scale-100'}
-          `}
-        />
-        <Moon 
-          className={`
-            absolute inset-0 w-5 h-5 transition-all duration-300
-            ${isDarkMode ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-0'}
-          `}
-        />
+      <Sun className={`w-4 h-4 transition-all duration-300 ${isDarkMode ? 'text-slate-500' : 'text-amber-500'}`} />
+
+      {/* Track */}
+      <div className={`relative w-9 h-5 rounded-full transition-colors duration-300 ${isDarkMode ? 'bg-blue-600' : 'bg-amber-400'}`}>
+        {/* Thumb */}
+        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-300 ${isDarkMode ? 'left-4' : 'left-0.5'}`} />
       </div>
+
+      <Moon className={`w-4 h-4 transition-all duration-300 ${isDarkMode ? 'text-blue-400' : 'text-slate-400'}`} />
     </button>
   )
 }

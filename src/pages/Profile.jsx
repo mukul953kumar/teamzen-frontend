@@ -39,13 +39,7 @@ const Profile = () => {
 
   const { data: achievementsData } = useQuery(
     'userAchievements',
-    () => {
-      console.log('Fetching achievements for user:', user?._id);
-      return api.get(`/achievements/user/${user?._id}`).then(res => {
-        console.log('Achievements response:', res.data);
-        return res.data.data;
-      });
-    },
+    () => api.get(`/achievements/user/${user?._id}`).then(res => res.data.data),
     { 
       enabled: !!user,
       retry: false,
@@ -159,19 +153,16 @@ const Profile = () => {
     )
   }
 
-  console.log('User available:', user);
-  console.log('Profile data:', profileData);
-  
   const profile = profileData?.user
   const achievements = achievementsData?.achievements || []
 
-  // Debug: Log achievements data
-  console.log('Profile Debug:', {
-    profile,
-    achievements,
-    achievementsData,
-    achievementsLength: achievements.length
-  })
+  const profileCompletion = (() => {
+    if (!profile) return 0
+    const fields = [profile.name, profile.bio, profile.github, profile.linkedin, profile.portfolio, profile.college, profile.branch, profile.year]
+    const skills = profile.skills?.length > 0 ? 1 : 0
+    const filled = fields.filter(Boolean).length + skills
+    return Math.round((filled / (fields.length + 1)) * 100)
+  })()
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -426,9 +417,9 @@ const Profile = () => {
                 <span className="text-gray-400">Profile Completion</span>
                 <div className="flex items-center">
                   <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-primary-400 to-purple-500 rounded-full" style={{ width: '75%' }}></div>
+                    <div className="h-full bg-gradient-to-r from-primary-400 to-purple-500 rounded-full" style={{ width: `${profileCompletion}%` }}></div>
                   </div>
-                  <span className="text-primary-400 font-medium ml-2">75%</span>
+                <span className="text-primary-400 font-medium ml-2">{profileCompletion}%</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">

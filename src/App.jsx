@@ -26,9 +26,6 @@ import LoadingSpinner from './components/LoadingSpinner'
 function AppContent() {
   const { user, loading } = useAuth()
 
-  console.log('AppContent: User state:', user)
-  console.log('AppContent: Loading state:', loading)
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

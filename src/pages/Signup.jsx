@@ -43,14 +43,8 @@ const Signup = () => {
         skills: skillsArray
       }
       
-      console.log('Submitting form data:', formData)
-      
       const result = await signup(formData)
-      console.log('Signup result:', result)
-      
       if (result.success) {
-        toast.success('Account created! Please check your email for verification code.')
-        console.log('Redirecting to verification page...')
         // Navigate to verification page with email
         navigate('/verify-code', { 
           state: { email: data.email },

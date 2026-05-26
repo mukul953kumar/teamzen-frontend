@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -50,42 +50,11 @@ const TeammateFinder = () => {
       if (filters.branch) params.append('branch', filters.branch)
       if (filters.year) params.append('year', filters.year)
       if (filters.search) params.append('search', filters.search)
-      
-      // Add pagination
       params.append('page', currentPage)
       params.append('limit', 6)
-      
-      console.log('Searching with params:', params.toString())
-      return api.get(`/profile/search?${params.toString()}`).then(res => {
-        console.log('Search API Response:', res.data)
-        return res.data.data
-      })
+      return api.get(`/profile/search?${params.toString()}`).then(res => res.data.data)
     },
-    { 
-      enabled: true,
-      cacheTime: 0,
-      staleTime: 0
-    }
-  )
-
-  const { data: allUsers } = useQuery(
-    ['allUsers', currentPage],
-    async () => {
-      try {
-        console.log('Fetching all users...')
-        const response = await api.get(`/profile/search?page=${currentPage}&limit=6`)
-        console.log('All Users API Response:', response.data)
-        console.log('All Users Data:', response.data.data)
-        return response.data.data
-      } catch (error) {
-        console.error('All users error:', error)
-        return { users: [] }
-      }
-    },
-    {
-      cacheTime: 0,
-      staleTime: 0
-    }
+    { enabled: true, cacheTime: 0, staleTime: 0 }
   )
 
   // Fetch user's teams for invitation
@@ -120,25 +89,8 @@ const TeammateFinder = () => {
   )
 
   const onSearch = (data) => {
-    console.log('Search form data:', data)
-    const newFilters = {
-      ...filters,
-      ...data
-    }
-    console.log('New filters:', newFilters)
-    setFilters(newFilters)
+    setFilters(data)
   }
-
-  // Auto-trigger search when filters change
-  useEffect(() => {
-    console.log('Filters changed, triggering search:', filters)
-    if (filters.search || filters.skills || filters.college || filters.branch || filters.year) {
-      // Only search if there are actual filters
-      console.log('Has filters, will search')
-    } else {
-      console.log('No filters, will show all users')
-    }
-  }, [filters])
 
   const clearFilters = () => {
     reset()
@@ -202,15 +154,8 @@ const TeammateFinder = () => {
     'Blockchain', 'IoT', 'AWS', 'Docker', 'Git', 'TypeScript', 'Express.js'
   ]
 
-  const users = searchResults?.users || allUsers?.users || []
-  const pagination = searchResults?.pagination || allUsers?.pagination || { total: 0, pages: 0 }
-  
-  // Debug logging
-  console.log('Search Results:', searchResults)
-  console.log('All Users:', allUsers)
-  console.log('Final Users:', users)
-  console.log('Users length:', users.length)
-  console.log('Pagination:', pagination)
+  const users = searchResults?.users || []
+  const pagination = searchResults?.pagination || { total: 0, pages: 0 }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">

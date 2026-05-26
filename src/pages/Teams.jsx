@@ -53,10 +53,6 @@ const Teams = () => {
     { retry: false }
   )
 
-  console.log('Teams Data:', teamsData)
-  console.log('My Teams Data:', myTeamsData)
-
-  // Create team mutation
   const createTeamMutation = useMutation(
     (teamData) => api.post('/teams/create-team', teamData),
     {
@@ -136,24 +132,22 @@ const Teams = () => {
   }
 
   const handleDeleteTeam = (teamId, teamName) => {
-    if (window.confirm(`Are you sure you want to delete "${teamName}"? This action cannot be undone and will remove all team members and chat messages.`)) {
-      deleteTeamMutation.mutate(teamId)
-    }
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm font-medium">Delete "{teamName}"? This cannot be undone.</p>
+          <div className="flex gap-2">
+            <button onClick={() => { deleteTeamMutation.mutate(teamId); toast.dismiss(t.id) }} className="px-3 py-1 bg-red-500 text-white rounded text-sm">Delete</button>
+            <button onClick={() => toast.dismiss(t.id)} className="px-3 py-1 bg-gray-600 text-white rounded text-sm">Cancel</button>
+          </div>
+        </div>
+      ),
+      { duration: 10000 }
+    )
   }
 
   const teams = teamsData?.data?.teams || []
   const myTeams = myTeamsData?.data?.teams || []
-
-  // Debug: Log team roles
-  console.log('My Teams with roles:', myTeams.map(team => ({ 
-    name: team.team_name, 
-    role: team.user_role, 
-    roleType: typeof team.user_role,
-    isLeader: team.user_role === 'Leader',
-    isLeaderString: team.user_role === 'Leader',
-    isLeaderLower: team.user_role === 'leader',
-    allData: team
-  })))
 
   if (isLoading) {
     return (
@@ -236,7 +230,6 @@ const Teams = () => {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        console.log('Delete button clicked for team:', team.team_name, 'Role:', team.user_role)
                         handleDeleteTeam(team._id, team.team_name)
                       }}
                       className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"

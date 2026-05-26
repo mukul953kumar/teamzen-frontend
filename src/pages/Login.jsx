@@ -20,23 +20,14 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsLoading(true)
     try {
-      console.log('Login page: Submitting login data:', data)
       const result = await login(data)
-      console.log('Login page: Login result:', result)
-      
       if (result.success) {
         toast.success('Login successful!')
-        console.log('Login page: Redirecting to dashboard...')
-        console.log('Login page: User data:', result.user)
-        
-        // Use React Router's navigate for proper SPA navigation
         navigate('/dashboard', { replace: true })
       } else {
-        console.error('Login page: Login failed:', result.message)
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('Login page: Login error:', error)
       toast.error('Login failed. Please try again.')
     } finally {
       setIsLoading(false)

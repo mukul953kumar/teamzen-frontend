@@ -6,7 +6,6 @@
 
 @layer base {
   :root {
-    /* Unique Color Palette - Not AI Typical */
     --sunset-orange: #FF6B35;
     --deep-teal: #00A896;
     --warm-gray: #2D3748;
@@ -15,37 +14,54 @@
     --soft-purple: #9D4EDD;
     --mint-green: #52B788;
     --coral-pink: #FF6B9D;
-    
-    /* Gradients */
     --sunset-gradient: linear-gradient(135deg, #FF6B35, #F7931E);
     --ocean-gradient: linear-gradient(135deg, #00A896, #004643);
     --warm-gradient: linear-gradient(135deg, #FFF8F3, #FFE5D9);
     --coral-gradient: linear-gradient(135deg, #FF6B9D, #C9184A);
     --teal-gradient: linear-gradient(135deg, #52B788, #2D6A4F);
+
+    /* Light mode tokens */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-card: rgba(255,255,255,0.85);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: rgba(0,0,0,0.1);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
   }
-  
+
+  html.dark {
+    --bg-primary: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-card: rgba(255,255,255,0.05);
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(255,255,255,0.1);
+    --card-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
   html {
     font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+    height: 100%;
   }
-  
+
   body {
     @apply text-gray-100;
-    background: 
-      /* Image-based background */
-      url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2300A896" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,106.7C1248,96,1344,96,1392,96L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>'),
-      linear-gradient(135deg, #2D3748 0%, #1A202C 50%, #2D3748 100%);
+    background-color: var(--bg-primary);
     background-attachment: fixed;
     min-height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
     scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
-  
-  html {
-    scroll-behavior: smooth;
-    height: 100%;
+
+  /* Light mode body text */
+  html.light body {
+    @apply text-gray-900;
   }
-  
+
   #root {
     height: 100%;
     overflow: auto;
@@ -55,19 +71,19 @@
 @layer components {
   /* Glass Morphism Effect */
   .glass {
-    @apply bg-white/10 backdrop-blur-md border border-white/20;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(255,248,243,0.08) 0%, rgba(255,107,53,0.03) 100%);
+    border: 1px solid rgba(255,248,243,0.12);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
   .glass-dark {
-    @apply bg-dark-800/50 backdrop-blur-md border border-white/10;
-    background: rgba(30, 41, 59, 0.5);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: linear-gradient(135deg, rgba(255,248,243,0.08) 0%, rgba(255,107,53,0.03) 100%);
+    border: 1px solid rgba(255,248,243,0.12);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
   }
 
   /* Neon Effects */
@@ -93,7 +109,29 @@
 
   /* Card Styles */
   .card {
-    @apply glass-dark rounded-2xl p-6 transition-all duration-300 hover:shadow-neon;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: linear-gradient(135deg, rgba(255,248,243,0.12) 0%, rgba(255,107,53,0.04) 100%);
+    border: 1px solid rgba(255,248,243,0.15);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+    @apply rounded-2xl p-6 transition-all duration-300;
+  }
+
+  .card:hover {
+    border-color: rgba(255,107,53,0.25);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+
+  html.light .card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,248,243,0.6) 100%);
+    border: 1px solid rgba(255,107,53,0.15);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+
+  html.light .card:hover {
+    border-color: rgba(255,107,53,0.3);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
   }
 
   .card-hover {
@@ -111,7 +149,10 @@
   }
 
   .btn-secondary {
-    @apply glass-dark hover:bg-white/20 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 border border-white/20;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    @apply hover:bg-white/20 px-6 py-3 rounded-xl font-medium transition-all duration-300 border;
+    border-color: var(--border-color);
   }
 
   .btn-outline {
@@ -120,7 +161,14 @@
 
   /* Input Styles */
   .input {
-    @apply glass-dark border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-primary-400 focus:shadow-neon transition-all duration-300;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    @apply rounded-xl px-4 py-3 placeholder-gray-400 focus:outline-none focus:border-primary-400 transition-all duration-300;
+  }
+
+  html.light .input {
+    @apply placeholder-gray-500;
   }
 
   /* Navigation */
