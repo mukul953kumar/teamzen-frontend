@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -8,193 +8,122 @@ import {
   MessageCircle, 
   FolderOpen, 
   Trophy, 
-  TrendingUp,
   Clock,
-  Search,
   Plus,
   User,
   Bell,
-  CheckCircle,
-  XCircle
+  XCircle,
+  ExternalLink,
+  Search
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 
+const getActivityIcon = (iconName) => {
+  switch (iconName) {
+    case 'Users': return Users
+    case 'MessageCircle': return MessageCircle
+    case 'FolderOpen': return FolderOpen
+    case 'Trophy': return Trophy
+    default: return Clock
+  }
+}
+
 const Dashboard = () => {
   const { user } = useAuth()
   const { actionNotifications, unreadCount, markAsRead } = useNotifications()
-  
-  // Debug notifications
-  console.log('Dashboard - Action Notifications:', actionNotifications)
-  console.log('Dashboard - Unread Count:', unreadCount)
 
-  // Fetch dashboard data
-  const { data: dashboardData, isLoading, refetch: refetchDashboard } = useQuery(
+  const { data: dashboardData, isLoading } = useQuery(
     'dashboard',
     async () => {
-      if (!user || !user._id) {
-        return {
-          teams: [],
-          projects: [],
-          conversations: []
-        }
-      }
-      
+      if (!user?._id) return { teams: [], projects: [], conversations: [] }
       try {
-        // Test individual API calls
-        console.log('Testing individual APIs...')
-        
-        const teamsRes = await api.get('/teams/my-teams')
-        console.log('Teams API Response:', teamsRes.data)
-        
-        const projectsRes = await api.get(`/projects/user/${user._id}`)
-        console.log('Projects API Response:', projectsRes.data)
-        
-        const messagesRes = await api.get('/chat/conversations')
-        console.log('Messages API Response:', messagesRes.data)
-        
+        const [teamsRes, projectsRes, messagesRes] = await Promise.all([
+          api.get('/teams/my-teams'),
+          api.get(`/projects/user/${user._id}`),
+          api.get('/chat/conversations')
+        ])
         return {
           teams: teamsRes.data.data?.teams || [],
           projects: projectsRes.data.data?.projects || [],
           conversations: messagesRes.data.data?.conversations || []
         }
-      } catch (error) {
-        console.error('Dashboard data fetch error:', error)
-        return {
-          teams: [],
-          projects: [],
-          conversations: []
-        }
+      } catch {
+        return { teams: [], projects: [], conversations: [] }
       }
     },
-    { 
-      enabled: !!user && !!user._id,
-      retry: false,
-      refetchOnWindowFocus: true,
-      cacheTime: 0, // Disable caching
-      staleTime: 0 // Always refetch
-    }
+    { enabled: !!user?._id, retry: false, refetchOnWindowFocus: true, cacheTime: 0, staleTime: 0 }
   )
 
-  // Fetch recommended teammates
-  const { data: recommendedData, refetch: refetchTeammates } = useQuery(
+  const { data: recommendedData } = useQuery(
     'recommendedTeammates',
     async () => {
       try {
         const response = await api.get('/users/recommended-teammates')
-        console.log('Recommended Teammates API Response:', response.data)
         return response.data.data || { recommendedTeammates: [] }
-      } catch (error) {
-        console.error('Recommended teammates error:', error)
+      } catch {
         return { recommendedTeammates: [] }
       }
     },
-    { 
-      enabled: !!user && !!user._id,
-      retry: false,
-      refetchOnWindowFocus: true,
-      cacheTime: 0,
-      staleTime: 0
-    }
+    { enabled: !!user?._id, retry: false, refetchOnWindowFocus: true, cacheTime: 0, staleTime: 0 }
   )
 
-  // Fetch recent activity
   const { data: activityData, isLoading: activityLoading } = useQuery(
     'recentActivity',
     async () => {
-      if (!user || !user._id) {
-        return { activities: [] }
-      }
-      
+      if (!user?._id) return { activities: [] }
       try {
         const response = await api.get('/auth/recent-activity')
         return response.data.data || { activities: [] }
-      } catch (error) {
-        console.error('Recent activity error:', error)
+      } catch {
         return { activities: [] }
       }
     },
-    {
-      enabled: !!user && !!user._id
-    }
+    { enabled: !!user?._id }
   )
 
-  const conversations = dashboardData?.conversations || []
   const teams = dashboardData?.teams || []
   const projects = dashboardData?.projects || []
-
-  // Debug logging
-  console.log('Dashboard Data:', dashboardData)
-  console.log('Projects:', projects)
-  console.log('Teams:', teams)
-
-  // Temporary hardcoded test data
-  const testProjects = [
-    {
-      _id: 'test1',
-      title: 'Test Project',
-      description: 'This is a test project',
-      tech_stack: ['React', 'Node.js'],
-      year: 2024
-    }
-  ]
-
-  // Stats for dashboard
-  const stats = [
-    {
-      title: 'My Teams',
-      value: teams.length,
-      color: 'from-blue-500 to-cyan-500',
-      icon: Users,
-      link: '/teams'
-    },
-    {
-      title: 'Messages',
-      value: conversations.length,
-      color: 'from-green-500 to-emerald-500',
-      icon: MessageCircle,
-      link: '/chat'
-    },
-    {
-      title: 'Profile',
-      value: '100%',
-      color: 'from-purple-500 to-pink-500',
-      icon: User,
-      link: '/profile'
-    },
-    {
-      title: 'Teams Available',
-      value: '12+',
-      color: 'from-orange-500 to-red-500',
-      icon: Users,
-      link: '/teams'
-    }
-  ]
-
+  const conversations = dashboardData?.conversations || []
   const recommendedTeammates = recommendedData?.recommendedTeammates || []
   const recentActivity = activityData?.activities || []
-  
-  // Debug logging
-  console.log('Recommended Data:', recommendedData)
-  console.log('Recommended Teammates:', recommendedTeammates)
+
+  const stats = [
+    { title: 'My Teams', value: teams.length, color: 'from-blue-500 to-cyan-500', icon: Users, link: '/teams' },
+    { title: 'Projects', value: projects.length, color: 'from-violet-500 to-purple-500', icon: FolderOpen, link: '/projects' },
+    { title: 'Messages', value: conversations.length, color: 'from-green-500 to-emerald-500', icon: MessageCircle, link: '/chat' },
+    { title: 'Find Teammates', value: '→', color: 'from-orange-500 to-red-500', icon: Search, link: '/teammate-finder' },
+  ]
 
   return (
     <div className="space-y-8">
-      {/* Header */}
+      {/* Header with avatar */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome back, {user?.name}! 👋
-          </h1>
-          <p className="text-gray-400">
-            Here's what's happening with your teams and projects today.
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden flex-shrink-0">
+            {user?.profile_image ? (
+              <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-xl font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">
+              Welcome back, {user?.name}! 👋
+            </h1>
+            <p className="text-gray-400">
+              {user?.college} • {user?.branch} • Year {user?.year}
+            </p>
+          </div>
         </div>
-
+        <Link to="/profile" className="btn-secondary hidden md:flex items-center gap-2">
+          <User className="w-4 h-4" />
+          Edit Profile
+        </Link>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
@@ -203,11 +132,9 @@ const Dashboard = () => {
                 <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color}`}>
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-white">
-                  {stat.value}
-                </div>
+                <div className="text-2xl font-bold text-white">{stat.value}</div>
               </div>
-              <div className="text-gray-400 group-hover:text-white transition-colors">
+              <div className="text-gray-400 group-hover:text-white transition-colors text-sm">
                 {stat.title}
               </div>
             </Link>
@@ -216,123 +143,64 @@ const Dashboard = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Recent Teams */}
-        <div className="lg:col-span-2">
-          <div className="card">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">My Teams</h2>
-              <Link 
-                to="/teams" 
-                className="text-primary-400 hover:text-primary-300 text-sm font-medium"
-              >
-                View All
-              </Link>
-            </div>
-            
-            {dashboardData?.teams?.length > 0 ? (
-              <div className="space-y-4">
-                {dashboardData.teams.slice(0, 3).map((team) => (
-                  <div key={team._id} className="flex items-center justify-between p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
-                        <Users className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-white">{team.team_name}</h3>
-                        <p className="text-sm text-gray-400">{team.project_title}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-400">
-                        {team.current_members}/{team.max_members} members
-                      </div>
-                      <div className="text-xs text-primary-400">
-                        {team.user_role}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-4">No teams yet</p>
-                <Link to="/teams" className="btn-primary">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Team
-                </Link>
-              </div>
-            )}
-          </div>
+        {/* Left - Recent Teams + Projects */}
+        <div className="lg:col-span-2 space-y-8">
 
           {/* Recent Teams */}
-          <div className="card mt-8">
+          <div className="card">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Recent Teams</h2>
-              <Link 
-                to="/teams" 
-                className="text-primary-400 hover:text-primary-300 text-sm font-medium"
-              >
-                View All
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary-400" /> Recent Teams
+              </h2>
+              <Link to="/teams" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
+                View All <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
-            
-            {dashboardData?.teams?.length > 0 ? (
+
+            {isLoading ? (
+              <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
+            ) : teams.length > 0 ? (
               <div className="space-y-4">
-                {dashboardData.teams.slice(0, 3).map((team) => (
+                {teams.slice(0, 3).map((team) => (
                   <div key={team._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors border border-primary-400/20">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
+                        <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-medium text-white">{team.team_name}</h3>
                           {team.user_role === 'Leader' && (
-                            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">
-                              Leader
-                            </span>
+                            <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Leader</span>
                           )}
-                        </div>
-                        <p className="text-sm text-gray-400 mb-2">{team.project_title}</p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <span className="flex items-center">
-                            <Users className="w-3 h-3 mr-1" />
-                            {team.current_members}/{team.max_members} members
-                          </span>
-                          <span className={`px-2 py-1 rounded-full ${
+                          <span className={`px-2 py-0.5 rounded-full text-xs ${
                             team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
                             team.status === 'Full' ? 'bg-red-400/20 text-red-400' :
                             'bg-blue-400/20 text-blue-400'
-                          }`}>
-                            {team.status}
-                          </span>
+                          }`}>{team.status}</span>
                         </div>
+                        <p className="text-sm text-gray-400 mb-2">{team.project_title}</p>
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <Users className="w-3 h-3" /> {team.current_members}/{team.max_members} members
+                        </span>
                       </div>
-                      <div className="flex flex-col items-end space-y-2">
-                        <Link 
-                          to={`/teams/${team._id}`}
-                          className="text-primary-400 hover:text-primary-300 text-xs"
-                        >
+                      <div className="flex flex-col items-end gap-2">
+                        <Link to={`/teams/${team._id}`} className="text-primary-400 hover:text-primary-300 text-xs">
                           View Details
                         </Link>
                         {team.user_role === 'Leader' && (
-                          <Link 
-                            to={`/chat`}
-                            className="text-green-400 hover:text-green-300 text-xs"
-                          >
-                            Manage Team
+                          <Link to="/chat" className="text-green-400 hover:text-green-300 text-xs">
+                            Team Chat
                           </Link>
                         )}
                       </div>
                     </div>
-                    {/* Team Skills Preview */}
-                    {team.required_skills && team.required_skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3 pt-3 border-t border-white/10">
-                        {team.required_skills.slice(0, 3).map((skill, index) => (
-                          <span key={index} className="px-2 py-1 bg-white/10 text-gray-300 text-xs rounded">
+                    {team.required_skills?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-3 border-t border-white/10">
+                        {team.required_skills.slice(0, 3).map((skill, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">
                             {skill.skill_name || skill}
                           </span>
                         ))}
                         {team.required_skills.length > 3 && (
-                          <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded">
+                          <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">
                             +{team.required_skills.length - 3}
                           </span>
                         )}
@@ -345,9 +213,62 @@ const Dashboard = () => {
               <div className="text-center py-8">
                 <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
                 <p className="text-gray-400 mb-4">No teams yet</p>
-                <Link to="/teams" className="btn-primary">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Team
+                <Link to="/teams" className="btn-primary inline-flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> Create Team
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Recent Projects */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+                <FolderOpen className="w-5 h-5 text-purple-400" /> Recent Projects
+              </h2>
+              <Link to="/projects" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
+                View All <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
+            ) : projects.length > 0 ? (
+              <div className="space-y-4">
+                {projects.slice(0, 3).map((project) => (
+                  <div key={project._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors border border-purple-400/20">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-medium text-white">{project.title}</h3>
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${
+                        project.status === 'Completed' ? 'bg-green-400/20 text-green-400' :
+                        project.status === 'In Progress' ? 'bg-blue-400/20 text-blue-400' :
+                        'bg-gray-400/20 text-gray-400'
+                      }`}>{project.status || 'Active'}</span>
+                    </div>
+                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{project.description}</p>
+                    {project.tech_stack?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {project.tech_stack.slice(0, 4).map((tech, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-purple-400/10 text-purple-300 text-xs rounded">
+                            {tech}
+                          </span>
+                        ))}
+                        {project.tech_stack.length > 4 && (
+                          <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">
+                            +{project.tech_stack.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FolderOpen className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 mb-4">No projects yet</p>
+                <Link to="/projects" className="btn-primary inline-flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> Add Project
                 </Link>
               </div>
             )}
@@ -356,29 +277,21 @@ const Dashboard = () => {
 
         {/* Sidebar */}
         <div className="space-y-8">
+
           {/* Notifications */}
           <div className="card border-l-4 border-orange-400">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Bell className="w-5 h-5 text-orange-400" />
-                <h2 className="text-lg font-semibold text-white">
-                  Notifications
-                  {unreadCount > 0 && (
-                    <span className="ml-2 px-2 py-1 bg-orange-400 text-white text-xs rounded-full">
-                      {unreadCount}
-                    </span>
-                  )}
-                </h2>
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <Bell className="w-5 h-5 text-orange-400" />
+              <h2 className="text-lg font-semibold text-white">Notifications</h2>
+              {unreadCount > 0 && (
+                <span className="px-2 py-0.5 bg-orange-400 text-white text-xs rounded-full">{unreadCount}</span>
+              )}
             </div>
-            
+
             {actionNotifications.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
                 {actionNotifications.map((notification) => (
-                  <div 
-                    key={notification._id} 
-                    className="p-3 rounded-lg bg-orange-400/10 border border-orange-400/30 hover:bg-orange-400/20 transition-colors"
-                  >
+                  <div key={notification._id} className="p-3 rounded-lg bg-orange-400/10 border border-orange-400/30 hover:bg-orange-400/20 transition-colors">
                     <p className="text-sm text-white font-medium">{notification.title}</p>
                     <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
                     <div className="flex items-center gap-2 mt-3">
@@ -389,10 +302,7 @@ const Dashboard = () => {
                       >
                         Take Action
                       </Link>
-                      <button
-                        onClick={() => markAsRead(notification._id)}
-                        className="p-2 text-gray-400 hover:text-white transition-colors"
-                      >
+                      <button onClick={() => markAsRead(notification._id)} className="p-2 text-gray-400 hover:text-white transition-colors">
                         <XCircle className="w-4 h-4" />
                       </button>
                     </div>
@@ -403,9 +313,7 @@ const Dashboard = () => {
               <div className="text-center py-4">
                 <Bell className="w-8 h-8 text-gray-500 mx-auto mb-2" />
                 <p className="text-gray-400 text-sm">No notifications yet</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Team invites will appear here
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Team invites will appear here</p>
               </div>
             )}
           </div>
@@ -413,57 +321,37 @@ const Dashboard = () => {
           {/* Recommended Teammates */}
           <div className="card">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Recommended Teammates</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => refetchTeammates()}
-                  className="text-gray-400 hover:text-white"
-                  title="Refresh recommendations"
-                >
-                  <Search className="w-4 h-4" />
-                </button>
-                <Link 
-                  to="/teammate-finder" 
-                  className="text-primary-400 hover:text-primary-300"
-                >
-                  <Search className="w-4 h-4" />
-                </Link>
-              </div>
+              <h2 className="text-xl font-semibold text-white">Recommended</h2>
+              <Link to="/teammate-finder" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
+                Find More <ExternalLink className="w-3 h-3" />
+              </Link>
             </div>
-            
+
             {recommendedTeammates.length > 0 ? (
               <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                 {recommendedTeammates.map((teammate, index) => (
                   <div key={teammate._id || index} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0">
                         {teammate.profile_image ? (
-                          <img
-                            src={teammate.profile_image}
-                            alt={teammate.name}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={teammate.profile_image} alt={teammate.name} className="w-full h-full object-cover" />
                         ) : (
-                          teammate.avatar
+                          teammate.name?.charAt(0).toUpperCase()
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-white truncate">{teammate.name}</h3>
-                        <p className="text-sm text-gray-400">{teammate.college}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs text-gray-500">{teammate.branch} • {teammate.year}yr</span>
-                          <span className="text-xs text-primary-400 font-medium">{teammate.match} match</span>
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium text-white truncate">{teammate.name}</h3>
+                          <span className="text-xs text-primary-400 font-medium ml-1 flex-shrink-0">{teammate.match}</span>
                         </div>
+                        <p className="text-xs text-gray-400 truncate">{teammate.college}</p>
+                        <p className="text-xs text-gray-500">{teammate.branch} • Year {teammate.year}</p>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {teammate.skills.slice(0, 2).map((skill, skillIndex) => (
-                            <span key={skillIndex} className="px-2 py-1 bg-white/10 text-gray-300 text-xs rounded">
-                              {skill}
-                            </span>
+                          {teammate.skills?.slice(0, 2).map((skill, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">{skill}</span>
                           ))}
-                          {teammate.skills.length > 2 && (
-                            <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded">
-                              +{teammate.skills.length - 2}
-                            </span>
+                          {teammate.skills?.length > 2 && (
+                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">+{teammate.skills.length - 2}</span>
                           )}
                         </div>
                       </div>
@@ -474,46 +362,33 @@ const Dashboard = () => {
             ) : (
               <div className="text-center py-8">
                 <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-4">No recommended teammates found</p>
-                <p className="text-sm text-gray-500">Add more skills to your profile to get better recommendations</p>
+                <p className="text-gray-400 mb-2">No recommendations yet</p>
+                <p className="text-sm text-gray-500">Add skills to your profile for better matches</p>
               </div>
             )}
           </div>
 
           {/* Recent Activity */}
           <div className="card">
-            <h2 className="text-xl font-semibold text-white mb-6">Recent Activity</h2>
-            
+            <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-400" /> Recent Activity
+            </h2>
+
             {activityLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <LoadingSpinner size="small" />
-              </div>
+              <div className="flex justify-center py-8"><LoadingSpinner size="small" /></div>
             ) : recentActivity.length > 0 ? (
               <div className="space-y-4">
                 {recentActivity.map((activity, index) => {
-                  // Map icon strings to actual components
-                  const getIcon = (iconName) => {
-                    switch (iconName) {
-                      case 'Users': return Users
-                      case 'MessageCircle': return MessageCircle
-                      case 'FolderOpen': return FolderOpen
-                      case 'Trophy': return Trophy
-                      default: return Clock
-                    }
-                  }
-                  
-                  const Icon = getIcon(activity.icon)
-                  
+                  const Icon = getActivityIcon(activity.icon)
                   return (
-                    <div key={index} className="flex items-start space-x-3">
+                    <div key={index} className="flex items-start gap-3">
                       <div className="w-8 h-8 rounded-lg bg-primary-600/20 flex items-center justify-center flex-shrink-0">
                         <Icon className="w-4 h-4 text-primary-400" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-gray-300">{activity.message}</p>
                         <div className="flex items-center mt-1 text-xs text-gray-500">
-                          <Clock className="w-3 h-3 mr-1" />
-                          {activity.time}
+                          <Clock className="w-3 h-3 mr-1" />{activity.time}
                         </div>
                       </div>
                     </div>
@@ -523,8 +398,8 @@ const Dashboard = () => {
             ) : (
               <div className="text-center py-8">
                 <Clock className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-4">No recent activity</p>
-                <p className="text-sm text-gray-500">Start by joining teams or creating projects!</p>
+                <p className="text-gray-400 mb-2">No recent activity</p>
+                <p className="text-sm text-gray-500">Join teams or create projects to get started!</p>
               </div>
             )}
           </div>
