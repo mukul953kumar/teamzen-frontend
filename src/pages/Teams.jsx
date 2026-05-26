@@ -185,7 +185,7 @@ const Teams = () => {
             {myTeams.map((team) => (
               <div key={team._id} className="relative">
                 <Link to={`/teams/${team._id}`} className="block">
-                  <div className="glass-3d rounded-2xl hover:border-orange-400/30 transition-all duration-300 border border-white/10 group">
+                  <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10 group">
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>
@@ -280,7 +280,7 @@ const Teams = () => {
         {teams.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => (
-              <div key={team._id} className="glass-3d rounded-2xl hover:border-orange-400/30 transition-all duration-300 border border-white/10">
+              <div key={team._id} className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>

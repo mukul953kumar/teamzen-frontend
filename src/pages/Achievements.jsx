@@ -340,7 +340,7 @@ const Achievements = () => {
         ) : achievements.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {achievements.map((achievement) => (
-              <div key={achievement._id} className="glass-3d rounded-2xl border border-white/10 hover:border-orange-400/30 transition-all duration-300 group">
+              <div key={achievement._id} className="glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">

@@ -303,7 +303,7 @@ const TeammateFinder = () => {
                 : 0
 
               return (
-                <div key={user._id} className="glass-3d rounded-2xl border border-white/10 hover:border-orange-400/30 transition-all duration-300 group">
+                <div key={user._id} className="glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
                   <div className="p-6">
                     {/* Header with Avatar - Enhanced */}
                     <div className="flex items-start space-x-4 mb-4">
