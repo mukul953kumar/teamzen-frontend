@@ -33,8 +33,8 @@ const Signup = () => {
     try {
       const result = await signup({ ...data, skills: selectedSkills })
       if (result.success) {
-        toast.success('Account created! Please check your email for verification code.')
-        navigate('/verify-code', { state: { email: data.email }, replace: true })
+        toast.success('Account created successfully!')
+        navigate('/dashboard', { replace: true })
       } else {
         toast.error(result.message)
       }

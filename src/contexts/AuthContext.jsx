@@ -63,23 +63,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      console.log('AuthContext: Calling login API with:', credentials)
       const response = await authAPI.login(credentials)
-      console.log('AuthContext: Login API response:', response)
       const { token, user } = response.data.data
-      
       localStorage.setItem('token', token)
-      
-      // Direct state update for immediate effect
       setUser(user)
       queryClient.setQueryData('currentUser', user)
       setLoading(false)
-      
-      console.log('AuthContext: User logged in, redirecting...')
-      
       return { success: true, user }
     } catch (error) {
-      console.error('AuthContext: Login error:', error)
       return { 
         success: false, 
         message: error.response?.data?.message || 'Login failed' 
@@ -89,21 +80,14 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
-      console.log('AuthContext: Calling signup API with:', userData)
       const response = await authAPI.signup(userData)
-      console.log('AuthContext: Signup API response:', response)
       const { token, user } = response.data.data
-      
       localStorage.setItem('token', token)
-      
-      // Direct state update for immediate effect
       setUser(user)
       queryClient.setQueryData('currentUser', user)
       setLoading(false)
-      
       return { success: true, user }
     } catch (error) {
-      console.error('AuthContext: Signup error:', error)
       return { 
         success: false, 
         message: error.response?.data?.message || 'Signup failed' 
