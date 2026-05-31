@@ -292,28 +292,33 @@ const Dashboard = () => {
               <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
                 {actionNotifications.map((notification) => (
                   <div key={notification._id} className="p-3 rounded-lg glass-3d border border-white/10 hover:border-white/20 transition-all duration-300">
-                    <p className="text-sm text-white font-medium">{notification.title}</p>
-                    <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
-                    <div className="flex items-center gap-2 mt-3">
-                      <Link
-                        to={notification.action_url || '/notifications'}
-                        onClick={() => markAsRead(notification._id)}
-                        className="flex-1 text-center px-3 py-2 bg-orange-400 text-white text-xs rounded-lg hover:bg-orange-500 transition-colors"
-                      >
-                        Take Action
-                      </Link>
-                      <button onClick={() => markAsRead(notification._id)} className="p-2 text-gray-400 hover:text-white transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm text-white font-medium">{notification.title}</p>
+                        <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
+                      </div>
+                      <button onClick={() => markAsRead(notification._id)} className="text-gray-500 hover:text-white transition-colors flex-shrink-0">
                         <XCircle className="w-4 h-4" />
                       </button>
                     </div>
+                    {notification.action_required && (
+                      <div className="mt-2">
+                        <Link
+                          to={notification.action_url || '/teams/invitations'}
+                          onClick={() => markAsRead(notification._id)}
+                          className="text-xs px-3 py-1.5 bg-orange-400 text-white rounded-lg hover:bg-orange-500 transition-colors inline-block"
+                        >
+                          Take Action
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-4">
                 <Bell className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                <p className="text-gray-400 text-sm">No notifications yet</p>
-                <p className="text-xs text-gray-500 mt-1">Team invites will appear here</p>
+                <p className="text-gray-400 text-sm">No new notifications</p>
               </div>
             )}
           </div>

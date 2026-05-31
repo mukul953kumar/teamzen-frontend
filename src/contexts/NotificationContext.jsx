@@ -86,25 +86,19 @@ export const NotificationProvider = ({ children }) => {
     }
   )
 
-  // Update unread count when data changes - only count action_required notifications
+  // Update unread count — all unread notifications
   useEffect(() => {
-    const actionUnreadCount = notificationsData?.notifications?.filter(
-      n => n.action_required && !n.is_read
-    ).length || 0
-    setUnreadCount(actionUnreadCount)
+    const count = notificationsData?.notifications?.filter(n => !n.is_read).length || 0
+    setUnreadCount(count)
   }, [notificationsData])
 
-  // Manual refetch function
   const refreshNotifications = useCallback(() => {
     refetch()
   }, [refetch])
 
-  // Get action notifications (notifications that require action)
-  const actionNotifications = notificationsData?.notifications?.filter(
-    n => n.action_required && !n.is_read
-  ) || []
+  // All unread notifications (not just action_required)
+  const actionNotifications = notificationsData?.notifications?.filter(n => !n.is_read) || []
 
-  // Get recent notifications (last 5)
   const recentNotifications = notificationsData?.notifications?.slice(0, 5) || []
 
   const value = {

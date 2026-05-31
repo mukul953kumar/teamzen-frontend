@@ -53,6 +53,18 @@ const Teams = () => {
     { retry: false }
   )
 
+  // Fetch user's pending join requests
+  const { data: myRequestsData, error: requestsError } = useQuery(
+    'myRequests',
+    async () => {
+      console.log('Fetching my requests...')
+      const response = await api.get('/teams/my-requests')
+      console.log('My requests response:', response.data)
+      return response.data
+    },
+    { retry: false, enabled: !!user }
+  )
+
   const createTeamMutation = useMutation(
     (teamData) => api.post('/teams/create-team', teamData),
     {
@@ -77,6 +89,7 @@ const Teams = () => {
         toast.success('Join request sent successfully!')
         queryClient.invalidateQueries('teams')
         queryClient.invalidateQueries('myTeams')
+        queryClient.invalidateQueries('myRequests')
       },
       onError: (error) => {
         toast.error(error.response?.data?.message || 'Failed to send join request')
@@ -148,6 +161,15 @@ const Teams = () => {
 
   const teams = teamsData?.data?.teams || []
   const myTeams = myTeamsData?.data?.teams || []
+  const myRequests = myRequestsData?.data?.joinRequests || []
+
+  console.log('Teams Page Debug:', {
+    myRequestsData,
+    myRequests,
+    myRequestsLength: myRequests.length,
+    requestsError,
+    user
+  })
 
   if (isLoading) {
     return (
@@ -183,22 +205,22 @@ const Teams = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myTeams.map((team) => (
-              <div key={team._id} className="relative">
+              <div key={team._id} className="relative group">
                 <Link to={`/teams/${team._id}`} className="block">
-                  <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10 group">
+                  <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors">
+                        <div className="flex-1 min-w-0 pr-2">
+                          <h3 className="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors truncate">
                             {team.team_name}
                           </h3>
-                          <p className="text-sm text-gray-400">{team.project_title}</p>
+                          <p className="text-sm text-gray-400 truncate">{team.project_title}</p>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 flex-shrink-0">
                           {team.user_role === 'Leader' && (
-                            <div className="flex items-center space-x-1">
+                            <div className="flex items-center space-x-1 bg-yellow-400/10 px-2 py-1 rounded-lg">
                               <Crown className="w-4 h-4 text-yellow-400" />
-                              <span className="text-xs text-yellow-400">Leader</span>
+                              <span className="text-xs text-yellow-400 font-medium">Leader</span>
                             </div>
                           )}
                         </div>
@@ -223,26 +245,89 @@ const Teams = () => {
                 </div>
                 </Link>
                 
-                {/* Delete button for team leaders */}
+                {/* Delete button for team leaders - appears on hover */}
                 {(team.user_role === 'Leader' || team.user_role === 'leader') && (
-                  <div className="absolute top-2 right-2">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        handleDeleteTeam(team._id, team.team_name)
-                      }}
-                      className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                      title="Delete team"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleDeleteTeam(team._id, team.team_name)
+                    }}
+                    className="absolute top-3 right-3 p-2 bg-red-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                    title="Delete team"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pending Requests Section */}
+      {myRequests.filter(r => r.status === 'Pending').length > 0 && (
+        <div className="card">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-400" />
+              Pending Join Requests
+            </h2>
+            <span className="text-sm text-gray-400">{myRequests.filter(r => r.status === 'Pending').length} pending</span>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {myRequests.filter(r => r.status === 'Pending').map((request) => {
+              const team = request.team_id
+              if (!team) return null
+              
+              return (
+                <div key={request._id} className="relative group">
+                  <Link to={`/teams/${team._id}`} className="block">
+                    <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1 min-w-0 pr-2">
+                            <h3 className="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors truncate">
+                              {team.team_name}
+                            </h3>
+                            <p className="text-sm text-gray-400 truncate">{team.project_title}</p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              request.status === 'Pending' ? 'bg-orange-400/20 text-orange-400' :
+                              request.status === 'Accepted' ? 'bg-green-400/20 text-green-400' :
+                              'bg-red-400/20 text-red-400'
+                            }`}>
+                              {request.status}
+                            </span>
+                          </div>
+                        </div>
+                      
+                        <p className="text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
+                      
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-2">
+                            <Clock className="w-4 h-4 text-gray-400" />
+                            <span className="text-gray-400 text-xs">
+                              {new Date(request.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs ${
+                            team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
+                            team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
+                            'bg-blue-400/20 text-blue-400'
+                          }`}>
+                            {team.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

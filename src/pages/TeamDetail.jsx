@@ -247,10 +247,10 @@ const TeamDetail = () => {
       <div className="card">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Team Info */}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-2">{team.team_name}</h2>
+              <div className="flex-1 min-w-0 mr-4">
+                <h2 className="text-2xl font-bold text-white mb-2 break-words">{team.team_name}</h2>
                 <div className="flex items-center space-x-4 text-sm text-gray-400">
                   <div className={`px-3 py-1 rounded-full text-xs font-medium ${
                     team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
@@ -275,12 +275,12 @@ const TeamDetail = () => {
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">Project</h3>
-                <p className="text-xl text-primary-400">{team.project_title}</p>
+                <p className="text-xl text-primary-400 break-words">{team.project_title}</p>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                <p className="text-gray-300 leading-relaxed">{team.description}</p>
+                <p className="text-gray-300 leading-relaxed break-words">{team.description}</p>
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
@@ -325,7 +325,7 @@ const TeamDetail = () => {
                     {team.required_skills.map((skill, index) => (
                       <span
                         key={index}
-                        className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-full border border-primary-400/30"
+                        className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-full border border-primary-400/30 text-sm break-all"
                       >
                         {skill.skill_name}
                       </span>
@@ -345,19 +345,19 @@ const TeamDetail = () => {
                   <img
                     src={team.leader_id.profile_image}
                     alt={team.leader_id.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-primary-400/30"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
                     <span className="text-xl font-bold text-white">
                       {team.leader_id.name?.charAt(0).toUpperCase()}
                     </span>
                   </div>
                 )}
-                <div>
-                  <h4 className="font-medium text-white">{team.leader_id.name}</h4>
-                  <p className="text-sm text-gray-400">{team.leader_id.college}</p>
-                  <p className="text-sm text-gray-500">{team.leader_id.branch} • {team.leader_id.year}yr</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-medium text-white truncate">{team.leader_id.name}</h4>
+                  <p className="text-sm text-gray-400 truncate">{team.leader_id.college}</p>
+                  <p className="text-sm text-gray-500 truncate">{team.leader_id.branch} • {team.leader_id.year}yr</p>
                 </div>
               </div>
               
@@ -377,10 +377,10 @@ const TeamDetail = () => {
 
       {/* Tabs */}
       <div className="card">
-        <div className="flex border-b border-white/20">
+        <div className="flex border-b border-white/20 overflow-x-auto">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-6 py-3 font-medium transition-colors ${
+            className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
               activeTab === 'overview'
                 ? 'text-white border-b-2 border-primary-400'
                 : 'text-gray-400 hover:text-white'
@@ -390,7 +390,7 @@ const TeamDetail = () => {
           </button>
           <button
             onClick={() => setActiveTab('members')}
-            className={`px-6 py-3 font-medium transition-colors ${
+            className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
               activeTab === 'members'
                 ? 'text-white border-b-2 border-primary-400'
                 : 'text-gray-400 hover:text-white'
@@ -401,18 +401,18 @@ const TeamDetail = () => {
           {isLeader && (
             <button
               onClick={() => setActiveTab('requests')}
-              className={`px-6 py-3 font-medium transition-colors ${
+              className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
                 activeTab === 'requests'
                   ? 'text-white border-b-2 border-primary-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              Join Requests ({joinRequestsData?.joinRequests?.length || 0})
+              Requests ({joinRequestsData?.joinRequests?.length || 0})
             </button>
           )}
         </div>
 
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
@@ -513,29 +513,29 @@ const TeamDetail = () => {
                     })
                     
                     return (
-                    <div key={member._id || index} className="flex items-center justify-between p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <div className="flex items-center space-x-4">
+                    <div key={member._id || index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl glass hover:bg-white/10 transition-colors">
+                      <div className="flex items-center space-x-4 min-w-0 flex-1">
                         {profileImage ? (
                           <img
                             src={profileImage}
                             alt={displayName}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
                             <span className="text-lg font-bold text-white">
                               {displayName.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         )}
-                        <div>
-                          <h4 className="font-medium text-white">{displayName}</h4>
-                          <p className="text-sm text-gray-400">{displayCollege} • {displayBranch} • {displayYear}</p>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-medium text-white truncate">{displayName}</h4>
+                          <p className="text-sm text-gray-400 truncate">{displayCollege} • {displayBranch} • {displayYear}</p>
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-2">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium ${
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap ${
                           member.role === 'Leader' ? 'bg-yellow-400/20 text-yellow-400' :
                           'bg-blue-400/20 text-blue-400'
                         }`}>
@@ -545,7 +545,7 @@ const TeamDetail = () => {
                         {member.user_id._id !== user?._id && isMember && (
                           <button
                             onClick={() => handleStartChat(member.user_id._id)}
-                            className="btn-outline text-sm px-3 py-1.5 flex items-center"
+                            className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
                           >
                             <Mail className="w-3 h-3 mr-1" />
                             Message
@@ -556,7 +556,7 @@ const TeamDetail = () => {
                           <button
                             onClick={() => handleRemoveMember(member._id, displayName)}
                             disabled={removeMemberMutation.isLoading}
-                            className="btn-danger text-sm px-3 py-1.5 flex items-center"
+                            className="btn-danger text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
                           >
                             <XCircle className="w-3 h-3 mr-1" />
                             Remove
@@ -581,36 +581,36 @@ const TeamDetail = () => {
                 <div className="space-y-4">
                   {joinRequestsData.data.joinRequests.map((request) => (
                     <div key={request._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-start space-x-4 min-w-0 flex-1">
                           {request.user_id.profile_image ? (
                             <img
                               src={request.user_id.profile_image}
                               alt={request.user_id.name}
-                              className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30"
+                              className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
                               <span className="text-lg font-bold text-white">
                                 {request.user_id.name?.charAt(0).toUpperCase()}
                               </span>
                             </div>
                           )}
-                          <div>
-                            <h4 className="font-medium text-white">{request.user_id.name}</h4>
-                            <p className="text-sm text-gray-400">{request.user_id.college}</p>
-                            <p className="text-sm text-gray-500">{request.user_id.branch} • {request.user_id.year}yr</p>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="font-medium text-white truncate">{request.user_id.name}</h4>
+                            <p className="text-sm text-gray-400 truncate">{request.user_id.college}</p>
+                            <p className="text-sm text-gray-500 truncate">{request.user_id.branch} • {request.user_id.year}yr</p>
                             {request.message && (
-                              <p className="text-sm text-gray-300 mt-1 italic">"{request.message}"</p>
+                              <p className="text-sm text-gray-300 mt-1 italic break-words">"{request.message}"</p>
                             )}
                           </div>
                         </div>
                         
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleAcceptRequest(request._id)}
                             disabled={acceptRequestMutation.isLoading}
-                            className="btn-primary text-sm px-3 py-1.5 flex items-center"
+                            className="btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
                           >
                             <CheckCircle className="w-3 h-3 mr-1" />
                             Accept
@@ -618,7 +618,7 @@ const TeamDetail = () => {
                           <button
                             onClick={() => handleRejectRequest(request._id)}
                             disabled={rejectRequestMutation.isLoading}
-                            className="btn-outline text-sm px-3 py-1.5 flex items-center"
+                            className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
                           >
                             <XCircle className="w-3 h-3 mr-1" />
                             Reject
