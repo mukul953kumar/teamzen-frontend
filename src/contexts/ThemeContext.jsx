@@ -11,27 +11,14 @@ export const useTheme = () => {
 }
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage first
-    const saved = localStorage.getItem('theme')
-    if (saved) return saved === 'dark'
-    
-    // Check system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-  })
+  const [isDarkMode, setIsDarkMode] = useState(true)
 
   useEffect(() => {
-    // Apply theme to document
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark')
-      document.documentElement.classList.remove('light')
-      localStorage.setItem('theme', 'dark')
-    } else {
-      document.documentElement.classList.add('light')
-      document.documentElement.classList.remove('dark')
-      localStorage.setItem('theme', 'light')
-    }
-  }, [isDarkMode])
+    // Always force dark mode
+    document.documentElement.classList.add('dark')
+    document.documentElement.classList.remove('light')
+    localStorage.setItem('theme', 'dark')
+  }, [])
 
   // Listen for system theme changes
   useEffect(() => {
@@ -47,11 +34,11 @@ export const ThemeProvider = ({ children }) => {
   }, [])
 
   const toggleTheme = () => {
-    setIsDarkMode(prev => !prev)
+    // Disabled - always dark mode
   }
 
   const setDarkMode = (value) => {
-    setIsDarkMode(value)
+    // Disabled - always dark mode
   }
 
   return (
