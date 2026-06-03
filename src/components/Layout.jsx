@@ -3,7 +3,6 @@ import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Home, User, Users, Search, MessageCircle, Trophy, LogOut, Menu, X, Bell } from 'lucide-react'
 import { useNotifications } from '../contexts/NotificationContext'
-import ThemeToggle from './ThemeToggle'
 import { useTheme } from '../contexts/ThemeContext'
 
 const Layout = () => {
@@ -88,7 +87,7 @@ const Layout = () => {
             })}
           </nav>
 
-          {/* User + Logout + Theme */}
+          {/* User + Logout */}
           <div className="p-4 border-t border-white/10 flex-shrink-0">
             <div className="flex items-center space-x-3 p-3 rounded-xl glass">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden">
@@ -110,9 +109,6 @@ const Layout = () => {
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </button>
-            <div className="mt-3 flex justify-center">
-              <ThemeToggle />
-            </div>
           </div>
         </div>
       </div>
@@ -128,9 +124,7 @@ const Layout = () => {
               <Menu className="w-5 h-5" />
             </button>
             <img src="/images/TeamZen.png" alt="TeamZen" className="h-20 w-auto max-w-[60%] object-contain" />
-            <div className="flex-shrink-0">
-              <ThemeToggle />
-            </div>
+            <div className="w-10" />
           </div>
         </div>
 
