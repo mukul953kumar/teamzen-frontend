@@ -96,27 +96,33 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
       {/* Header with avatar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden flex-shrink-0">
+      <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
+        <div className="flex items-center gap-3 md:gap-4 min-w-0 w-full md:flex-1">
+          {/* User Avatar */}
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden flex-shrink-0">
             {user?.profile_image ? (
               <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-xl font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
+              <span className="text-lg md:text-xl font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
             )}
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-1">
-              Welcome back, {user?.name}! 👋
+          
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-white mb-1">
+              Welcome, {user?.name?.split(' ')[0]}! 👋
             </h1>
-            <p className="text-gray-400">
+            <p className="text-gray-400 text-xs md:text-sm">
               {user?.college} • {user?.branch} • Year {user?.year}
             </p>
           </div>
         </div>
-        <Link to="/profile" className="btn-secondary hidden md:flex items-center gap-2">
+        <Link to="/profile" className="btn-secondary flex md:hidden items-center gap-2 flex-shrink-0 w-full md:w-auto justify-center">
+          <User className="w-4 h-4" />
+          Edit Profile
+        </Link>
+        <Link to="/profile" className="btn-secondary hidden md:flex items-center gap-2 flex-shrink-0 whitespace-nowrap">
           <User className="w-4 h-4" />
           Edit Profile
         </Link>
@@ -127,14 +133,14 @@ const Dashboard = () => {
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
-            <Link key={index} to={stat.link} className="card card-hover group">
+            <Link key={index} to={stat.link} className="card card-hover group no-horizontal-scroll">
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color}`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`p-3 rounded-xl bg-gradient-to-r ${stat.color} flex-shrink-0`}>
+                  <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-xl md:text-2xl font-bold text-white flex-shrink-0">{stat.value}</div>
               </div>
-              <div className="text-gray-400 group-hover:text-white transition-colors text-sm">
+              <div className="text-gray-400 group-hover:text-white transition-colors text-xs md:text-sm">
                 {stat.title}
               </div>
             </Link>
@@ -143,7 +149,7 @@ const Dashboard = () => {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* Left - Recent Teams + Projects */}
+        {/* Left - Recent Teams */}
         <div className="lg:col-span-2 space-y-8">
 
           {/* Recent Teams */}
@@ -162,50 +168,59 @@ const Dashboard = () => {
             ) : teams.length > 0 ? (
               <div className="space-y-4">
                 {teams.slice(0, 3).map((team) => (
-                  <div key={team._id} className="p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-white">{team.team_name}</h3>
+                  <div key={team._id} className="p-3 md:p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10 no-horizontal-scroll">
+                    <div className="space-y-3">
+                      {/* Title and badges */}
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="font-medium text-white text-sm md:text-base flex-1">{team.team_name}</h3>
+                        <div className="flex gap-1 flex-shrink-0">
                           {team.user_role === 'Leader' && (
-                            <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full">Leader</span>
+                            <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full whitespace-nowrap">Leader</span>
                           )}
-                          <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          <span className={`px-2 py-0.5 rounded-full text-xs whitespace-nowrap ${
                             team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
                             team.status === 'Full' ? 'bg-red-400/20 text-red-400' :
                             'bg-blue-400/20 text-blue-400'
                           }`}>{team.status}</span>
                         </div>
-                        <p className="text-sm text-gray-400 mb-2">{team.project_title}</p>
+                      </div>
+                      
+                      {/* Project title */}
+                      <p className="text-xs md:text-sm text-gray-400">{team.project_title}</p>
+                      
+                      {/* Members and actions */}
+                      <div className="flex items-center justify-between gap-2">
                         <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <Users className="w-3 h-3" /> {team.current_members}/{team.max_members} members
+                          <Users className="w-3 h-3 flex-shrink-0" /> {team.current_members}/{team.max_members}
                         </span>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Link to={`/teams/${team._id}`} className="text-primary-400 hover:text-primary-300 text-xs">
-                          View Details
-                        </Link>
-                        {team.user_role === 'Leader' && (
-                          <Link to="/chat" className="text-green-400 hover:text-green-300 text-xs">
-                            Team Chat
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Link to={`/teams/${team._id}`} className="text-primary-400 hover:text-primary-300 text-xs whitespace-nowrap">
+                            View
                           </Link>
-                        )}
+                          {team.user_role === 'Leader' && (
+                            <Link to="/chat" className="text-green-400 hover:text-green-300 text-xs whitespace-nowrap">
+                              Chat
+                            </Link>
+                          )}
+                        </div>
                       </div>
+                      
+                      {/* Skills */}
+                      {team.required_skills?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-2 border-t border-white/10">
+                          {team.required_skills.slice(0, 4).map((skill, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded whitespace-nowrap">
+                              {skill.skill_name || skill}
+                            </span>
+                          ))}
+                          {team.required_skills.length > 4 && (
+                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded whitespace-nowrap">
+                              +{team.required_skills.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {team.required_skills?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-3 border-t border-white/10">
-                        {team.required_skills.slice(0, 3).map((skill, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">
-                            {skill.skill_name || skill}
-                          </span>
-                        ))}
-                        {team.required_skills.length > 3 && (
-                          <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">
-                            +{team.required_skills.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -219,88 +234,34 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-
-          {/* Recent Projects */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <FolderOpen className="w-5 h-5 text-purple-400" /> Recent Projects
-              </h2>
-              <Link to="/projects" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
-                View All <ExternalLink className="w-3 h-3" />
-              </Link>
-            </div>
-
-            {isLoading ? (
-              <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
-            ) : projects.length > 0 ? (
-              <div className="space-y-4">
-                {projects.slice(0, 3).map((project) => (
-                  <div key={project._id} className="p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-medium text-white">{project.title}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs ${
-                        project.status === 'Completed' ? 'bg-green-400/20 text-green-400' :
-                        project.status === 'In Progress' ? 'bg-blue-400/20 text-blue-400' :
-                        'bg-gray-400/20 text-gray-400'
-                      }`}>{project.status || 'Active'}</span>
-                    </div>
-                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{project.description}</p>
-                    {project.tech_stack?.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {project.tech_stack.slice(0, 4).map((tech, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-purple-400/10 text-purple-300 text-xs rounded">
-                            {tech}
-                          </span>
-                        ))}
-                        {project.tech_stack.length > 4 && (
-                          <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">
-                            +{project.tech_stack.length - 4}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <FolderOpen className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-4">No projects yet</p>
-                <Link to="/projects" className="btn-primary inline-flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Add Project
-                </Link>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-8">
 
           {/* Notifications */}
-          <div className="card border-l-4 border-orange-400">
-            <div className="flex items-center gap-2 mb-4">
-              <Bell className="w-5 h-5 text-orange-400" />
-              <h2 className="text-lg font-semibold text-white">Notifications</h2>
+          <div className="card border-l-4 border-orange-400 no-horizontal-scroll">
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <Bell className="w-5 h-5 text-orange-400 flex-shrink-0" />
+              <h2 className="text-base md:text-lg font-semibold text-white">Notifications</h2>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-orange-400 text-white text-xs rounded-full">{unreadCount}</span>
+                <span className="px-2 py-0.5 bg-orange-400 text-white text-xs rounded-full flex-shrink-0">{unreadCount}</span>
               )}
             </div>
 
             {actionNotifications.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar">
                 {actionNotifications.map((notification) => (
-                  <div key={notification._id} className="p-3 rounded-lg glass-3d border border-white/10 hover:border-white/20 transition-all duration-300">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
+                  <div key={notification._id} className="p-3 rounded-lg glass-3d border border-white/10 hover:border-white/20 transition-all duration-300 no-horizontal-scroll">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
                         <p className="text-sm text-white font-medium">{notification.title}</p>
-                        <p className="text-xs text-gray-400 mt-1">{notification.message}</p>
                       </div>
                       <button onClick={() => markAsRead(notification._id)} className="text-gray-500 hover:text-white transition-colors flex-shrink-0">
                         <XCircle className="w-4 h-4" />
                       </button>
                     </div>
+                    <p className="text-xs text-gray-400">{notification.message}</p>
                     {notification.action_required && (
                       <div className="mt-2">
                         <Link
@@ -324,10 +285,10 @@ const Dashboard = () => {
           </div>
 
           {/* Recommended Teammates */}
-          <div className="card">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white">Recommended</h2>
-              <Link to="/teammate-finder" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
+          <div className="card no-horizontal-scroll">
+            <div className="flex items-center justify-between mb-6 gap-2">
+              <h2 className="text-base md:text-xl font-semibold text-white">Recommended</h2>
+              <Link to="/teammate-finder" className="text-primary-400 hover:text-primary-300 text-xs md:text-sm font-medium flex items-center gap-1 flex-shrink-0">
                 Find More <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
@@ -335,7 +296,7 @@ const Dashboard = () => {
             {recommendedTeammates.length > 0 ? (
               <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                 {recommendedTeammates.map((teammate, index) => (
-                  <div key={teammate._id || index} className="p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10">
+                  <div key={teammate._id || index} className="p-3 md:p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10 no-horizontal-scroll">
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0">
                         {teammate.profile_image ? (
@@ -345,18 +306,18 @@ const Dashboard = () => {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="font-medium text-white truncate">{teammate.name}</h3>
-                          <span className="text-xs text-primary-400 font-medium ml-1 flex-shrink-0">{teammate.match}</span>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h3 className="font-medium text-white text-sm md:text-base flex-1">{teammate.name}</h3>
+                          <span className="text-xs text-primary-400 font-medium flex-shrink-0">{teammate.match}</span>
                         </div>
-                        <p className="text-xs text-gray-400 truncate">{teammate.college}</p>
+                        <p className="text-xs text-gray-400">{teammate.college}</p>
                         <p className="text-xs text-gray-500">{teammate.branch} • Year {teammate.year}</p>
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {teammate.skills?.slice(0, 2).map((skill, i) => (
+                          {teammate.skills?.slice(0, 3).map((skill, i) => (
                             <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">{skill}</span>
                           ))}
-                          {teammate.skills?.length > 2 && (
-                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">+{teammate.skills.length - 2}</span>
+                          {teammate.skills?.length > 3 && (
+                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">+{teammate.skills.length - 3}</span>
                           )}
                         </div>
                       </div>
@@ -374,9 +335,9 @@ const Dashboard = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="card">
-            <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gray-400" /> Recent Activity
+          <div className="card no-horizontal-scroll">
+            <h2 className="text-base md:text-xl font-semibold text-white mb-6 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-400 flex-shrink-0" /> Recent Activity
             </h2>
 
             {activityLoading ? (
@@ -391,9 +352,10 @@ const Dashboard = () => {
                         <Icon className="w-4 h-4 text-primary-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-gray-300">{activity.message}</p>
+                        <p className="text-xs md:text-sm text-gray-300">{activity.message}</p>
                         <div className="flex items-center mt-1 text-xs text-gray-500">
-                          <Clock className="w-3 h-3 mr-1" />{activity.time}
+                          <Clock className="w-3 h-3 mr-1 flex-shrink-0" />
+                          <span>{activity.time}</span>
                         </div>
                       </div>
                     </div>

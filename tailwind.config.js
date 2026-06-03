@@ -4,8 +4,16 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  important: true,
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+      },
+      maxWidth: {
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
       colors: {
         primary: {
           50: '#f0f9ff',

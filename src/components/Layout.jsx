@@ -40,27 +40,27 @@ const Layout = () => {
   const isActive = (href) => location.pathname === href
 
   return (
-    <div className="h-screen flex overflow-hidden w-full">
+    <div className="h-screen flex overflow-hidden w-full max-w-full">
       {/* Sidebar */}
       <div className={`
-        fixed lg:relative inset-y-0 left-0 z-50 w-64 border-r border-white/10 transform transition-transform duration-300 ease-in-out
+        fixed lg:relative inset-y-0 left-0 z-50 w-64 border-r border-white/10 transform transition-transform duration-300 ease-in-out max-w-[16rem]
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}
       style={{ backgroundImage: 'url("/images/image2.png")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="absolute inset-0" style={{ background: overlayBg, zIndex: 0 }} />
-        <div className="relative z-10 flex flex-col h-full">
+        <div className="relative z-10 flex flex-col h-full overflow-hidden">
           {/* Header */}
-          <div className="p-6 border-b border-white/10 flex-shrink-0">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold neon-text text-white">TeamZen</h1>
-              <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2 rounded-lg hover:bg-white/10">
+          <div className="py-3 px-4 border-b border-white/10 flex-shrink-0">
+            <div className="flex items-center justify-center relative">
+              <img src="/images/TeamZen.png" alt="TeamZen" className="h-25 w-auto max-w-full object-contain" />
+              <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute right-0 p-2 rounded-lg hover:bg-white/10">
                 <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-custom">
             {navigation.map((item) => {
               const Icon = item.icon
               return (
@@ -74,12 +74,12 @@ const Layout = () => {
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.name}</span>
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="font-medium truncate">{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                    <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center flex-shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -118,22 +118,24 @@ const Layout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden w-full">
+      <div className="flex-1 flex flex-col h-screen overflow-hidden w-full max-w-full">
         {/* Mobile Header */}
-        <div className="lg:hidden border-b border-white/10 p-4 flex-shrink-0 relative"
+        <div className="lg:hidden border-b border-white/10 p-4 flex-shrink-0 relative overflow-hidden"
           style={{ backgroundImage: 'url("/images/image2.png")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <div className="absolute inset-0" style={{ background: overlayBg, zIndex: 0 }} />
           <div className="relative z-10 flex items-center justify-between">
-            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10">
+            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 flex-shrink-0">
               <Menu className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold neon-text">TeamZen</h1>
-            <ThemeToggle />
+            <img src="/images/TeamZen.png" alt="TeamZen" className="h-20 w-auto max-w-[60%] object-contain" />
+            <div className="flex-shrink-0">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto" style={{
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto overflow-x-hidden w-full max-w-full" style={{
           backgroundImage: getBackgroundImage(),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -141,7 +143,7 @@ const Layout = () => {
           position: 'relative'
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: overlayBg, zIndex: 0 }} />
-          <div className="relative z-10">
+          <div className="relative z-10 w-full max-w-full overflow-x-hidden">
             <Outlet />
           </div>
         </main>
