@@ -61,14 +61,16 @@ const CompleteProfile = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Branch</label>
-                <select className="input w-full" value={branch} onChange={e => setBranch(e.target.value)}>
-                  {branches.map(b => <option key={b} value={b}>{b}</option>)}
+                <select className="input w-full" value={branch} onChange={e => setBranch(e.target.value)}
+                  style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>
+                  {branches.map(b => <option key={b} value={b} style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>{b}</option>)}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">Year</label>
-                <select className="input w-full" value={year} onChange={e => setYear(e.target.value)}>
-                  {years.map(y => <option key={y} value={y}>{y}{y===1?'st':y===2?'nd':y===3?'rd':'th'} Year</option>)}
+                <select className="input w-full" value={year} onChange={e => setYear(e.target.value)}
+                  style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>
+                  {years.map(y => <option key={y} value={y} style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>{y}{y===1?'st':y===2?'nd':y===3?'rd':'th'} Year</option>)}
                 </select>
               </div>
             </div>
