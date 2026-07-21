@@ -10,7 +10,7 @@ import {
   Clock,
   Loader2
 } from 'lucide-react'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/useAuth'
 import { useNotifications } from '../contexts/NotificationContext'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'

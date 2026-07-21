@@ -4,7 +4,7 @@ React-based frontend for TeamZen - A BTech Teammate Finder Platform built with V
 
 ## 🔗 Links
 - **Backend Repo**: [teamzen-backend](https://github.com/mukul953kumar/teamzen-backend)
-- **Live App**: _Add your Vercel URL here_
+- **Live App**:(https://teamzen-backend-1.onrender.com/api)
 
 ---
 
@@ -161,11 +161,12 @@ npm run lint      # ESLint check
 
 ## 🚀 Deployment (Vercel)
 
-1. Push code to GitHub
+1. Push code to GitHub - 
 2. Go to [vercel.com](https://vercel.com) → New Project → Import `teamzen-frontend`
 3. Add environment variable:
    ```
-   VITE_API_URL=https://your-railway-backend-url.railway.app/api
+ **Frontend Repo**: [teamzen-frontend](https://github.com/mukul953kumar/teamzen-frontend)
+- **Live API**: (https://teamzen-frontend.vercel.app/)
    ```
 4. Deploy!
 

@@ -19,7 +19,7 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/useAuth'
 
 const Projects = () => {
   const { user } = useAuth()

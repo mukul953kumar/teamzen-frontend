@@ -1,16 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
 import { authAPI } from '../services/authAPI'
 
-const AuthContext = createContext()
-
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
+export const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
   const queryClient = useQueryClient()
@@ -60,6 +52,20 @@ export const AuthProvider = ({ children }) => {
       })
     }
   }, [])
+
+  const loginWithToken = async (token) => {
+    try {
+      localStorage.setItem('token', token)
+      const response = await authAPI.getCurrentUser()
+      const user = response.data.data.user
+      setUser(user)
+      queryClient.setQueryData('currentUser', user)
+      return { success: true, user }
+    } catch {
+      localStorage.removeItem('token')
+      return { success: false }
+    }
+  }
 
   const login = async (credentials) => {
     try {
@@ -112,6 +118,7 @@ export const AuthProvider = ({ children }) => {
     user: user || null,
     loading: loading || isLoading,
     login,
+    loginWithToken,
     signup,
     logout,
     isAuthenticated: !!user,

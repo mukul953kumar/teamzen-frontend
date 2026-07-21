@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 

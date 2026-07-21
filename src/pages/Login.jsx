@@ -1,186 +1,78 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { useAuth } from '../contexts/AuthContext'
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react'
-import toast from 'react-hot-toast'
+import React, { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { XCircle, X } from 'lucide-react'
 
 const Login = () => {
-  const { login } = useAuth()
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [searchParams] = useSearchParams()
+  const [showError, setShowError] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm()
-
-  const onSubmit = async (data) => {
-    setIsLoading(true)
-    try {
-      const result = await login(data)
-      if (result.success) {
-        toast.success('Login successful!')
-        navigate('/dashboard', { replace: true })
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      toast.error('Login failed. Please try again.')
-    } finally {
-      setIsLoading(false)
+  useEffect(() => {
+    if (searchParams.get('error') === 'only_college_email') {
+      setShowError(true)
     }
+  }, [])
+
+  const handleGoogleLogin = () => {
+    const backendURL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+    window.location.href = `${backendURL}/api/auth/google`
   }
 
-  
   return (
     <div className="min-h-screen flex items-center justify-center px-6"
-         style={{
-           backgroundImage: 'url("/images/image2.png")',
-           backgroundSize: 'cover',
-           backgroundPosition: 'center',
-           backgroundRepeat: 'no-repeat',
-           position: 'relative'
-         }}>
-      {/* Dark Overlay */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        zIndex: 0
-      }} />
-      <div className="relative z-10">
-      
-      <div className="relative w-full max-w-md">
-        <div className="card">
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold neon-text mb-2">TeamZen</h1>
-            <p className="text-gray-400">Welcome back! Sign in to continue</p>
-          </div>
+      style={{
+        backgroundImage: 'url("/images/image2.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        position: 'relative'
+      }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 0 }} />
 
-          {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email Address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  className="input pl-12 w-full"
-                  placeholder="your.email@college.edu"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^\S+@\S+$/i,
-                      message: 'Invalid email address',
-                    },
-                  })}
-                />
-              </div>
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>
-              )}
+      {/* Error Popup */}
+      {showError && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm">
+          <div className="flex items-start gap-3 bg-red-500/20 border border-red-500/50 backdrop-blur-md rounded-xl p-4 shadow-xl">
+            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-white font-semibold text-sm">Access Denied</p>
+              <p className="text-red-300 text-xs mt-1">Only <span className="font-bold">@knit.ac.in</span> email addresses are allowed. Please use your college email.</p>
             </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  className="input pl-12 pr-12 w-full"
-                  placeholder="••••••••"
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
-                    },
-                  })}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="btn-primary w-full py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="spinner w-5 h-5 mr-2" />
-                  Signing in...
-                </div>
-              ) : (
-                'Sign In'
-              )}
+            <button onClick={() => setShowError(false)} className="text-gray-400 hover:text-white flex-shrink-0">
+              <X className="w-4 h-4" />
             </button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/20"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-gray-400">New to TeamZen?</span>
-            </div>
-          </div>
-
-          {/* Forgot Password Link */}
-          <div className="text-center mb-4">
-            <Link
-              to="/forgot-password"
-              className="text-primary-400 hover:text-primary-300 font-medium transition-colors text-sm"
-            >
-              Forgot your password?
-            </Link>
-          </div>
-
-          {/* Sign Up Link */}
-          <div className="text-center">
-            <Link
-              to="/signup"
-              className="text-primary-400 hover:text-primary-300 font-medium transition-colors"
-            >
-              Create an account
-            </Link>
           </div>
         </div>
+      )}
 
-        {/* Back to Home */}
-        <div className="text-center mt-6">
-          <Link
-            to="/"
-            className="text-gray-400 hover:text-white transition-colors"
+      <div className="relative z-10 w-full max-w-md">
+        <div className="card text-center">
+          <div className="mb-8">
+            <img src="/images/TeamZen.png" alt="TeamZen" className="h-16 w-auto mx-auto mb-4" />
+            <p className="text-gray-400">Sign in with your KNIT college email</p>
+          </div>
+
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white text-gray-800 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-200 shadow-lg"
           >
+            <svg width="20" height="20" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Sign in with Google
+          </button>
+
+          <p className="mt-6 text-xs text-gray-500">
+            Only <span className="text-primary-400">@knit.ac.in</span> email addresses are allowed
+          </p>
+        </div>
+
+        <div className="text-center mt-6">
+          <Link to="/" className="text-gray-400 hover:text-white transition-colors">
             ← Back to Home
           </Link>
         </div>
-      </div>
       </div>
     </div>
   )

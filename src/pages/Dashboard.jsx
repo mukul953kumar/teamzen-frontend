@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/useAuth'
 import { useNotifications } from '../contexts/NotificationContext'
 import { 
   Users, 
