@@ -116,24 +116,24 @@ const LandingPage = () => {
 
   const testimonials = [
     {
-      name: 'Priya Sharma',
-      role: 'CSE, IIT Delhi',
+      name: 'Mukul Kumar',
+      role: 'IT, KNIT Sultanpur',
       initial: 'P',
       color: 'from-pink-500 to-rose-500',
       content: 'Found my final year project team in 2 days. We ended up winning the departmental showcase.',
       project: 'HealthAI App'
     },
     {
-      name: 'Mukul Kumar',
-      role: 'CSE, KNIT Sultanpur',
+      name: 'Garv Rajora',
+      role: 'IT, KNIT Sultanpur',
       initial: 'M',
       color: 'from-blue-500 to-cyan-500',
       content: 'Built my SIH team through TeamZen. The skill filter saved hours of searching in random WhatsApp groups.',
       project: 'Smart Agriculture System'
     },
     {
-      name: 'Ananya Patel',
-      role: 'ECE, BITS Pilani',
+      name: 'Ashish Pratap',
+      role: 'IT, KNIT Sultanpur',
       initial: 'A',
       color: 'from-violet-500 to-purple-500',
       content: 'The match percentage actually works. My team had zero skill overlap — everyone brought something different.',
@@ -193,12 +193,9 @@ const LandingPage = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/signup" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
-                  <span>Get Started Free</span>
+                <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
+                  <span>Join with College Email</span>
                   <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link to="/login" className="btn-secondary inline-flex items-center justify-center gap-2 text-base">
-                  Already have an account?
                 </Link>
               </div>
 
@@ -503,12 +500,9 @@ const LandingPage = () => {
               Your next teammate is already on TeamZen. Find them today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/signup" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
-                <span>Create Free Account</span>
+              <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
+                <span>Join with College Email</span>
                 <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link to="/login" className="btn-secondary inline-flex items-center justify-center gap-2 text-base">
-                Sign In
               </Link>
             </div>
           </motion.div>

@@ -154,7 +154,7 @@ const Footer = () => {
               {/* Copyright */}
               <div className="flex items-center gap-6">
                 <p className="text-sm" style={{ color: 'var(--cream-white)' }}>
-                  © {currentYear} TeamZen. All rights reserved.
+                  © {currentYear} TeamZen. All rights reserved.Mukul Kumar
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-sm" style={{ color: 'var(--cream-white)' }}>Made with</span>
@@ -166,12 +166,12 @@ const Footer = () => {
               {/* Contact Info */}
               <div className="flex items-center gap-8">
                 <a
-                  href="mailto:hello@teamzen.com"
+                  href="mailto:mukulkumar@teamzen.com"
                   className="flex items-center gap-2 text-sm hover:text-orange-400 transition-colors duration-300"
                   style={{ color: 'var(--cream-white)' }}
                 >
                   <Mail className="w-4 h-4" />
-                  hello@teamzen.com
+                  mukulkumar@teamzen.com
                 </a>
                 <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--cream-white)' }}>
                   <Phone className="w-4 h-4" />
