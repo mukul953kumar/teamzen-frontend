@@ -1,108 +1,111 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
 import { useAuth } from './useAuth'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
+import { io } from 'socket.io-client'
 
 const NotificationContext = createContext()
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext)
-  if (!context) {
-    throw new Error('useNotifications must be used within NotificationProvider')
-  }
+  if (!context) throw new Error('useNotifications must be used within NotificationProvider')
   return context
 }
 
 export const NotificationProvider = ({ children }) => {
   const { user } = useAuth()
   const queryClient = useQueryClient()
+  const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
+  const socketRef = useRef(null)
 
-  // Fetch notifications
-  const { data: notificationsData, isLoading, refetch } = useQuery(
-    'notifications',
-    async () => {
-      if (!user) return { notifications: [], unreadCount: 0 }
-      
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return
+    try {
+      setIsLoading(true)
       const response = await api.get('/notifications')
-      return response.data.data || { notifications: [], unreadCount: 0 }
-    },
-    {
-      enabled: !!user,
-      refetchInterval: 30000, // Refetch every 30 seconds
-      refetchOnWindowFocus: true
+      const data = response.data.data || { notifications: [] }
+      setNotifications(data.notifications || [])
+      setUnreadCount(data.notifications?.filter(n => !n.is_read).length || 0)
+    } catch (err) {
+      console.error('Fetch notifications error:', err)
+    } finally {
+      setIsLoading(false)
     }
-  )
+  }, [user])
 
-  // Mark notification as read
+  // WebSocket connection
+  useEffect(() => {
+    if (!user?._id) return
+
+    fetchNotifications()
+
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
+      transports: ['websocket', 'polling']
+    })
+    socketRef.current = socket
+
+    socket.on('connect', () => {
+      socket.emit('register', user._id)
+    })
+
+    socket.on('new_notification', (notification) => {
+      setNotifications(prev => [notification, ...prev])
+      setUnreadCount(prev => prev + 1)
+      toast(notification.title || 'New notification', { icon: '🔔' })
+    })
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [user?._id])
+
   const markAsReadMutation = useMutation(
     async (notificationId) => {
-      const response = await api.put(`/notifications/${notificationId}/read`)
-      return response.data
+      await api.put(`/notifications/${notificationId}/read`)
+      return notificationId
     },
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('notifications')
-      },
-      onError: (error) => {
-        console.error('Mark as read error:', error)
+      onSuccess: (notificationId) => {
+        setNotifications(prev => prev.map(n => n._id === notificationId ? { ...n, is_read: true } : n))
+        setUnreadCount(prev => Math.max(0, prev - 1))
       }
     }
   )
 
-  // Mark all as read
   const markAllAsReadMutation = useMutation(
-    async () => {
-      const response = await api.put('/notifications/mark-all-read')
-      return response.data
-    },
+    async () => { await api.put('/notifications/mark-all-read') },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('notifications')
+        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+        setUnreadCount(0)
         toast.success('All notifications marked as read')
-      },
-      onError: (error) => {
-        console.error('Mark all as read error:', error)
-        toast.error('Failed to mark notifications as read')
       }
     }
   )
 
-  // Delete notification
   const deleteNotificationMutation = useMutation(
     async (notificationId) => {
-      const response = await api.delete(`/notifications/${notificationId}`)
-      return response.data
+      await api.delete(`/notifications/${notificationId}`)
+      return notificationId
     },
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('notifications')
+      onSuccess: (notificationId) => {
+        const deleted = notifications.find(n => n._id === notificationId)
+        setNotifications(prev => prev.filter(n => n._id !== notificationId))
+        if (deleted && !deleted.is_read) setUnreadCount(prev => Math.max(0, prev - 1))
       },
-      onError: (error) => {
-        console.error('Delete notification error:', error)
-        toast.error('Failed to delete notification')
-      }
+      onError: () => toast.error('Failed to delete notification')
     }
   )
 
-  // Update unread count — all unread notifications
-  useEffect(() => {
-    const count = notificationsData?.notifications?.filter(n => !n.is_read).length || 0
-    setUnreadCount(count)
-  }, [notificationsData])
-
-  const refreshNotifications = useCallback(() => {
-    refetch()
-  }, [refetch])
-
-  // All unread notifications (not just action_required)
-  const actionNotifications = notificationsData?.notifications?.filter(n => !n.is_read) || []
-
-  const recentNotifications = notificationsData?.notifications?.slice(0, 5) || []
+  const actionNotifications = notifications.filter(n => !n.is_read)
+  const recentNotifications = notifications.slice(0, 5)
 
   const value = {
-    notifications: notificationsData?.notifications || [],
+    notifications,
     unreadCount,
     isLoading,
     recentNotifications,
@@ -110,7 +113,7 @@ export const NotificationProvider = ({ children }) => {
     markAsRead: markAsReadMutation.mutate,
     markAllAsRead: markAllAsReadMutation.mutate,
     deleteNotification: deleteNotificationMutation.mutate,
-    refreshNotifications,
+    refreshNotifications: fetchNotifications,
     isMarkingAsRead: markAsReadMutation.isLoading,
     isMarkingAllAsRead: markAllAsReadMutation.isLoading,
     isDeleting: deleteNotificationMutation.isLoading

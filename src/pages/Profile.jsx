@@ -102,9 +102,13 @@ const Profile = () => {
       reset({
         name: profileData.user.name,
         bio: profileData.user.bio,
+        branch: profileData.user.branch,
+        year: profileData.user.year,
         github: profileData.user.github,
         linkedin: profileData.user.linkedin,
         portfolio: profileData.user.portfolio,
+        availability_status: profileData.user.availability_status || 'Available',
+        hackathon_interests: profileData.user.hackathon_interests || [],
         skills: profileData.user.skills?.map(skill => skill.skill_name) || []
       })
       setPreviewImage(profileData.user.profile_image)
@@ -236,111 +240,129 @@ const Profile = () => {
               <div className="flex-1">
                 {isEditing ? (
                   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div>
-                      <input
-                        type="text"
-                        className="input w-full"
-                        placeholder="Your Name"
-                        {...register('name', { required: 'Name is required' })}
-                      />
-                      {errors.name && (
-                        <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
-                      )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Full Name</label>
+                        <input type="text" className="input w-full" placeholder="Your Name"
+                          {...register('name', { required: 'Name is required' })} />
+                        {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>}
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Availability</label>
+                        <select className="input w-full" {...register('availability_status')}>
+                          <option value="Available">🟢 Available</option>
+                          <option value="Open to work">🔵 Open to work</option>
+                          <option value="Busy">🔴 Busy</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Branch</label>
+                        <select className="input w-full" {...register('branch')}>
+                          {['CSE','ECE','EEE','MECH','CIVIL','IT','Other'].map(b => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Year</label>
+                        <select className="input w-full" {...register('year')}>
+                          {[1,2,3,4].map(y => (
+                            <option key={y} value={y}>{y}{y===1?'st':y===2?'nd':y===3?'rd':'th'} Year</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     <div>
-                      <textarea
-                        className="input w-full resize-none"
-                        rows={3}
+                      <label className="block text-xs text-gray-400 mb-1">Bio</label>
+                      <textarea className="input w-full resize-none" rows={3}
                         placeholder="Tell us about yourself..."
-                        {...register('bio')}
-                      />
+                        {...register('bio')} />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <input
-                        type="url"
-                        className="input"
-                        placeholder="GitHub URL"
-                        {...register('github')}
-                      />
-                      <input
-                        type="url"
-                        className="input"
-                        placeholder="LinkedIn URL"
-                        {...register('linkedin')}
-                      />
-                      <input
-                        type="url"
-                        className="input"
-                        placeholder="Portfolio URL"
-                        {...register('portfolio')}
-                      />
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">GitHub URL</label>
+                        <input type="text" className="input w-full" placeholder="https://github.com/username"
+                          {...register('github')} />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">LinkedIn URL</label>
+                        <input type="text" className="input w-full" placeholder="https://linkedin.com/in/username"
+                          {...register('linkedin')} />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Portfolio URL</label>
+                        <input type="text" className="input w-full" placeholder="https://yourportfolio.com"
+                          {...register('portfolio')} />
+                      </div>
                     </div>
 
-                    <button
-                      type="submit"
-                      disabled={updateProfileMutation.isLoading}
-                      className="btn-primary flex items-center"
-                    >
+                    <button type="submit" disabled={updateProfileMutation.isLoading}
+                      className="btn-primary flex items-center">
                       <Save className="w-4 h-4 mr-2" />
                       {updateProfileMutation.isLoading ? 'Saving...' : 'Save Changes'}
                     </button>
                   </form>
                 ) : (
                   <div>
-                    <h2 className="text-2xl font-bold text-white mb-2">{profile?.name}</h2>
+                    <div className="flex items-center gap-3 mb-2">
+                      <h2 className="text-2xl font-bold text-white">{profile?.name}</h2>
+                      {profile?.availability_status && (
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          profile.availability_status === 'Available' ? 'bg-green-400/20 text-green-400' :
+                          profile.availability_status === 'Open to work' ? 'bg-blue-400/20 text-blue-400' :
+                          'bg-red-400/20 text-red-400'
+                        }`}>
+                          {profile.availability_status === 'Available' ? '🟢' : profile.availability_status === 'Open to work' ? '🔵' : '🔴'} {profile.availability_status}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-gray-400 mb-4">{profile?.bio || 'No bio added yet'}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <Mail className="w-4 h-4" />
+                        <Mail className="w-4 h-4 flex-shrink-0" />
                         <span>{profile?.email}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
                         <span>{profile?.college}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <Calendar className="w-4 h-4" />
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
                         <span>{profile?.year}{profile?.year === 1 ? 'st' : profile?.year === 2 ? 'nd' : profile?.year === 3 ? 'rd' : 'th'} Year</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <User className="w-4 h-4" />
+                        <User className="w-4 h-4 flex-shrink-0" />
                         <span>{profile?.branch}</span>
                       </div>
                     </div>
 
-                    {/* Social Links */}
-                    <div className="flex items-center space-x-4 mt-4">
+                    {/* Social Links - properly shown with URLs */}
+                    <div className="flex flex-wrap items-center gap-3 mt-4">
                       {profile?.github && (
-                        <a
-                          href={profile.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Github className="w-5 h-5" />
+                        <a href={profile.github.startsWith('http') ? profile.github : `https://${profile.github}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 hover:text-white hover:bg-white/20 transition-all text-sm">
+                          <Github className="w-4 h-4" /> GitHub
                         </a>
                       )}
                       {profile?.linkedin && (
-                        <a
-                          href={profile.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Linkedin className="w-5 h-5" />
+                        <a href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-all text-sm">
+                          <Linkedin className="w-4 h-4" /> LinkedIn
                         </a>
                       )}
                       {profile?.portfolio && (
-                        <a
-                          href={profile.portfolio}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-400 hover:text-white transition-colors"
-                        >
-                          <Globe className="w-5 h-5" />
+                        <a href={profile.portfolio.startsWith('http') ? profile.portfolio : `https://${profile.portfolio}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 transition-all text-sm">
+                          <Globe className="w-4 h-4" /> Portfolio
                         </a>
                       )}
                     </div>

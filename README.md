@@ -3,6 +3,8 @@
 React-based frontend for TeamZen - A BTech Teammate Finder Platform built with Vite, Tailwind CSS, and Framer Motion.
 
 ## 🔗 Links
+**Frontend Repo**: [teamzen-frontend](https://github.com/mukul953kumar/teamzen-frontend)
+- **Live API**: (https://teamzen-frontend.vercel.app/)
 - **Backend Repo**: [teamzen-backend](https://github.com/mukul953kumar/teamzen-backend)
 - **Live App**:(https://teamzen-backend-1.onrender.com/api)
 
