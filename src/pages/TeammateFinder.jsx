@@ -421,7 +421,8 @@ const TeammateFinder = () => {
               <label className="block text-sm font-medium text-gray-300 mb-3">Select Team *</label>
               {myTeamsData?.data?.teams?.length > 0 ? (
                 <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="w-full px-4 py-3 bg-dark-800/50 border border-white/20 rounded-xl text-white focus:outline-none focus:border-orange-400/50 transition-all">
+                  className="w-full px-4 py-3 border border-white/20 rounded-xl text-white focus:outline-none focus:border-orange-400/50 transition-all"
+                  style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>
                   <option value="">Choose a team...</option>
                   {myTeamsData.data.teams.map((team) => (
                     <option key={team._id} value={team._id}>

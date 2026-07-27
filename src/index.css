@@ -244,6 +244,31 @@
     @apply placeholder-gray-500;
   }
 
+  /* Select & Option dark background fix */
+  select.input,
+  select {
+    background-color: #1e293b;
+    color: #f1f5f9;
+  }
+
+  select.input option,
+  select option {
+    background-color: #1e293b;
+    color: #f1f5f9;
+  }
+
+  html.light select.input,
+  html.light select {
+    background-color: #ffffff;
+    color: #0f172a;
+  }
+
+  html.light select.input option,
+  html.light select option {
+    background-color: #ffffff;
+    color: #0f172a;
+  }
+
   /* Navigation */
   .nav-link {
     @apply text-gray-300 hover:text-primary-400 px-4 py-2 rounded-lg transition-all duration-300 hover:bg-white/10;
