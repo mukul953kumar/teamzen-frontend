@@ -19,8 +19,8 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/',
         icons: [
-          { src: '/images/image1.png', sizes: '192x192', type: 'image/png' },
-          { src: '/images/image1.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: '/images/pwa.png', sizes: '192x192', type: 'image/png' },
+          { src: '/images/pwa.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {
