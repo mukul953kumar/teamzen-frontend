@@ -51,7 +51,7 @@ const Layout = () => {
           {/* Header */}
           <div className="py-3 px-4 border-b border-white/10 flex-shrink-0">
             <div className="flex items-center justify-center relative">
-              <img src="/images/TeamZen.png" alt="TeamZen" className="h-25 w-auto max-w-full object-contain" />
+              <img src="/images/logo26.png" alt="TeamZen" className="h-25 w-auto max-w-full object-contain" />
               <button onClick={() => setSidebarOpen(false)} className="lg:hidden absolute right-0 p-2 rounded-lg hover:bg-white/10">
                 <X className="w-5 h-5" />
               </button>
@@ -123,7 +123,7 @@ const Layout = () => {
             <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 flex-shrink-0">
               <Menu className="w-5 h-5" />
             </button>
-            <img src="/images/TeamZen.png" alt="TeamZen" className="h-20 w-auto max-w-[60%] object-contain" />
+            <img src="/images/logo26.png" alt="TeamZen" className="h-20 w-auto max-w-[60%] object-contain" />
             <div className="w-10" />
           </div>
         </div>

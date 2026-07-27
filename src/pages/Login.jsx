@@ -46,7 +46,7 @@ const Login = () => {
       <div className="relative z-10 w-full max-w-md">
         <div className="card text-center">
           <div className="mb-8">
-            <img src="/images/TeamZen.png" alt="TeamZen" className="h-16 w-auto mx-auto mb-4" />
+            <img src="/images/logo26.png" alt="TeamZen" className="h-16 w-auto mx-auto mb-4" />
             <p className="text-gray-400">Sign in with your KNIT college email</p>
           </div>
 

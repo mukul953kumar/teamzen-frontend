@@ -11,7 +11,6 @@ import {
   Trophy, 
   User,
   LogOut,
-  Zap,
   Shield
 } from 'lucide-react'
 import NotificationBell from './NotificationBell'
@@ -56,10 +55,7 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'var(--sunset-gradient)' }}>
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold" style={{ color: 'var(--cream-white)' }}>TeamZen</span>
+              <img src="/images/logo26.png" alt="TeamZen" className="h-10 w-auto object-contain" />
             </Link>
 
             {/* Desktop Navigation */}

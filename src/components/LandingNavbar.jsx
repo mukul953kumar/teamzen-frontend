@@ -8,7 +8,6 @@ import {
   Users, 
   Search, 
   Trophy, 
-  Zap,
   Star,
   ArrowRight
 } from 'lucide-react'
@@ -65,10 +64,7 @@ const LandingNavbar = () => {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group hover:scale-105 transition-transform duration-300">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg" style={{ background: 'var(--sunset-gradient)' }}>
-                <Zap className="w-7 h-7 text-white" />
-              </div>
-              <span className="text-2xl font-bold" style={{ color: 'var(--cream-white)' }}>TeamZen</span>
+              <img src="/images/logo26.png" alt="TeamZen" className="h-12 w-auto object-contain" />
             </Link>
 
             {/* Desktop Navigation - Landing Page Specific */}

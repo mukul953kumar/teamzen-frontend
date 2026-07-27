@@ -69,7 +69,7 @@ const Signup = () => {
         <div className="card">
           {/* Logo */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold neon-text mb-2">TeamZen</h1>
+            <img src="/images/logo26.png" alt="TeamZen" className="h-16 w-auto object-contain mx-auto mb-2" />
             <p className="text-gray-400">Create your account and start building amazing teams</p>
           </div>
 

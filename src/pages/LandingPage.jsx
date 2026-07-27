@@ -156,6 +156,11 @@ const LandingPage = () => {
         {/* Overlay */}
         <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.72)' }} />
 
+        {/* Corner Logo */}
+        <div className="absolute top-6 left-6 z-20">
+          <img src="/images/logo26.png" alt="TeamZen" className="h-12 w-auto object-contain" />
+        </div>
+
         {/* Subtle grid lines */}
         <div
           className="absolute inset-0 opacity-10"
@@ -194,7 +199,7 @@ const LandingPage = () => {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
-                  <span>Join with College Email</span>
+                  <span>Get Started Free</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
@@ -501,7 +506,7 @@ const LandingPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
-                <span>Join with College Email</span>
+                <span>Start Building Your Team</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
