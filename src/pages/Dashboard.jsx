@@ -333,9 +333,9 @@ const Dashboard = () => {
 
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
         {/* Left - Recent Teams */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-4 lg:space-y-8 min-w-0">
 
           {/* Recent Teams */}
           <div className="card relative overflow-hidden">
@@ -427,7 +427,7 @@ const Dashboard = () => {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-8">
+        <div className="space-y-4 lg:space-y-8 min-w-0">
 
           {/* Recommended Teammates */}
           <div className="card no-horizontal-scroll relative overflow-hidden">
@@ -443,7 +443,7 @@ const Dashboard = () => {
             </div>
             <div className="relative z-10">
             {recommendedTeammates.length > 0 ? (
-              <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-4 lg:max-h-96 lg:overflow-y-auto pr-2 custom-scrollbar">
                 {recommendedTeammates.map((teammate, index) => (
                   <div key={teammate._id || index} className="p-3 md:p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10 no-horizontal-scroll">
                     <div className="flex items-start gap-3">
