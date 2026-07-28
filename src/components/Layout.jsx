@@ -129,7 +129,7 @@ const Layout = () => {
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto overflow-x-hidden w-full max-w-full" style={{
+        <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-y-auto overflow-x-hidden w-full max-w-full" style={{
           backgroundImage: getBackgroundImage(),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -147,6 +147,76 @@ const Layout = () => {
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
+
+      {/* ── Mobile Bottom Navigation ── */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50"
+        style={{
+          background: 'rgba(10, 10, 14, 0.82)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(255,255,255,0.07)',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)'
+        }}>
+        {/* Top shimmer line */}
+        <div className="absolute top-0 left-8 right-8 h-px"
+          style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.45), rgba(59,130,246,0.45), transparent)' }} />
+
+        <div className="flex items-center justify-around px-2 py-2 pb-safe"
+          style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}>
+
+          {[
+            { href: '/dashboard', icon: Home, label: 'Home' },
+            { href: '/teams', icon: Users, label: 'Teams' },
+            { href: '/chat', icon: MessageCircle, label: 'Messages', badge: null },
+            { href: '/teammate-finder', icon: Search, label: 'Teammates' },
+            { href: '/profile', icon: User, label: 'Profile' },
+          ].map(({ href, icon: Icon, label, badge }) => {
+            const active = location.pathname === href || (href !== '/dashboard' && location.pathname.startsWith(href))
+            return (
+              <Link
+                key={href}
+                to={href}
+                className="relative flex flex-col items-center justify-center gap-1 min-w-[56px] py-1 px-3 rounded-2xl transition-all duration-200 active:scale-95"
+                style={active ? {
+                  background: 'rgba(99,102,241,0.13)',
+                } : {}}
+              >
+                {/* Active glow pill */}
+                {active && (
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #818cf8, #a78bfa)' }} />
+                )}
+
+                <div className="relative">
+                  <Icon
+                    className="transition-all duration-200"
+                    style={{
+                      width: 22,
+                      height: 22,
+                      color: active ? '#a78bfa' : 'rgba(255,255,255,0.38)',
+                      filter: active ? 'drop-shadow(0 0 6px rgba(167,139,250,0.6))' : 'none',
+                      strokeWidth: active ? 2.2 : 1.8
+                    }}
+                  />
+                  {badge > 0 && (
+                    <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white"
+                      style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)', boxShadow: '0 0 6px rgba(249,115,22,0.5)' }}>
+                      {badge > 9 ? '9+' : badge}
+                    </span>
+                  )}
+                </div>
+
+                <span
+                  className="text-[10px] font-medium tracking-wide transition-all duration-200"
+                  style={{ color: active ? '#c4b5fd' : 'rgba(255,255,255,0.3)', letterSpacing: '0.03em' }}
+                >
+                  {label}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }

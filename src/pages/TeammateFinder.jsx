@@ -140,8 +140,10 @@ const TeammateFinder = () => {
       </div>
 
       {/* Search Section */}
-      <div className="card">
-        <form onSubmit={handleSubmit(onSearch)} className="space-y-6">
+      <div className="card relative overflow-hidden">
+        <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+        <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+        <form onSubmit={handleSubmit(onSearch)} className="relative z-10 space-y-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -239,8 +241,10 @@ const TeammateFinder = () => {
                 const isBookmarked = bookmarkedIds.has(u._id)
 
                 return (
-                  <div key={u._id} className="glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
-                    <div className="p-5">
+                  <div key={u._id} className="relative overflow-hidden glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
+                    <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+                    <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+                    <div className="relative z-10 p-5">
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-start space-x-3 flex-1 min-w-0">
@@ -372,9 +376,11 @@ const TeammateFinder = () => {
       </div>
 
       {/* Popular Skills */}
-      <div className="card">
-        <h3 className="text-xl font-semibold text-white mb-4">Popular Skills</h3>
-        <div className="flex flex-wrap gap-2">
+      <div className="card relative overflow-hidden">
+        <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+        <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+        <h3 className="relative z-10 text-xl font-semibold text-white mb-4">Popular Skills</h3>
+        <div className="relative z-10 flex flex-wrap gap-2">
           {commonSkills.map((skill) => (
             <button key={skill}
               onClick={() => { reset({ skills: skill }); setFilters({ skills: skill }); refetch() }}

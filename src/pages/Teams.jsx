@@ -198,12 +198,14 @@ const Teams = () => {
 
       {/* My Teams Section */}
       {myTeams.length > 0 && (
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card relative overflow-hidden">
+          <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+          <div className="relative z-10 flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-white">My Teams</h2>
             <span className="text-sm text-gray-400">{myTeams.length} teams</span>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myTeams.map((team) => (
               <div key={team._id} className="relative group">
                 <Link to={`/teams/${team._id}`} className="block">
@@ -269,15 +271,17 @@ const Teams = () => {
 
       {/* Pending Requests Section */}
       {myRequests.filter(r => r.status === 'Pending').length > 0 && (
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+        <div className="card relative overflow-hidden">
+          <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+          <div className="relative z-10 flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
               <Clock className="w-5 h-5 text-orange-400" />
               Pending Join Requests
             </h2>
             <span className="text-sm text-gray-400">{myRequests.filter(r => r.status === 'Pending').length} pending</span>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myRequests.filter(r => r.status === 'Pending').map((request) => {
               const team = request.team_id
               if (!team) return null
@@ -333,12 +337,14 @@ const Teams = () => {
       )}
 
       {/* All Teams Section */}
-      <div className="card">
-        <div className="flex items-center justify-between mb-6">
+      <div className="card relative overflow-hidden">
+        <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
+        <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
+        <div className="relative z-10 flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">All Teams</h2>
           <span className="text-sm text-gray-400">{teams.length} teams available</span>
         </div>
-
+        <div className="relative z-10">
         {/* Search Bar */}
         <form onSubmit={handleSubmit(onSearch)} className="mb-6">
           <div className="flex flex-col md:flex-row gap-4">
@@ -456,6 +462,7 @@ const Teams = () => {
             )}
           </div>
         )}
+        </div>
       </div>
 
       {/* Create Team Modal */}
