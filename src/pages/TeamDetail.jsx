@@ -18,7 +18,8 @@ import {
   Crown,
   Shield,
   ArrowLeft,
-  Mail
+  Mail,
+  Trash2
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -116,6 +117,20 @@ const TeamDetail = () => {
     }
   )
 
+  // Delete team mutation
+  const deleteTeamMutation = useMutation(
+    () => api.delete(`/teams/${id}`),
+    {
+      onSuccess: () => {
+        toast.success('Team deleted successfully')
+        navigate('/teams')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to delete team')
+      }
+    }
+  )
+
   // Remove member mutation
   const removeMemberMutation = useMutation(
     (memberId) => api.delete(`/teams/${id}/members/${memberId}`),
@@ -150,6 +165,12 @@ const TeamDetail = () => {
   const handleLeaveTeam = () => {
     if (window.confirm('Are you sure you want to leave this team?')) {
       leaveTeamMutation.mutate()
+    }
+  }
+
+  const handleDeleteTeam = () => {
+    if (window.confirm('Are you sure you want to delete this team? This will delete all messages, requests and notifications permanently.')) {
+      deleteTeamMutation.mutate()
     }
   }
 
@@ -239,6 +260,17 @@ const TeamDetail = () => {
           >
             <XCircle className="w-4 h-4 mr-2" />
             Leave Team
+          </button>
+        )}
+
+        {isLeader && (
+          <button
+            onClick={handleDeleteTeam}
+            disabled={deleteTeamMutation.isLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 transition-all duration-200"
+          >
+            <Trash2 className="w-4 h-4" />
+            {deleteTeamMutation.isLoading ? 'Deleting...' : 'Delete Team'}
           </button>
         )}
       </div>

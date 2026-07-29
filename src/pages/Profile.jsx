@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../contexts/useAuth'
+import { useNavigate } from 'react-router-dom'
 import { 
   User, 
   Mail, 
@@ -17,18 +18,22 @@ import {
   Code,
   Trophy,
   Camera,
-  Upload
+  Upload,
+  Trash2
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 
 const Profile = () => {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const fileInputRef = useRef(null)
 
   const { data: profileData, isLoading } = useQuery(
@@ -48,6 +53,25 @@ const Profile = () => {
       staleTime: 0
     }
   )
+
+  const deleteAccountMutation = useMutation(
+    () => api.delete('/users/account'),
+    {
+      onSuccess: () => {
+        toast.success('Account deleted successfully')
+        logout()
+        navigate('/')
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Failed to delete account')
+      }
+    }
+  )
+
+  const handleDeleteAccount = () => {
+    setShowDeleteModal(true)
+    setDeleteConfirmText('')
+  }
 
   const updateProfileMutation = useMutation(
     (profileData) => {
@@ -471,8 +495,90 @@ const Profile = () => {
               <p>• Keep achievements updated</p>
             </div>
           </div>
+
+          {/* Danger Zone */}
+          <div className="card border border-red-500/20">
+            <h3 className="text-base font-semibold text-red-400 mb-2">Danger Zone</h3>
+            <p className="text-xs text-gray-500 mb-3">Permanently delete your account and all related data.</p>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleteAccountMutation.isLoading}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 transition-all duration-200"
+            >
+              <Trash2 className="w-4 h-4" />
+              {deleteAccountMutation.isLoading ? 'Deleting...' : 'Delete Account'}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Delete Account Consent Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+          <div className="w-full max-w-md rounded-2xl p-6 space-y-5"
+            style={{ background: '#1a1a1a', border: '1px solid rgba(239,68,68,0.3)' }}>
+
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-400" />
+                </div>
+                <h2 className="text-lg font-bold text-white">Delete Account</h2>
+              </div>
+              <button onClick={() => setShowDeleteModal(false)} className="text-gray-500 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Warning */}
+            <div className="p-4 rounded-xl space-y-2" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <p className="text-sm font-semibold text-red-400">This action is permanent and cannot be undone.</p>
+              <p className="text-xs text-gray-400">The following will be deleted forever:</p>
+              <ul className="text-xs text-gray-500 space-y-1 list-disc list-inside">
+                <li>Your profile and account</li>
+                <li>All teams you created</li>
+                <li>All messages and chats</li>
+                <li>All achievements and projects</li>
+                <li>All notifications and join requests</li>
+              </ul>
+            </div>
+
+            {/* Confirm input */}
+            <div>
+              <p className="text-sm text-gray-400 mb-2">
+                Type <span className="font-semibold text-white">{profile?.name}</span> to confirm:
+              </p>
+              <input
+                type="text"
+                className="input w-full"
+                placeholder={profile?.name}
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 btn-secondary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => deleteAccountMutation.mutate()}
+                disabled={deleteConfirmText !== profile?.name || deleteAccountMutation.isLoading}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: deleteConfirmText === profile?.name ? '#ef4444' : 'rgba(239,68,68,0.3)' }}
+              >
+                <Trash2 className="w-4 h-4" />
+                {deleteAccountMutation.isLoading ? 'Deleting...' : 'Delete My Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

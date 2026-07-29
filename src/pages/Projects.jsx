@@ -313,7 +313,7 @@ const Projects = () => {
                     </div>
                   </div>
                   {project.user_id._id === user?._id && (
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center space-x-1">
                       <button
                         onClick={() => onEditProject(project)}
                         className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
@@ -434,8 +434,8 @@ const Projects = () => {
 
       {/* Create/Edit Modal */}
       {(showCreateModal || editingProject) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50">
-          <div className="w-full max-w-2xl card">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="w-full max-w-2xl card max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white">
                 {editingProject ? 'Edit Project' : 'Create New Project'}
