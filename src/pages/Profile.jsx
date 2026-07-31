@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useAuth } from '../contexts/useAuth'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { 
   User, 
   Mail, 
@@ -26,11 +26,15 @@ import {
   Award,
   Star,
   Zap,
+  Heart,
+  Flame,
   CheckCircle,
   ExternalLink,
   HelpCircle,
   Headphones,
-  Copy
+  Copy,
+  FolderOpen,
+  Plus
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import TermsModal from '../components/TermsModal'
@@ -90,9 +94,10 @@ const SkillProficiencyChart = ({ skills = [] }) => {
 }
 
 const Profile = () => {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [localUser, setLocalUser] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
@@ -100,13 +105,28 @@ const Profile = () => {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isTermsOpen, setIsTermsOpen] = useState(false)
   const [termsTab, setTermsTab] = useState('terms')
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [selectedAchievement, setSelectedAchievement] = useState(null)
   const fileInputRef = useRef(null)
 
-  const { data: profileData, isLoading } = useQuery(
+  const { data: profileData, isLoading, refetch: refetchProfile } = useQuery(
     'profile',
     () => api.get('/auth/me').then(res => res.data.data),
-    { enabled: !!user }
+    {
+      enabled: !!user,
+      staleTime: 0,
+      cacheTime: 0,
+      onSuccess: (data) => {
+        if (data?.user) setLocalUser(data.user)
+      }
+    }
   )
+
+  React.useEffect(() => {
+    if (profileData?.user) {
+      setLocalUser(profileData.user)
+    }
+  }, [profileData])
 
   const { data: achievementsData } = useQuery(
     'userAchievements',
@@ -117,6 +137,15 @@ const Profile = () => {
       refetchOnWindowFocus: true,
       cacheTime: 0,
       staleTime: 0
+    }
+  )
+
+  const { data: projectsData } = useQuery(
+    ['userProjects', user?._id],
+    () => api.get(`/projects?user_id=${user?._id}`).then(res => res.data.data),
+    { 
+      enabled: !!user,
+      retry: false
     }
   )
 
@@ -162,9 +191,18 @@ const Profile = () => {
       })
     },
     {
-      onSuccess: () => {
+      onSuccess: (res) => {
+        const updatedUser = res?.data?.data?.user
+        if (updatedUser) {
+          setLocalUser(updatedUser)
+          queryClient.setQueryData('profile', { user: updatedUser })
+          queryClient.setQueryData('currentUser', updatedUser)
+          if (updateUser) updateUser(updatedUser)
+        }
         queryClient.invalidateQueries('profile')
+        queryClient.invalidateQueries('userProfile')
         queryClient.invalidateQueries('currentUser')
+        refetchProfile()
         toast.success('Profile updated successfully!')
         setIsEditing(false)
         setSelectedImage(null)
@@ -180,6 +218,8 @@ const Profile = () => {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm()
 
@@ -187,13 +227,34 @@ const Profile = () => {
     updateProfileMutation.mutate(data)
   }
 
+  const handleYearChange = (e) => {
+    const yr = Number(e.target.value)
+    const sy = 2026 - (yr - 1)
+    setValue('year', yr)
+    setValue('startYear', sy)
+    setValue('endYear', sy + 4)
+  }
+
+  const handleStartYearChange = (e) => {
+    const sy = Number(e.target.value)
+    setValue('startYear', sy)
+    setValue('endYear', sy + 4)
+  }
+
   const handleEdit = () => {
     if (profileData?.user) {
+      const yr = Number(profileData.user.year) || 3
+      const fallbackStart = 2026 - (yr - 1)
+      const sy = profileData.user.startYear || fallbackStart
+      const ey = profileData.user.endYear || (sy + 4)
+
       reset({
         name: profileData.user.name,
         bio: profileData.user.bio,
         branch: profileData.user.branch,
-        year: profileData.user.year,
+        year: profileData.user.year || 3,
+        startYear: sy,
+        endYear: ey,
         github: profileData.user.github,
         linkedin: profileData.user.linkedin,
         portfolio: profileData.user.portfolio,
@@ -202,8 +263,8 @@ const Profile = () => {
         skills: profileData.user.skills?.map(skill => skill.skill_name) || []
       })
       setPreviewImage(profileData.user.profile_image)
+      setIsEditing(true)
     }
-    setIsEditing(true)
   }
 
   const handleCancel = () => {
@@ -247,8 +308,9 @@ const Profile = () => {
     )
   }
 
-  const profile = profileData?.user
+  const profile = localUser || profileData?.user
   const achievements = achievementsData?.achievements || []
+  const projects = projectsData?.projects || []
 
   const profileCompletion = (() => {
     if (!profile) return 0
@@ -360,20 +422,36 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-xs text-gray-400 mb-1">Branch</label>
-                        <select className="input w-full" {...register('branch')}>
+                        <select className="input w-full text-xs" {...register('branch')}>
                           {['CSE','ECE','EEE','MECH','CIVIL','IT','Other'].map(b => (
                             <option key={b} value={b}>{b}</option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-400 mb-1">Year</label>
-                        <select className="input w-full" {...register('year')}>
+                        <label className="block text-xs text-gray-400 mb-1">Current Year</label>
+                        <select className="input w-full text-xs" {...register('year')} onChange={(e) => { register('year').onChange(e); handleYearChange(e); }}>
                           {[1,2,3,4].map(y => (
                             <option key={y} value={y}>{y}{y===1?'st':y===2?'nd':y===3?'rd':'th'} Year</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Start Year (Batch Join)</label>
+                        <select className="input w-full text-xs" {...register('startYear')} onChange={(e) => { register('startYear').onChange(e); handleStartYearChange(e); }}>
+                          {[2020, 2021, 2022, 2023, 2024, 2025, 2026].map(sy => (
+                            <option key={sy} value={sy}>{sy}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">End Year (Passout)</label>
+                        <select className="input w-full text-xs" {...register('endYear')}>
+                          {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(ey => (
+                            <option key={ey} value={ey}>{ey}</option>
                           ))}
                         </select>
                       </div>
@@ -449,6 +527,20 @@ const Profile = () => {
                           Fast Responder
                         </span>
                       )}
+
+                      {/* 5. Popularity Badge */}
+                      {profile?.likesCount > 0 && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-rose-500/15 text-rose-300 border border-rose-500/30 shadow-sm" title={`${profile.likesCount} Profile Likes`}>
+                          <Heart className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+                          {profile.likesCount} Profile {profile.likesCount === 1 ? 'Like' : 'Likes'}
+                        </span>
+                      )}
+
+                      {/* 6. Streak & Points Badge */}
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-amber-500/15 text-orange-400 border border-orange-500/30 shadow-sm" title={`${profile?.loginStreak || 1} Days Active Login Streak`}>
+                        <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
+                        {profile?.loginStreak || 1}d Streak (⚡ {profile?.zenPoints || 10} Pts)
+                      </span>
                     </div>
 
                     <p className="text-gray-400 mb-4">{profile?.bio || 'No bio added yet'}</p>
@@ -464,7 +556,9 @@ const Profile = () => {
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
                         <Calendar className="w-4 h-4 flex-shrink-0 text-purple-400" />
-                        <span>{profile?.year}{profile?.year === 1 ? 'st' : profile?.year === 2 ? 'nd' : profile?.year === 3 ? 'rd' : 'th'} Year</span>
+                        <span>
+                          {profile?.year}{profile?.year === 1 ? 'st' : profile?.year === 2 ? 'nd' : profile?.year === 3 ? 'rd' : 'th'} Year ({profile?.startYear || (2026 - ((Number(profile?.year) || 3) - 1))} – {profile?.endYear || ((profile?.startYear || (2026 - ((Number(profile?.year) || 3) - 1))) + 4)} Batch)
+                        </span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
                         <User className="w-4 h-4 flex-shrink-0 text-emerald-400" />
@@ -548,6 +642,78 @@ const Profile = () => {
 
             {/* Visual Technical Matrix */}
             <SkillProficiencyChart skills={profile?.skills} />
+          </div>
+
+          {/* Showcase Projects */}
+          <div className="card">
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <h3 className="text-xl font-semibold text-white flex items-center">
+                <FolderOpen className="w-5 h-5 mr-2 text-primary-400" />
+                Showcase Projects
+              </h3>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-400">{projects.length} projects</span>
+                <Link
+                  to="/projects"
+                  className="btn-primary text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1 font-medium shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Manage Projects
+                </Link>
+              </div>
+            </div>
+            
+            {projects.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {projects.slice(0, 4).map((project) => (
+                  <div key={project._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-all border border-white/10 flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <h4 className="font-bold text-white text-base truncate">{project.title}</h4>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-semibold flex-shrink-0 ${
+                          project.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                        }`}>
+                          {project.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-400 line-clamp-2 mb-3 leading-relaxed">{project.description}</p>
+                      
+                      {project.tech_stack?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-2">
+                          {project.tech_stack.slice(0, 4).map((tech, idx) => (
+                            <span key={idx} className="px-2 py-0.5 bg-blue-500/15 text-blue-300 text-[10px] font-semibold rounded-md border border-blue-500/25">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs text-gray-400">
+                      <span>{project.year}</span>
+                      <div className="flex items-center gap-2.5">
+                        {project.github_link && (
+                          <a href={project.github_link.startsWith('http') ? project.github_link : `https://${project.github_link}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" title="GitHub Repo">
+                            <Github className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {project.demo_link && (
+                          <a href={project.demo_link.startsWith('http') ? project.demo_link : `https://${project.demo_link}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" title="Live Demo">
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 rounded-xl bg-white/5 border border-dashed border-white/15 text-center space-y-3">
+                <p className="text-xs sm:text-sm text-gray-400">No showcase projects added to your profile yet</p>
+                <Link to="/projects" className="btn-primary text-xs px-4 py-2 rounded-xl inline-flex items-center gap-1.5 font-semibold">
+                  <Plus className="w-4 h-4" /> Add Your First Project
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Achievements */}
@@ -805,6 +971,112 @@ const Profile = () => {
         onClose={() => setIsTermsOpen(false)}
         initialTab={termsTab}
       />
+
+      {/* Project Detail Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+            
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                    selectedProject.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>
+                    {selectedProject.status}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400">Year {selectedProject.year}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">{selectedProject.title}</h2>
+              </div>
+              <button onClick={() => setSelectedProject(null)} className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Project Overview</h3>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedProject.description}
+              </div>
+            </div>
+
+            {selectedProject.tech_stack?.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Technologies Used</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.tech_stack.map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 text-xs font-semibold rounded-lg">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+              <div className="flex items-center gap-3">
+                {selectedProject.github_link && (
+                  <a href={selectedProject.github_link.startsWith('http') ? selectedProject.github_link : `https://${selectedProject.github_link}`} target="_blank" rel="noopener noreferrer" className="btn-secondary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5">
+                    <Github className="w-4 h-4" /> GitHub Code
+                  </a>
+                )}
+                {selectedProject.demo_link && (
+                  <a href={selectedProject.demo_link.startsWith('http') ? selectedProject.demo_link : `https://${selectedProject.demo_link}`} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5">
+                    <ExternalLink className="w-4 h-4" /> Live Demo
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Achievement Detail Modal */}
+      {selectedAchievement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-purple-500" />
+            
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    {selectedAchievement.type}
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                    {selectedAchievement.position}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400">Year {selectedAchievement.year}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">{selectedAchievement.title}</h2>
+                {selectedAchievement.organization && (
+                  <p className="text-xs text-amber-400 font-semibold mt-1">Issued by: {selectedAchievement.organization}</p>
+                )}
+              </div>
+              <button onClick={() => setSelectedAchievement(null)} className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Achievement Details</h3>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedAchievement.description}
+              </div>
+            </div>
+
+            {selectedAchievement.certificate_link && (
+              <div className="pt-4 border-t border-white/10">
+                <a href={selectedAchievement.certificate_link.startsWith('http') ? selectedAchievement.certificate_link : `https://${selectedAchievement.certificate_link}`} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-2 rounded-xl inline-flex items-center gap-1.5 font-semibold">
+                  <ExternalLink className="w-4 h-4" /> View Certificate
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

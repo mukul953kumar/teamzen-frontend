@@ -159,6 +159,51 @@ const Teams = () => {
     )
   }
 
+  const getDeadlineBadge = (deadline) => {
+    if (!deadline) return null
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const target = new Date(deadline)
+    target.setHours(23, 59, 59, 999)
+
+    const diffTime = target.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffTime < 0) {
+      return (
+        <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-red-500/20 text-red-400 border border-red-500/40 flex items-center gap-1 shadow-sm">
+          <XCircle className="w-3 h-3 text-red-400" />
+          Closed
+        </span>
+      )
+    }
+
+    if (diffDays <= 1) {
+      return (
+        <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse flex items-center gap-1 shadow-md shadow-rose-500/20">
+          <Clock className="w-3 h-3 text-rose-400 flex-shrink-0 animate-bounce" />
+          🔥 Closes Today!
+        </span>
+      )
+    }
+
+    if (diffDays <= 3) {
+      return (
+        <span className="px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse flex items-center gap-1 shadow-md shadow-amber-500/15">
+          <AlertCircle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+          ⚡ {diffDays} Days Left!
+        </span>
+      )
+    }
+
+    return (
+      <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+        <Calendar className="w-3 h-3 text-purple-400 flex-shrink-0" />
+        {diffDays}d left ({target.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})
+      </span>
+    )
+  }
+
   const teams = teamsData?.data?.teams || []
   const myTeams = myTeamsData?.data?.teams || []
   const myRequests = myRequestsData?.data?.joinRequests || []
@@ -437,22 +482,39 @@ const Teams = () => {
                     style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%)' }} />
 
                   <div className="relative z-10">
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-2.5 mb-4">
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md flex-shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
-                          {team.team_name?.charAt(0).toUpperCase() || 'T'}
-                        </div>
+                    {/* Header Top Row */}
+                    <div className="flex items-start justify-between gap-3 mb-2.5">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {team.leader_id?.profile_image ? (
+                          <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}>
+                            <img
+                              src={team.leader_id.profile_image}
+                              alt={team.leader_id?.name || team.team_name}
+                              className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-white/20 shadow-md"
+                            />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500/90 flex items-center justify-center text-[9px] shadow-sm border border-black/40">
+                              👑
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md flex-shrink-0 border border-white/10"
+                            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+                            title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}
+                          >
+                            {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                          </div>
+                        )}
+
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors truncate">
+                          <h3 className="font-bold text-white text-base sm:text-lg group-hover:text-primary-300 transition-colors break-words leading-snug">
                             {team.team_name}
                           </h3>
-                          <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
+                          <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{team.project_title || 'Project'}</p>
                         </div>
                       </div>
 
-                      <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
                         team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
                         team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
                         'bg-blue-500/15 text-blue-400 border border-blue-500/30'
@@ -460,6 +522,13 @@ const Teams = () => {
                         {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
                       </span>
                     </div>
+
+                    {/* Deadline Badge Bar */}
+                    {team.deadline && (
+                      <div className="mb-3">
+                        {getDeadlineBadge(team.deadline)}
+                      </div>
+                    )}
 
                     {/* Description */}
                     <p className="text-xs text-gray-300 mb-4 line-clamp-2 leading-relaxed">
@@ -676,8 +745,20 @@ const Teams = () => {
                   <input
                     type="date"
                     className="input w-full"
-                    {...register('deadline')}
+                    min={new Date().toISOString().split('T')[0]}
+                    {...register('deadline', {
+                      validate: (val) => {
+                        if (!val) return true
+                        const selected = new Date(val)
+                        const today = new Date()
+                        today.setHours(0, 0, 0, 0)
+                        return selected >= today || 'Deadline date cannot be in the past'
+                      }
+                    })}
                   />
+                  {errors.deadline && (
+                    <p className="text-red-400 text-sm mt-1">{errors.deadline.message}</p>
+                  )}
                 </div>
 
                 <div>

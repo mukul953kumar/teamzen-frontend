@@ -15,11 +15,15 @@ import {
   ExternalLink,
   ChevronRight,
   Sparkles,
-  UserCheck
+  UserCheck,
+  Flame,
+  Zap,
+  HelpCircle
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import AIMatchModal from '../components/AIMatchModal'
+import StreakInfoModal from '../components/StreakInfoModal'
 
 const getActivityIcon = (iconName) => {
   switch (iconName) {
@@ -35,6 +39,7 @@ const Dashboard = () => {
   const { user } = useAuth()
   const { unreadCount } = useNotifications()
   const [aiMatchUser, setAiMatchUser] = React.useState(null)
+  const [showStreakModal, setShowStreakModal] = React.useState(false)
 
   const { data: dashboardData, isLoading } = useQuery(
     'dashboard',
@@ -130,10 +135,24 @@ const Dashboard = () => {
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-black" />
             </div>
 
-            <div className="min-w-0">
-              <h1 className="text-base md:text-lg font-semibold text-white leading-tight truncate">
-                Welcome, {user?.name?.split(' ')[0]} 👋
-              </h1>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-base md:text-lg font-semibold text-white leading-tight truncate">
+                  Welcome, {user?.name?.split(' ')[0]} 👋
+                </h1>
+                {/* Streak & Zen Points Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowStreakModal(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-orange-400 border border-orange-500/30 hover:bg-amber-500/25 transition-all cursor-pointer shadow-sm"
+                  title="Click to view Streak & Zen Points benefits"
+                >
+                  <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400 flex-shrink-0" />
+                  <span>{user?.loginStreak || 1}d Streak</span>
+                  <span className="text-[10px] text-gray-400 ml-0.5 font-normal">| ⚡ {user?.zenPoints || 10} Pts</span>
+                  <HelpCircle className="w-3 h-3 text-orange-400 ml-0.5 opacity-80 flex-shrink-0" />
+                </button>
+              </div>
               <p className="text-xs text-gray-400 truncate mt-0.5">
                 {user?.branch} · Year {user?.year} · {user?.college}
               </p>
@@ -380,12 +399,25 @@ const Dashboard = () => {
                         {/* Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-sm flex-shrink-0"
-                              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                              {team.team_name?.charAt(0).toUpperCase() || 'T'}
-                            </div>
+                            {team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image) ? (
+                              <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Leader'}`}>
+                                <img
+                                  src={team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image)}
+                                  alt={team.team_name}
+                                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-white/20 shadow-sm"
+                                />
+                                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center text-[8px] shadow-sm border border-black/40">
+                                  👑
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-sm flex-shrink-0 border border-white/10"
+                                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                                {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                              </div>
+                            )}
                             <div className="min-w-0 flex-1">
-                              <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors truncate">
+                              <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors break-words leading-tight">
                                 {team.team_name}
                               </h3>
                               <p className="text-xs text-gray-400 truncate">{team.project_title || 'Project'}</p>
@@ -646,6 +678,13 @@ const Dashboard = () => {
         onClose={() => setAiMatchUser(null)}
         candidate={aiMatchUser}
         currentUser={user}
+      />
+
+      {/* Daily Streak & Zen Points Info Modal */}
+      <StreakInfoModal
+        isOpen={showStreakModal}
+        onClose={() => setShowStreakModal(false)}
+        user={user}
       />
     </div>
   )

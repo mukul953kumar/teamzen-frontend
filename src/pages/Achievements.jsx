@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { 
   Trophy, 
   Plus, 
@@ -15,7 +16,11 @@ import {
   X,
   Save,
   Medal,
-  Star
+  Star,
+  Heart,
+  Eye,
+  User,
+  MapPin
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -26,8 +31,10 @@ const Achievements = () => {
   const { user } = useAuth()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingAchievement, setEditingAchievement] = useState(null)
+  const [selectedAchievement, setSelectedAchievement] = useState(null)
   const [filters, setFilters] = useState({})
   const [showFilters, setShowFilters] = useState(false)
+  const [likesState, setLikesState] = useState({})
   const queryClient = useQueryClient()
 
   // Default to showing current user's achievements
@@ -44,6 +51,23 @@ const Achievements = () => {
     setValue,
     formState: { errors },
   } = useForm()
+
+  const likeMutation = useMutation(
+    (achievementId) => api.post(`/achievements/like/${achievementId}`),
+    {
+      onSuccess: (res, achievementId) => {
+        setLikesState(prev => ({
+          ...prev,
+          [achievementId]: {
+            liked: res.data.liked,
+            count: res.data.likesCount
+          }
+        }))
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like achievement')
+    }
+  )
 
   // Fetch achievements
   const { data: achievementsData, isLoading, refetch } = useQuery(
@@ -339,87 +363,160 @@ const Achievements = () => {
           </div>
         ) : achievements.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {achievements.map((achievement) => (
-              <div key={achievement._id} className="glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${getTypeColor(achievement.type)}`}>
-                      {getTypeIcon(achievement.type)}
+            {achievements.map((achievement) => {
+              const isOwner = user && (achievement.user_id?._id === user._id || achievement.user_id === user._id)
+              const userLikesInfo = likesState[achievement._id] || {
+                liked: user && Array.isArray(achievement.likedBy)
+                  ? achievement.likedBy.some(id => id.toString() === user._id || id === user._id)
+                  : false,
+                count: achievement.likesCount || 0
+              }
+              const isLiked = userLikesInfo.liked
+              const count = userLikesInfo.count
+
+              return (
+                <div
+                  key={achievement._id}
+                  onClick={() => setSelectedAchievement(achievement)}
+                  className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.09)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                  }}
+                >
+                  {/* Top Accent Gradient Line */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                    style={{ background: 'linear-gradient(90deg, #f59e0b, #ec4899, #8b5cf6)' }} />
+
+                  {/* Hover Glow */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%)' }} />
+
+                  <div className="relative z-10 space-y-3.5">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <div className={`p-2.5 rounded-xl border flex-shrink-0 ${getTypeColor(achievement.type)}`}>
+                          {getTypeIcon(achievement.type)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-white text-base group-hover:text-amber-300 transition-colors truncate">
+                            {achievement.title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getTypeColor(achievement.type)}`}>
+                              {achievement.type}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getPositionColor(achievement.position)}`}>
+                              {achievement.position}
+                            </span>
+                            <span className="text-xs font-medium text-gray-400">{achievement.year}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Owner Actions */}
+                      {isOwner && (
+                        <div className="flex items-center space-x-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => onEditAchievement(achievement)}
+                            className="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                            title="Edit Achievement"
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onDeleteAchievement(achievement._id)}
+                            className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 transition-colors"
+                            title="Delete Achievement"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-white group-hover:text-primary-400 transition-colors">
-                        {achievement.title}
-                      </h3>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <span className={`px-2 py-1 rounded-lg text-xs ${getTypeColor(achievement.type)}`}>
-                          {achievement.type}
-                        </span>
-                        <span className={`px-2 py-1 rounded-lg text-xs ${getPositionColor(achievement.position)}`}>
-                          {achievement.position}
-                        </span>
-                        <span className="text-xs text-gray-500">{achievement.year}</span>
+
+                    {/* Description */}
+                    <p className="text-gray-300 text-xs sm:text-sm line-clamp-3 leading-relaxed">
+                      {achievement.description}
+                    </p>
+
+                    {/* Organization */}
+                    {achievement.organization && (
+                      <div className="text-xs text-gray-400 bg-white/5 p-2 rounded-xl border border-white/5 truncate">
+                        <span className="text-gray-500">Issued by: </span>
+                        <span className="text-gray-200 font-medium">{achievement.organization}</span>
+                      </div>
+                    )}
+
+                    {/* Author Box */}
+                    <div className="flex items-center space-x-3 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-400 to-purple-500 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {achievement.user_id?.profile_image ? (
+                          <img src={achievement.user_id.profile_image} alt={achievement.user_id.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-xs font-bold text-white">
+                            {achievement.user_id?.name?.charAt(0).toUpperCase() || 'U'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">{achievement.user_id?.name || 'Student'}</p>
+                        <p className="text-[11px] text-gray-400 truncate">{achievement.user_id?.college || 'KNIT Sultanpur'}</p>
                       </div>
                     </div>
                   </div>
-                  {achievement.user_id._id === user?._id && (
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                  {/* Bottom Footer Actions */}
+                  <div className="relative z-10 flex items-center justify-between gap-2 pt-4 mt-4 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
+                    {/* Heart Like Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!user) return toast.error('Please login to like achievements')
+                        if (isOwner) return toast.error('You cannot like your own achievement')
+                        likeMutation.mutate(achievement._id)
+                      }}
+                      disabled={likeMutation.isLoading}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                        isLiked
+                          ? 'bg-rose-500/20 border-rose-500/40 text-rose-400 shadow-sm shadow-rose-500/20'
+                          : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10'
+                      } ${isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      title={isOwner ? 'Your own achievement' : isLiked ? 'Unlike achievement' : 'Like achievement'}
+                    >
+                      <Heart className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                        isLiked ? 'fill-rose-500 text-rose-500 scale-110' : ''
+                      }`} />
+                      <span>{count}</span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      {achievement.certificate_link && (
+                        <a
+                          href={achievement.certificate_link.startsWith('http') ? achievement.certificate_link : `https://${achievement.certificate_link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                          title="View Certificate"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      )}
                       <button
-                        onClick={() => onEditAchievement(achievement)}
-                        className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                        onClick={() => setSelectedAchievement(achievement)}
+                        className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1 font-semibold rounded-xl"
                       >
-                        <Edit className="w-4 h-4 text-gray-400" />
-                      </button>
-                      <button
-                        onClick={() => onDeleteAchievement(achievement._id)}
-                        className="p-1.5 rounded-lg hover:bg-red-500/20 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-400" />
+                        <Eye className="w-3.5 h-3.5" />
+                        View
                       </button>
                     </div>
-                  )}
-                </div>
-
-                {/* Description */}
-                <p className="text-gray-300 text-sm mb-4 line-clamp-3">{achievement.description}</p>
-
-                {/* Organization */}
-                {achievement.organization && (
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-400">Organization</p>
-                    <p className="text-white font-medium">{achievement.organization}</p>
-                  </div>
-                )}
-
-                {/* Certificate Link */}
-                {achievement.certificate_link && (
-                  <div className="mb-4">
-                    <a
-                      href={achievement.certificate_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-primary-400 hover:text-primary-300 text-sm"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      <span>View Certificate</span>
-                    </a>
-                  </div>
-                )}
-
-                {/* Author */}
-                <div className="flex items-center space-x-3 p-3 rounded-lg glass">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
-                    <span className="text-xs font-bold text-white">
-                      {achievement.user_id.name?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{achievement.user_id.name}</p>
-                    <p className="text-xs text-gray-400">{achievement.user_id.college}</p>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-12">
@@ -438,6 +535,123 @@ const Achievements = () => {
         )}
       </div>
 
+      {/* Achievement Detail View Modal */}
+      {selectedAchievement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-purple-500" />
+            
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getTypeColor(selectedAchievement.type)}`}>
+                    {selectedAchievement.type}
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getPositionColor(selectedAchievement.position)}`}>
+                    {selectedAchievement.position}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400">Year {selectedAchievement.year}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">{selectedAchievement.title}</h2>
+                {selectedAchievement.organization && (
+                  <p className="text-xs text-amber-400 font-semibold mt-1">
+                    Issued by: {selectedAchievement.organization}
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => setSelectedAchievement(null)}
+                className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Owner Section */}
+            <div className="flex items-center space-x-3 p-3.5 rounded-2xl bg-white/5 border border-white/10">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-400 to-purple-500 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {selectedAchievement.user_id?.profile_image ? (
+                  <img src={selectedAchievement.user_id.profile_image} alt={selectedAchievement.user_id.name} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-white">
+                    {selectedAchievement.user_id?.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-white">{selectedAchievement.user_id?.name || 'Student'}</p>
+                <p className="text-xs text-gray-400">{selectedAchievement.user_id?.college || 'KNIT Sultanpur'}</p>
+              </div>
+              {selectedAchievement.user_id?._id && (
+                <Link
+                  to={`/user/${selectedAchievement.user_id._id}`}
+                  className="btn-secondary text-xs px-3 py-1.5 rounded-xl flex items-center gap-1"
+                >
+                  <User className="w-3.5 h-3.5" /> View Profile
+                </Link>
+              )}
+            </div>
+
+            {/* Full Description */}
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Achievement Details</h3>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedAchievement.description}
+              </div>
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
+              {/* Like Button */}
+              {(() => {
+                const isSelf = user && (selectedAchievement.user_id?._id === user._id || selectedAchievement.user_id === user._id)
+                const userLikesInfo = likesState[selectedAchievement._id] || {
+                  liked: user && Array.isArray(selectedAchievement.likedBy)
+                    ? selectedAchievement.likedBy.some(id => id.toString() === user._id || id === user._id)
+                    : false,
+                  count: selectedAchievement.likesCount || 0
+                }
+                const isLiked = userLikesInfo.liked
+                const count = userLikesInfo.count
+
+                return (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user) return toast.error('Please login to like achievements')
+                      if (isSelf) return toast.error('You cannot like your own achievement')
+                      likeMutation.mutate(selectedAchievement._id)
+                    }}
+                    disabled={likeMutation.isLoading}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                      isLiked
+                        ? 'bg-rose-500/20 border-rose-500/40 text-rose-400 shadow-sm shadow-rose-500/20'
+                        : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10'
+                    } ${isSelf ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  >
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                    <span>{count} Likes</span>
+                  </button>
+                )
+              })()}
+
+              {selectedAchievement.certificate_link && (
+                <a
+                  href={selectedAchievement.certificate_link.startsWith('http') ? selectedAchievement.certificate_link : `https://${selectedAchievement.certificate_link}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 font-semibold"
+                >
+                  <ExternalLink className="w-4 h-4" /> View Certificate
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Achievement Stats */}
       <div className="grid md:grid-cols-4 gap-6">
         {achievementTypes.map((type) => {
@@ -448,18 +662,18 @@ const Achievements = () => {
                 {getTypeIcon(type)}
               </div>
               <div className="text-2xl font-bold text-white mb-1">{count}</div>
-              <div className="text-sm text-gray-400">{type}s</div>
+              <div className="text-gray-400 text-sm">{type}s</div>
             </div>
           )
         })}
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Modal with Sticky Mobile Submit Footer */}
       {(showCreateModal || editingAchievement) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="w-full max-w-2xl card max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-4 sm:p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6 custom-scrollbar">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">
                 {editingAchievement ? 'Edit Achievement' : 'Add New Achievement'}
               </h2>
               <button
@@ -468,31 +682,32 @@ const Achievements = () => {
                   setEditingAchievement(null)
                   reset()
                 }}
-                className="text-gray-400 hover:text-white"
+                className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                title="Close"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(editingAchievement ? onUpdateAchievement : onCreateAchievement)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit(editingAchievement ? onUpdateAchievement : onCreateAchievement)} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                     Title *
                   </label>
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="Achievement Title"
+                    placeholder="e.g., 1st Prize in Hackathon 2026"
                     {...register('title', { required: 'Title is required' })}
                   />
                   {errors.title && (
-                    <p className="mt-1 text-sm text-red-400">{errors.title.message}</p>
+                    <p className="mt-1 text-xs text-red-400">{errors.title.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                     Type *
                   </label>
                   <select className="input w-full" {...register('type', { required: 'Type is required' })}>
@@ -502,44 +717,44 @@ const Achievements = () => {
                     ))}
                   </select>
                   {errors.type && (
-                    <p className="mt-1 text-sm text-red-400">{errors.type.message}</p>
+                    <p className="mt-1 text-xs text-red-400">{errors.type.message}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                   Description *
                 </label>
                 <textarea
                   className="input w-full resize-none"
                   rows={4}
-                  placeholder="Describe your achievement..."
+                  placeholder="Describe your achievement accomplishments, competition scope, etc..."
                   {...register('description', { required: 'Description is required' })}
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
+                  <p className="mt-1 text-xs text-red-400">{errors.description.message}</p>
                 )}
               </div>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                     Year *
                   </label>
                   <select className="input w-full" {...register('year', { required: 'Year is required' })}>
                     <option value="">Select Year</option>
-                    {[2024, 2023, 2022, 2021, 2020].map(year => (
+                    {[2026, 2025, 2024, 2023, 2022, 2021, 2020].map(year => (
                       <option key={year} value={year}>{year}</option>
                     ))}
                   </select>
                   {errors.year && (
-                    <p className="mt-1 text-sm text-red-400">{errors.year.message}</p>
+                    <p className="mt-1 text-xs text-red-400">{errors.year.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                     Position
                   </label>
                   <select className="input w-full" {...register('position')}>
@@ -551,20 +766,20 @@ const Achievements = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                     Organization
                   </label>
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="Organization Name"
+                    placeholder="e.g., IIT Bombay / KNIT"
                     {...register('organization')}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1.5">
                   Certificate Link
                 </label>
                 <input
@@ -575,7 +790,8 @@ const Achievements = () => {
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-4">
+              {/* Sticky Submit Footer */}
+              <div className="pt-4 border-t border-white/10 sticky bottom-0 bg-[#0d0d14]/95 backdrop-blur-md -mx-4 -mb-4 px-4 py-3 sm:-mx-6 sm:-mb-6 sm:px-6 sm:py-4 rounded-b-2xl z-20 flex items-center justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -583,15 +799,16 @@ const Achievements = () => {
                     setEditingAchievement(null)
                     reset()
                   }}
-                  className="btn-secondary"
+                  className="btn-secondary text-xs sm:text-sm px-4 py-2"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createAchievementMutation.isLoading || updateAchievementMutation.isLoading}
-                  className="btn-primary"
+                  className="btn-primary text-xs sm:text-sm px-5 py-2 flex items-center gap-1.5 shadow-lg shadow-primary-500/20"
                 >
+                  <Save className="w-4 h-4" />
                   {createAchievementMutation.isLoading || updateAchievementMutation.isLoading
                     ? 'Saving...'
                     : editingAchievement ? 'Update Achievement' : 'Add Achievement'

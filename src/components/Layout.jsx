@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
-import { Home, User, Users, Search, MessageCircle, Trophy, LogOut, Menu, X, Bell } from 'lucide-react'
+import { Home, User, Users, Search, MessageCircle, Trophy, LogOut, Menu, X, Bell, Flame, FolderOpen } from 'lucide-react'
 import { useNotifications } from '../contexts/NotificationContext'
 import { useTheme } from '../contexts/ThemeContext'
 
@@ -31,6 +31,7 @@ const Layout = () => {
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Teammate Finder', href: '/teammate-finder', icon: Search },
     { name: 'Teams', href: '/teams', icon: Users },
+    { name: 'Projects', href: '/projects', icon: FolderOpen },
     { name: 'Invitations', href: '/teams/invitations', icon: Bell, badge: unreadCount > 0 ? unreadCount : null },
     { name: 'Chat', href: '/chat', icon: MessageCircle },
     { name: 'Achievements', href: '/achievements', icon: Trophy },
@@ -99,7 +100,12 @@ const Layout = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{user?.name}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.college}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[11px] text-orange-400 font-semibold flex items-center gap-0.5">
+                    <Flame className="w-3 h-3 fill-orange-400" /> {user?.loginStreak || 1}d
+                  </span>
+                  <span className="text-[10px] text-gray-400">· ⚡ {user?.zenPoints || 10} Pts</span>
+                </div>
               </div>
             </div>
             <button

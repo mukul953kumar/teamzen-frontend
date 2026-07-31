@@ -114,6 +114,11 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser)
+    queryClient.setQueryData('currentUser', updatedUser)
+  }
+
   const value = {
     user: user || null,
     loading: loading || isLoading,
@@ -121,6 +126,7 @@ export const AuthProvider = ({ children }) => {
     loginWithToken,
     signup,
     logout,
+    updateUser,
     isAuthenticated: !!user,
   }
 

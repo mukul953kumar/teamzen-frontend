@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery } from 'react-query'
+import { useQuery, useMutation } from 'react-query'
 import { 
   User, 
   Mail, 
@@ -15,11 +15,20 @@ import {
   Users,
   UserPlus,
   FolderOpen,
-  ArrowLeft
+  ArrowLeft,
+  Heart,
+  Eye,
+  Flame,
+  Zap,
+  CheckCircle,
+  Globe,
+  Award,
+  X
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
+import { useAuth } from '../contexts/useAuth'
 
 // Visual Developer Skill Matrix & Proficiency Bar Chart
 const SkillProficiencyChart = ({ skills = [] }) => {
@@ -76,14 +85,19 @@ const SkillProficiencyChart = ({ skills = [] }) => {
 const UserProfile = () => {
   const { userId } = useParams()
   const navigate = useNavigate()
+  const { user: currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('about')
+
+  const [selectedProject, setSelectedProject] = useState(null)
+  const [selectedAchievement, setSelectedAchievement] = useState(null)
+  const [projectLikesState, setProjectLikesState] = useState({})
+  const [achievementLikesState, setAchievementLikesState] = useState({})
 
   const { data: userProfile, isLoading } = useQuery(
     ['userProfile', userId],
     async () => {
       try {
         const response = await api.get(`/profile/${userId}`)
-        console.log('User Profile API Response:', response.data)
         return response.data.data
       } catch (error) {
         console.error('User profile error:', error)
@@ -101,7 +115,7 @@ const UserProfile = () => {
     ['userProjects', userId],
     async () => {
       try {
-        const response = await api.get(`/projects/user/${userId}`)
+        const response = await api.get(`/projects?user_id=${userId}`)
         return response.data.data?.projects || []
       } catch (error) {
         console.error('User projects error:', error)
@@ -131,6 +145,40 @@ const UserProfile = () => {
     }
   )
 
+  const projectLikeMutation = useMutation(
+    (projectId) => api.post(`/projects/like/${projectId}`),
+    {
+      onSuccess: (res, projectId) => {
+        setProjectLikesState(prev => ({
+          ...prev,
+          [projectId]: {
+            liked: res.data.liked,
+            count: res.data.likesCount
+          }
+        }))
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like project')
+    }
+  )
+
+  const achievementLikeMutation = useMutation(
+    (achievementId) => api.post(`/achievements/like/${achievementId}`),
+    {
+      onSuccess: (res, achievementId) => {
+        setAchievementLikesState(prev => ({
+          ...prev,
+          [achievementId]: {
+            liked: res.data.liked,
+            count: res.data.likesCount
+          }
+        }))
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like achievement')
+    }
+  )
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -157,13 +205,32 @@ const UserProfile = () => {
   const user = userProfile.user
 
   const handleInviteToTeam = () => {
-    // Navigate to teams page to invite this user
     navigate('/teams')
+  }
+
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'Hackathon': return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+      case 'Competition': return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+      case 'Certification': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+      case 'Award': return 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+      default: return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+    }
+  }
+
+  const getPositionColor = (pos) => {
+    switch (pos) {
+      case '1st':
+      case 'Winner': return 'bg-amber-400/20 text-amber-300 border-amber-400/30'
+      case '2nd': return 'bg-slate-300/20 text-slate-200 border-slate-300/30'
+      case '3rd': return 'bg-amber-600/20 text-amber-400 border-amber-600/30'
+      default: return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+    }
   }
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4 overflow-x-hidden">
-      {/* Header */}
+      {/* Top Header Bar */}
       <div className="flex items-center space-x-4">
         <button
           onClick={() => navigate(-1)}
@@ -172,12 +239,14 @@ const UserProfile = () => {
           <ArrowLeft className="w-4 h-4 mr-1.5" />
           Back
         </button>
-        <h1 className="text-2xl sm:text-3xl font-bold text-white">User Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">Student Profile</h1>
       </div>
 
-      {/* Profile Card */}
-      <div className="card overflow-hidden">
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+      {/* Main Profile Header Card */}
+      <div className="card overflow-hidden relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-amber-500" />
+        
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 pt-2">
           {/* Avatar Section */}
           <div className="flex flex-col items-center lg:items-start space-y-4">
             <div className="relative">
@@ -185,18 +254,18 @@ const UserProfile = () => {
                 <img
                   src={user.profile_image}
                   alt={user.name}
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-primary-400/30"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl object-cover border-4 border-primary-400/30 shadow-xl"
                 />
               ) : (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center shadow-xl">
                   <span className="text-3xl sm:text-4xl font-bold text-white">
                     {user.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
               {user.isVerified && (
-                <div className="absolute bottom-2 right-2 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-black">
+                  <span className="text-white text-xs font-bold">✓</span>
                 </div>
               )}
             </div>
@@ -205,7 +274,7 @@ const UserProfile = () => {
             <div className="flex flex-col space-y-2 w-full sm:w-auto">
               <button
                 onClick={handleInviteToTeam}
-                className="btn-primary flex items-center justify-center text-xs sm:text-sm py-2 px-4"
+                className="btn-primary flex items-center justify-center text-xs sm:text-sm py-2 px-4 shadow-lg shadow-primary-500/20"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invite to Team
@@ -215,30 +284,40 @@ const UserProfile = () => {
 
           {/* Info Section */}
           <div className="flex-1 min-w-0">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">{user.name}</h2>
+            <div className="mb-5">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">{user.name}</h2>
               
-              {/* Dynamic Verified Student Badges */}
+              {/* Dynamic Badges */}
               <div className="flex flex-wrap gap-2 my-3">
                 {(user.email?.endsWith('@knit.ac.in') || user.isVerified) && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm">
+                    <CheckCircle className="w-3.5 h-3.5" />
                     KNIT Verified Student
                   </span>
                 )}
-                {(user.skills?.length >= 3) && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                {user.skills?.length >= 3 && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm">
                     ⭐ Top Contributor
                   </span>
                 )}
                 {user.availability_status === 'Available' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm">
                     ⚡ Fast Responder
                   </span>
                 )}
+                {user.likesCount > 0 && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-rose-500/15 text-rose-300 border border-rose-500/30 shadow-sm">
+                    <Heart className="w-3.5 h-3.5 fill-rose-400 text-rose-400" />
+                    {user.likesCount} Profile {user.likesCount === 1 ? 'Like' : 'Likes'}
+                  </span>
+                )}
+                <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-amber-500/15 text-orange-400 border border-orange-500/30 shadow-sm">
+                  <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
+                  {user.loginStreak || 1}d Streak (⚡ {user.zenPoints || 10} Pts)
+                </span>
               </div>
 
-              <div className="space-y-2 text-gray-400 mt-4 text-xs sm:text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-300 mt-4 text-xs sm:text-sm">
                 <div className="flex items-center space-x-2 min-w-0">
                   <Mail className="w-4 h-4 text-primary-400 flex-shrink-0" />
                   <span className="truncate max-w-[220px] sm:max-w-md">{user.email}</span>
@@ -249,84 +328,49 @@ const UserProfile = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <User className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>{user.branch} • {user.year}{user.year === 1 ? 'st' : user.year === 2 ? 'nd' : user.year === 3 ? 'rd' : 'th'} Year</span>
+                  <span>{user.branch} • Year {user.year} ({user.startYear || (2026 - ((Number(user.year) || 3) - 1))} – {user.endYear || ((user.startYear || (2026 - ((Number(user.year) || 3) - 1))) + 4)} Batch)</span>
                 </div>
               </div>
             </div>
 
-            {/* Bio */}
-            {user.bio && (
-              <div className="mb-6">
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-2">About</h3>
-                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{user.bio}</p>
-              </div>
-            )}
-
             {/* GitHub Developer Card */}
             {user.github && (
-              <div className="mb-6 p-4 rounded-2xl bg-[#0d0d14] border border-white/10 space-y-3 relative overflow-hidden shadow-xl">
+              <div className="mt-4 p-3.5 rounded-2xl bg-[#0d0d14] border border-white/10 space-y-3 relative overflow-hidden shadow-xl">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-emerald-400 to-cyan-500" />
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0">
-                      <Github className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0">
+                      <Github className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
                         <span>GitHub Developer Profile</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Active</span>
                       </h4>
-                      <p className="text-xs text-gray-400 truncate max-w-[200px] sm:max-w-xs">{user.github}</p>
+                      <p className="text-[11px] text-gray-400 truncate max-w-[200px] sm:max-w-xs">{user.github}</p>
                     </div>
                   </div>
                   <a
                     href={user.github.startsWith('http') ? user.github : `https://${user.github}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-sunset text-xs px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 flex-shrink-0"
+                    className="btn-sunset text-xs px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1 flex-shrink-0"
                   >
-                    <span>View GitHub</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>GitHub</span>
+                    <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               </div>
             )}
-
-            {/* Social Links */}
-            <div className="flex flex-wrap gap-3">
-              {user.linkedin && (
-                <a
-                  href={user.linkedin.startsWith('http') ? user.linkedin : `https://${user.linkedin}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-blue-400 hover:underline transition-colors"
-                >
-                  <Linkedin className="w-4 h-4" />
-                  <span>LinkedIn</span>
-                </a>
-              )}
-              {user.portfolio && (
-                <a
-                  href={user.portfolio}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-2 text-gray-400 hover:text-white transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Portfolio</span>
-                </a>
-              )}
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs Container */}
       <div className="card overflow-hidden">
         <div className="flex overflow-x-auto custom-scrollbar border-b border-white/20 gap-1 sm:gap-0">
           <button
             onClick={() => setActiveTab('about')}
-            className={`px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === 'about'
                 ? 'text-white border-b-2 border-primary-400 bg-white/5 sm:bg-transparent'
                 : 'text-gray-400 hover:text-white'
@@ -336,33 +380,33 @@ const UserProfile = () => {
           </button>
           <button
             onClick={() => setActiveTab('skills')}
-            className={`px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === 'skills'
                 ? 'text-white border-b-2 border-primary-400 bg-white/5 sm:bg-transparent'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Skills
+            Skills ({user.skills?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('projects')}
-            className={`px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === 'projects'
                 ? 'text-white border-b-2 border-primary-400 bg-white/5 sm:bg-transparent'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Projects
+            Projects ({userProjects?.length || 0})
           </button>
           <button
             onClick={() => setActiveTab('achievements')}
-            className={`px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
+            className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold whitespace-nowrap flex-shrink-0 transition-colors ${
               activeTab === 'achievements'
                 ? 'text-white border-b-2 border-primary-400 bg-white/5 sm:bg-transparent'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
-            Achievements
+            Achievements ({userAchievements?.length || 0})
           </button>
         </div>
 
@@ -371,54 +415,98 @@ const UserProfile = () => {
           {activeTab === 'about' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-white mb-3">Education & Background</h3>
+                <h3 className="text-lg font-semibold text-white mb-3">Education & Academic Background</h3>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl glass">
+                  <div className="p-4 rounded-2xl glass border border-white/10">
                     <div className="flex items-center space-x-3 mb-2">
                       <MapPin className="w-5 h-5 text-primary-400" />
-                      <span className="font-medium text-white">College</span>
+                      <span className="font-semibold text-white">College / Institution</span>
                     </div>
-                    <p className="text-gray-300">{user.college}</p>
+                    <p className="text-gray-300 text-sm font-medium">{user.college}</p>
                   </div>
-                  <div className="p-4 rounded-xl glass">
+                  <div className="p-4 rounded-2xl glass border border-white/10">
                     <div className="flex items-center space-x-3 mb-2">
                       <User className="w-5 h-5 text-primary-400" />
-                      <span className="font-medium text-white">Branch & Year</span>
+                      <span className="font-semibold text-white">Branch & Batch</span>
                     </div>
-                    <p className="text-gray-300">{user.branch} • {user.year}{user.year === 1 ? 'st' : user.year === 2 ? 'nd' : user.year === 3 ? 'rd' : 'th'} Year</p>
+                    <p className="text-gray-300 text-sm font-medium">{user.branch} • Year {user.year} ({user.startYear || (2026 - ((Number(user.year) || 3) - 1))} – {user.endYear || ((user.startYear || (2026 - ((Number(user.year) || 3) - 1))) + 4)} Batch)</p>
                   </div>
                 </div>
               </div>
 
               {user.bio && (
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Bio</h3>
-                  <div className="p-4 rounded-xl glass">
-                    <p className="text-gray-300">{user.bio}</p>
+                  <h3 className="text-lg font-semibold text-white mb-3">Bio / Summary</h3>
+                  <div className="p-4 rounded-2xl glass border border-white/10 leading-relaxed text-sm text-gray-200">
+                    <p>{user.bio}</p>
                   </div>
                 </div>
               )}
+
+              {/* Social Links */}
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-3">Social & External Links</h3>
+                <div className="flex flex-wrap gap-3">
+                  {user.linkedin && (
+                    <a
+                      href={user.linkedin.startsWith('http') ? user.linkedin : `https://${user.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-colors text-xs font-semibold"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                      <span>LinkedIn Profile</span>
+                    </a>
+                  )}
+                  {user.portfolio && (
+                    <a
+                      href={user.portfolio.startsWith('http') ? user.portfolio : `https://${user.portfolio}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30 transition-colors text-xs font-semibold"
+                    >
+                      <Globe className="w-4 h-4" />
+                      <span>Personal Portfolio</span>
+                    </a>
+                  )}
+                  {user.github && (
+                    <a
+                      href={user.github.startsWith('http') ? user.github : `https://${user.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/10 text-white border border-white/20 hover:bg-white/20 transition-colors text-xs font-semibold"
+                    >
+                      <Github className="w-4 h-4" />
+                      <span>GitHub Repositories</span>
+                    </a>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
           {/* Skills Tab */}
           {activeTab === 'skills' && (
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Technical Skills</h3>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Code className="w-5 h-5 text-primary-400" />
+                Technical Skills & Stack
+              </h3>
               {user.skills && user.skills.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2.5">
                   {user.skills.map((skill, index) => (
                     <span
                       key={index}
-                      className="px-4 py-2 bg-primary-600/20 text-primary-400 rounded-full border border-primary-400/30"
+                      className="px-3.5 py-1.5 bg-primary-600/20 text-primary-300 rounded-xl text-xs font-semibold border border-primary-500/30 shadow-sm"
                     >
                       {typeof skill === 'string' ? skill : skill.skill_name}
                     </span>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400">No skills listed yet.</p>
+                <p className="text-gray-400 text-sm">No skills listed yet.</p>
               )}
+
               {/* Visual Technical Matrix */}
               <SkillProficiencyChart skills={user.skills} />
             </div>
@@ -427,32 +515,121 @@ const UserProfile = () => {
           {/* Projects Tab */}
           {activeTab === 'projects' && (
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Projects</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-primary-400" />
+                  Showcase Projects
+                </h3>
+                <span className="text-xs text-gray-400">{userProjects?.length || 0} Projects</span>
+              </div>
+
               {userProjects && userProjects.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-6">
-                  {userProjects.map((project) => (
-                    <div key={project._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <h4 className="font-medium text-white mb-2">{project.title}</h4>
-                      <p className="text-sm text-gray-400 mb-3 line-clamp-2">{project.description}</p>
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {project.tech_stack?.slice(0, 3).map((tech, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-primary-600/20 text-primary-400 text-xs rounded"
+                  {userProjects.map((project) => {
+                    const isOwner = currentUser && (project.user_id?._id === currentUser._id || project.user_id === currentUser._id)
+                    const userLikesInfo = projectLikesState[project._id] || {
+                      liked: currentUser && Array.isArray(project.likedBy)
+                        ? project.likedBy.some(id => id.toString() === currentUser._id || id === currentUser._id)
+                        : false,
+                      count: project.likesCount || 0
+                    }
+                    const isLiked = userLikesInfo.liked
+                    const count = userLikesInfo.count
+
+                    return (
+                      <div
+                        key={project._id}
+                        onClick={() => setSelectedProject(project)}
+                        className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer border border-white/10 hover:border-white/25 bg-white/5 hover:bg-white/10 shadow-lg"
+                      >
+                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 to-indigo-500" />
+
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                              {project.title}
+                            </h4>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold flex-shrink-0 ${
+                              project.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                            }`}>
+                              {project.status}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">{project.description}</p>
+
+                          {project.tech_stack?.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {project.tech_stack.slice(0, 4).map((tech, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-0.5 bg-blue-500/15 text-blue-300 border border-blue-500/25 text-[10px] font-semibold rounded-md"
+                                >
+                                  {tech}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Card Footer Actions */}
+                        <div className="flex items-center justify-between pt-3 mt-4 border-t border-white/10 text-xs text-gray-400" onClick={(e) => e.stopPropagation()}>
+                          {/* Heart Like Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!currentUser) return toast.error('Please login to like projects')
+                              if (isOwner) return toast.error('You cannot like your own project')
+                              projectLikeMutation.mutate(project._id)
+                            }}
+                            disabled={projectLikeMutation.isLoading}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-semibold transition-all ${
+                              isLiked
+                                ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
+                                : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400'
+                            } ${isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}
                           >
-                            {tech}
-                          </span>
-                        ))}
+                            <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                            <span>{count}</span>
+                          </button>
+
+                          <div className="flex items-center gap-2">
+                            {project.github_link && (
+                              <a
+                                href={project.github_link.startsWith('http') ? project.github_link : `https://${project.github_link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white"
+                                title="GitHub Code"
+                              >
+                                <Github className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            {project.demo_link && (
+                              <a
+                                href={project.demo_link.startsWith('http') ? project.demo_link : `https://${project.demo_link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white"
+                                title="Live Demo"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => setSelectedProject(project)}
+                              className="btn-primary text-xs px-2.5 py-1 flex items-center gap-1 font-semibold rounded-lg"
+                            >
+                              <Eye className="w-3 h-3" /> View
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">{project.year}</span>
-                        <span className="text-primary-400">{project.status}</span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
-                <p className="text-gray-400">No projects shared yet.</p>
+                <p className="text-gray-400 text-sm">No showcase projects shared yet.</p>
               )}
             </div>
           )}
@@ -460,32 +637,209 @@ const UserProfile = () => {
           {/* Achievements Tab */}
           {activeTab === 'achievements' && (
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Achievements</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-400" />
+                  Achievements & Awards
+                </h3>
+                <span className="text-xs text-gray-400">{userAchievements?.length || 0} Achievements</span>
+              </div>
+
               {userAchievements && userAchievements.length > 0 ? (
-                <div className="space-y-4">
-                  {userAchievements.map((achievement) => (
-                    <div key={achievement._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-white">{achievement.title}</h4>
-                        <span className="px-2 py-1 bg-primary-600/20 text-primary-400 text-xs rounded">
-                          {achievement.type}
-                        </span>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {userAchievements.map((achievement) => {
+                    const isOwner = currentUser && (achievement.user_id?._id === currentUser._id || achievement.user_id === currentUser._id)
+                    const userLikesInfo = achievementLikesState[achievement._id] || {
+                      liked: currentUser && Array.isArray(achievement.likedBy)
+                        ? achievement.likedBy.some(id => id.toString() === currentUser._id || id === currentUser._id)
+                        : false,
+                      count: achievement.likesCount || 0
+                    }
+                    const isLiked = userLikesInfo.liked
+                    const count = userLikesInfo.count
+
+                    return (
+                      <div
+                        key={achievement._id}
+                        onClick={() => setSelectedAchievement(achievement)}
+                        className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer border border-white/10 hover:border-white/25 bg-white/5 hover:bg-white/10 shadow-lg space-y-3"
+                      >
+                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-500 to-purple-500" />
+
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="font-bold text-white text-base group-hover:text-amber-300 transition-colors truncate">
+                              {achievement.title}
+                            </h4>
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${getPositionColor(achievement.position)}`}>
+                              {achievement.position}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">{achievement.description}</p>
+
+                          {achievement.organization && (
+                            <p className="text-[11px] text-gray-400">Issued by: <strong className="text-gray-200">{achievement.organization}</strong></p>
+                          )}
+                        </div>
+
+                        {/* Footer Actions */}
+                        <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10 text-xs text-gray-400" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!currentUser) return toast.error('Please login to like achievements')
+                              if (isOwner) return toast.error('You cannot like your own achievement')
+                              achievementLikeMutation.mutate(achievement._id)
+                            }}
+                            disabled={achievementLikeMutation.isLoading}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-semibold transition-all ${
+                              isLiked
+                                ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
+                                : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400'
+                            } ${isOwner ? 'opacity-60 cursor-not-allowed' : ''}`}
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                            <span>{count}</span>
+                          </button>
+
+                          <div className="flex items-center gap-2">
+                            {achievement.certificate_link && (
+                              <a
+                                href={achievement.certificate_link.startsWith('http') ? achievement.certificate_link : `https://${achievement.certificate_link}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white"
+                                title="Certificate"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => setSelectedAchievement(achievement)}
+                              className="btn-primary text-xs px-2.5 py-1 flex items-center gap-1 font-semibold rounded-lg"
+                            >
+                              <Eye className="w-3 h-3" /> View
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm text-gray-400 mb-2">{achievement.description}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">{achievement.organization}</span>
-                        <span className="text-primary-400">{achievement.year}</span>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
-                <p className="text-gray-400">No achievements listed yet.</p>
+                <p className="text-gray-400 text-sm">No achievements listed yet.</p>
               )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Project Detail Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
+            
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                    selectedProject.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>
+                    {selectedProject.status}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400">Year {selectedProject.year}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">{selectedProject.title}</h2>
+              </div>
+              <button onClick={() => setSelectedProject(null)} className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Project Overview</h3>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedProject.description}
+              </div>
+            </div>
+
+            {selectedProject.tech_stack?.length > 0 && (
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Technologies Used</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.tech_stack.map((tech, index) => (
+                    <span key={index} className="px-3 py-1 bg-blue-500/15 text-blue-300 border border-blue-500/25 text-xs font-semibold rounded-lg">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-4 border-t border-white/10">
+              <div className="flex items-center gap-3">
+                {selectedProject.github_link && (
+                  <a href={selectedProject.github_link.startsWith('http') ? selectedProject.github_link : `https://${selectedProject.github_link}`} target="_blank" rel="noopener noreferrer" className="btn-secondary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5">
+                    <Github className="w-4 h-4" /> GitHub Code
+                  </a>
+                )}
+                {selectedProject.demo_link && (
+                  <a href={selectedProject.demo_link.startsWith('http') ? selectedProject.demo_link : `https://${selectedProject.demo_link}`} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-2 rounded-xl flex items-center gap-1.5">
+                    <ExternalLink className="w-4 h-4" /> Live Demo
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Achievement Detail Modal */}
+      {selectedAchievement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-2xl card p-6 max-h-[90vh] overflow-y-auto border border-white/15 shadow-2xl space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-purple-500" />
+            
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getTypeColor(selectedAchievement.type)}`}>
+                    {selectedAchievement.type}
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getPositionColor(selectedAchievement.position)}`}>
+                    {selectedAchievement.position}
+                  </span>
+                  <span className="text-xs font-semibold text-gray-400">Year {selectedAchievement.year}</span>
+                </div>
+                <h2 className="text-2xl font-bold text-white">{selectedAchievement.title}</h2>
+                {selectedAchievement.organization && (
+                  <p className="text-xs text-amber-400 font-semibold mt-1">Issued by: {selectedAchievement.organization}</p>
+                )}
+              </div>
+              <button onClick={() => setSelectedAchievement(null)} className="p-1.5 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Achievement Details</h3>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedAchievement.description}
+              </div>
+            </div>
+
+            {selectedAchievement.certificate_link && (
+              <div className="pt-4 border-t border-white/10">
+                <a href={selectedAchievement.certificate_link.startsWith('http') ? selectedAchievement.certificate_link : `https://${selectedAchievement.certificate_link}`} target="_blank" rel="noopener noreferrer" className="btn-primary text-xs px-4 py-2 rounded-xl inline-flex items-center gap-1.5 font-semibold">
+                  <ExternalLink className="w-4 h-4" /> View Certificate
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

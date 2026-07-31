@@ -19,7 +19,8 @@ import {
   Shield,
   ArrowLeft,
   Mail,
-  Trash2
+  Trash2,
+  AlertCircle
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -227,6 +228,51 @@ const TeamDetail = () => {
     joinRequestsData
   })
 
+  const getDeadlineBadge = (deadline) => {
+    if (!deadline) return null
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const target = new Date(deadline)
+    target.setHours(23, 59, 59, 999)
+
+    const diffTime = target.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffTime < 0) {
+      return (
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 flex items-center gap-1.5">
+          <XCircle className="w-4 h-4 text-red-400" />
+          Recruitment Closed
+        </span>
+      )
+    }
+
+    if (diffDays <= 1) {
+      return (
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse flex items-center gap-1.5 shadow-lg shadow-rose-500/20">
+          <Clock className="w-4 h-4 text-rose-400 flex-shrink-0 animate-bounce" />
+          🔥 Closes Today!
+        </span>
+      )
+    }
+
+    if (diffDays <= 3) {
+      return (
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse flex items-center gap-1.5 shadow-md shadow-amber-500/15">
+          <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          ⚡ {diffDays} Days Left!
+        </span>
+      )
+    }
+
+    return (
+      <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
+        <Calendar className="w-4 h-4 text-purple-400 flex-shrink-0" />
+        {diffDays}d left ({target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })})
+      </span>
+    )
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       {/* Header */}
@@ -283,18 +329,39 @@ const TeamDetail = () => {
           {/* Team Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between mb-6">
-              <div className="flex-1 min-w-0 mr-4">
-                <h2 className="text-2xl font-bold text-white mb-2 break-words">{team.team_name}</h2>
-                <div className="flex items-center space-x-4 text-sm text-gray-400">
-                  <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                    team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
-                    team.status === 'Closed' ? 'bg-red-400/20 text-red-400' :
-                    'bg-blue-400/20 text-blue-400'
-                  }`}>
-                    {team.status}
+              <div className="flex items-center gap-3.5 flex-1 min-w-0 mr-4">
+                {team.leader_id?.profile_image ? (
+                  <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Leader'}`}>
+                    <img
+                      src={team.leader_id.profile_image}
+                      alt={team.leader_id?.name || team.team_name}
+                      className="w-12 h-12 rounded-2xl object-cover border-2 border-primary-400/40 shadow-lg"
+                    />
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] shadow-sm border border-black/40">
+                      👑
+                    </div>
                   </div>
-                  {isFull && <span className="text-orange-400">Team Full</span>}
+                ) : (
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0 border border-white/10"
+                    style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+                  >
+                    {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-2xl font-bold text-white mb-1 break-words">{team.team_name}</h2>
+                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
+                      team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
+                      team.status === 'Closed' ? 'bg-red-400/20 text-red-400' :
+                      'bg-blue-400/20 text-blue-400'
+                    }`}>
+                      {team.status}
+                    </div>
+                    {isFull && <span className="text-orange-400">Team Full</span>}
+                  </div>
                 </div>
               </div>
               
@@ -339,14 +406,16 @@ const TeamDetail = () => {
                 )}
 
                 {team.deadline && (
-                  <div className="p-4 rounded-xl glass">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Clock className="w-5 h-5 text-primary-400" />
-                      <span className="font-medium text-white">Deadline</span>
+                  <div className="p-4 rounded-xl glass border border-white/10 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Clock className="w-5 h-5 text-primary-400" />
+                        <span className="font-medium text-white">Deadline</span>
+                      </div>
                     </div>
-                    <p className="text-gray-300">
-                      {new Date(team.deadline).toLocaleDateString()}
-                    </p>
+                    <div>
+                      {getDeadlineBadge(team.deadline)}
+                    </div>
                   </div>
                 )}
               </div>
