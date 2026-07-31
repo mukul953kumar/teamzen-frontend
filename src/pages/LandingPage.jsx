@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Footer from '../components/Footer'
+import InteractiveDemo from '../components/InteractiveDemo'
 import {
   Users,
   Search,
@@ -19,8 +20,71 @@ import {
   Target,
   Network,
   Sparkles,
-  Wifi
+  Wifi,
+  Menu,
+  X,
+  HelpCircle
 } from 'lucide-react'
+
+// ── Smooth Animated Counter Component ──
+const AnimatedCounter = ({ target, suffix = '', prefix = '' }) => {
+  const [count, setCount] = useState(0)
+  const ref = useRef(null)
+  const [hasAnimated, setHasAnimated] = useState(false)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true)
+          let startTime = null
+          const duration = 2000 // 2s smooth counting animation
+
+          const animate = (currentTime) => {
+            if (!startTime) startTime = currentTime
+            const progress = Math.min((currentTime - startTime) / duration, 1)
+            // Ease-out exponential for smooth decelerating counter motion
+            const easeOutExpo = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress)
+            const currentVal = Math.floor(easeOutExpo * target)
+            setCount(currentVal)
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            } else {
+              setCount(target)
+            }
+          }
+          requestAnimationFrame(animate)
+        }
+      },
+      { threshold: 0.15 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => observer.disconnect()
+  }, [target, hasAnimated])
+
+  const formatValue = (num) => {
+    if (target >= 10000) {
+      const kVal = (num / 1000).toFixed(num >= 10000 ? 0 : 1)
+      return `${prefix}${kVal}K${suffix}`
+    }
+    if (target >= 1000) {
+      const kVal = (num / 1000).toFixed(1)
+      return `${prefix}${num < 1000 ? num : kVal + 'K'}${suffix}`
+    }
+    return `${prefix}${num}${suffix}`
+  }
+
+  return (
+    <span ref={ref} className="inline-block tabular-nums font-black">
+      {formatValue(count)}
+    </span>
+  )
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -55,6 +119,31 @@ const LandingPage = () => {
   const [allEvents, setAllEvents] = useState(staticEvents)
   const [visibleEvents, setVisibleEvents] = useState(staticEvents.slice(0, 4))
   const [eventIndex, setEventIndex] = useState(4)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [openFaqIndex, setOpenFaqIndex] = useState(null)
+
+  const faqs = [
+    {
+      q: 'How does skill-based teammate matching work?',
+      a: 'TeamZen compares your target project skills, branch, and experience level with other students to highlight profiles with complementary tech stacks and zero skill overlap.'
+    },
+    {
+      q: 'Is TeamZen completely free for college students?',
+      a: 'Yes, 100%! TeamZen is free for BTech and college students to search candidates, create team listings, chat, and showcase achievements.'
+    },
+    {
+      q: 'Can I find teammates outside my branch or college?',
+      a: 'Absolutely. You can filter by specific branch (IT, CS, ECE, ME, etc.), year of study, or search broadly across colleges for cross-functional teams.'
+    },
+    {
+      q: 'How do I build a team for hackathons like SIH?',
+      a: 'You can create a project requirement post, specify roles (e.g. 1 ML engineer, 1 React dev, 1 UI/UX designer), and invite matching applicants in 1 click.'
+    },
+    {
+      q: 'Is there a built-in messaging system?',
+      a: 'Yes! TeamZen features built-in direct messaging and team group chats so you can discuss project details without sharing personal phone numbers.'
+    }
+  ]
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -128,10 +217,10 @@ const LandingPage = () => {
   ]
 
   const stats = [
-    { label: 'Active Students', value: '10K+', icon: Users },
-    { label: 'Teams Formed', value: '2.5K+', icon: Network },
-    { label: 'Projects Built', value: '1.8K+', icon: Target },
-    { label: 'Success Rate', value: '95%', icon: Trophy }
+    { label: 'Active Students', target: 10000, suffix: '+', icon: Users },
+    { label: 'Teams Formed', target: 2500, suffix: '+', icon: Network },
+    { label: 'Projects Built', target: 1800, suffix: '+', icon: Target },
+    { label: 'Success Rate', target: 95, suffix: '%', icon: Trophy }
   ]
 
   const steps = [
@@ -209,6 +298,74 @@ const LandingPage = () => {
   return (
     <div style={{ backgroundColor: '#0a0a0f' }}>
 
+      {/* ── TOP NAVBAR ── */}
+      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        style={{
+          background: 'rgba(10, 10, 15, 0.82)',
+          backdropFilter: 'blur(16px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        }}>
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <img src="/images/logo26.png" alt="TeamZen" className="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
+            <a href="#how-it-works" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">How It Works</a>
+            <a href="#who-its-for" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Who It's For</a>
+            <a href="#stories" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Stories</a>
+            <a href="#faq" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">FAQ</a>
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link to="/login" className="btn-sunset text-xs px-5 py-2 rounded-xl font-semibold flex items-center gap-1.5 shadow-lg shadow-orange-500/20">
+              <span>Log In</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Nav Dropdown */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-white/10 px-6 py-6 flex flex-col gap-4"
+              style={{ background: '#0a0a0f' }}
+            >
+              <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Features</a>
+              <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">How It Works</a>
+              <a href="#who-its-for" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Who It's For</a>
+              <a href="#stories" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Stories</a>
+              <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">FAQ</a>
+              
+              <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="btn-sunset w-full text-center py-2.5 text-sm font-semibold rounded-xl flex items-center justify-center gap-2">
+                  <span>Log In</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 
@@ -238,12 +395,7 @@ const LandingPage = () => {
         {/* Subtle grid */}
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '72px 72px' }} />
 
-        {/* Corner Logo */}
-        <div className="absolute top-6 left-6 z-20">
-          <img src="/images/logo26.png" alt="TeamZen" className="h-12 w-auto object-contain" />
-        </div>
-
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-32">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 pt-36 pb-24">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
             {/* Left — Text */}
@@ -280,16 +432,16 @@ const LandingPage = () => {
                 TeamZen matches BTech students by real skills — not random WhatsApp groups. Build your team in minutes.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-xs sm:text-base px-4 py-2.5 sm:px-6 sm:py-3">
                   <span>Get Started Free</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </Link>
-                <Link to="/login"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white transition-all"
+                <a href="#how-it-works"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl text-xs sm:text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white transition-all"
                   style={{ background: 'rgba(255,255,255,0.04)' }}>
                   See how it works
-                </Link>
+                </a>
               </div>
 
               <div className="flex items-center gap-6 mt-10">
@@ -367,12 +519,14 @@ const LandingPage = () => {
               <div className="flex items-center justify-between px-4 py-3 rounded-2xl mt-1"
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 {[
-                  { label: 'Teams today', value: '38' },
-                  { label: 'Matches made', value: '124' },
-                  { label: 'Online now', value: '247' },
+                  { label: 'Teams today', target: 38 },
+                  { label: 'Matches made', target: 124 },
+                  { label: 'Online now', target: 247 },
                 ].map((s, i) => (
                   <div key={i} className="text-center">
-                    <p className="text-white font-bold text-lg">{s.value}</p>
+                    <p className="text-white font-bold text-lg">
+                      <AnimatedCounter target={s.target} />
+                    </p>
                     <p className="text-gray-600 text-xs">{s.label}</p>
                   </div>
                 ))}
@@ -386,6 +540,9 @@ const LandingPage = () => {
           <ChevronDown className="w-6 h-6 text-gray-600" />
         </div>
       </section>
+
+      {/* ── INTERACTIVE PRODUCT PREVIEW (Hero Follow-up) ── */}
+      <InteractiveDemo />
 
       {/* ── STATS ── */}
       <section className="relative py-20 overflow-hidden"
@@ -417,15 +574,17 @@ const LandingPage = () => {
                   whileInView="show"
                   viewport={{ once: true }}
                   custom={i}
-                  className="flex flex-col items-center justify-center py-10 px-6 text-center"
+                  className="flex flex-col items-center justify-center py-10 px-6 text-center group hover:bg-white/[0.02] transition-colors"
                   style={{ background: '#0d0d14' }}
                 >
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
                     style={{ background: `${colors[i]}18`, border: `1px solid ${colors[i]}30` }}>
-                    <Icon className="w-5 h-5" style={{ color: colors[i] }} />
+                    <Icon className="w-6 h-6" style={{ color: colors[i] }} />
                   </div>
-                  <div className="text-4xl font-black text-white mb-1 tracking-tight">{stat.value}</div>
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-widest">{stat.label}</div>
+                  <div className="text-4xl md:text-5xl font-black text-white mb-1 tracking-tight">
+                    <AnimatedCounter target={stat.target} suffix={stat.suffix} />
+                  </div>
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-widest mt-1">{stat.label}</div>
                 </motion.div>
               )
             })}
@@ -434,7 +593,7 @@ const LandingPage = () => {
       </section>
 
       {/* ── FEATURES ── */}
-      <section className="relative py-24 overflow-hidden" style={{ background: '#0a0a0f' }}>
+      <section id="features" className="relative py-24 overflow-hidden" style={{ background: '#0a0a0f' }}>
 
         {/* Mesh gradient bg */}
         <div className="absolute inset-0 pointer-events-none">
@@ -555,7 +714,7 @@ const LandingPage = () => {
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="relative py-24 overflow-hidden" style={{ background: '#0d0d14' }}>
+      <section id="how-it-works" className="relative py-24 overflow-hidden" style={{ background: '#0d0d14' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent)' }} />
         <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,107,53,0.3), transparent)' }} />
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none"
@@ -605,7 +764,7 @@ const LandingPage = () => {
       </section>
 
       {/* ── FOR WHO ── */}
-      <section className="relative py-24 overflow-hidden" style={{ background: '#0a0a0f' }}>
+      <section id="who-its-for" className="relative py-24 overflow-hidden" style={{ background: '#0a0a0f' }}>
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
 
@@ -651,7 +810,7 @@ const LandingPage = () => {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="relative py-24 overflow-hidden" style={{ background: '#0d0d14' }}>
+      <section id="stories" className="relative py-24 overflow-hidden" style={{ background: '#0d0d14' }}>
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.35), transparent)' }} />
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full"
@@ -704,6 +863,87 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* ── FAQ ── */}
+      <section id="faq" className="relative py-24 overflow-hidden" style={{ background: '#0a0a0f' }}>
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.35), transparent)' }} />
+        
+        {/* Glow ambient */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[300px] rounded-full"
+            style={{ background: 'radial-gradient(ellipse, rgba(139,92,246,0.07) 0%, transparent 70%)', filter: 'blur(60px)' }} />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto px-6">
+          <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-4 border border-purple-500/20"
+              style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa' }}>
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Got Questions?</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Frequently Asked Questions</h2>
+            <p className="text-gray-400 text-sm md:text-base max-w-lg mx-auto">
+              Everything you need to know about finding your project teammates and using TeamZen.
+            </p>
+          </motion.div>
+
+          <div className="flex flex-col gap-4">
+            {faqs.map((faq, index) => {
+              const isOpen = openFaqIndex === index
+              return (
+                <motion.div
+                  key={index}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true }}
+                  custom={index}
+                  className="rounded-2xl border transition-all duration-300 overflow-hidden"
+                  style={{
+                    background: isOpen ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.02)',
+                    borderColor: isOpen ? 'rgba(139, 92, 246, 0.4)' : 'rgba(255, 255, 255, 0.07)',
+                    boxShadow: isOpen ? '0 4px 20px rgba(139, 92, 246, 0.08)' : 'none'
+                  }}
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full px-6 py-5 flex items-center justify-between text-left gap-4"
+                  >
+                    <span className="text-white font-semibold text-base md:text-lg">
+                      {faq.q}
+                    </span>
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-transform duration-300"
+                      style={{
+                        background: isOpen ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                        color: isOpen ? '#a78bfa' : '#9ca3af',
+                        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                      }}
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      >
+                        <div className="px-6 pb-6 pt-1 text-gray-300 text-sm md:text-base leading-relaxed border-t border-white/5">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="relative py-32 overflow-hidden" style={{ background: '#0a0a0f' }}>
         {/* Glowing orb */}
@@ -729,19 +969,21 @@ const LandingPage = () => {
             <p className="text-gray-400 text-lg mb-10 max-w-xl mx-auto">
               Your next teammate is already on TeamZen. Find them in minutes, not weeks.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-base">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+              <Link to="/login" className="btn-sunset inline-flex items-center justify-center gap-2 text-xs sm:text-base px-4 py-2.5 sm:px-6 sm:py-3">
                 <span>Start Building Your Team</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </Link>
-              <Link to="/login"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white transition-all"
+              <a href="#features"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl text-xs sm:text-sm font-medium text-gray-300 border border-white/10 hover:border-white/20 hover:text-white transition-all"
                 style={{ background: 'rgba(255,255,255,0.04)' }}>
-                View Demo
-              </Link>
+                Explore Features
+              </a>
             </div>
             {/* Trust line */}
-            <p className="text-gray-600 text-sm mt-8">Free forever · No credit card · Built for BTech students</p>
+            <p className="text-gray-500 text-xs sm:text-sm mt-8 leading-relaxed">
+              Free forever · Built for BTech students · By using TeamZen, you agree to all <span className="text-gray-300 font-medium">Terms & Privacy Policy</span> conditions (Zero Tolerance for Spam & Illegal Activity).
+            </p>
           </motion.div>
         </div>
       </section>

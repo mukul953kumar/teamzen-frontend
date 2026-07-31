@@ -113,6 +113,43 @@
       max-width: 100vw !important;
     }
   }
+
+  /* Responsive Button Scaling - Automatically shrink button sizes on mobile screens */
+  @media (max-width: 640px) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-outline {
+      padding: 0.5rem 0.875rem !important;
+      min-height: 36px !important;
+      font-size: 0.8125rem !important;
+      border-radius: 0.625rem !important;
+    }
+
+    .btn-sunset {
+      padding: 0.55rem 1.1rem !important;
+      min-height: 38px !important;
+      font-size: 0.84rem !important;
+      border-radius: 0.75rem !important;
+    }
+
+    /* Scale padding and font size for common responsive utility buttons */
+    button:not(.no-responsive-resize),
+    a.btn-sunset,
+    a.btn-primary,
+    a.btn-secondary,
+    a.btn-outline {
+      font-size: 0.84rem;
+    }
+
+    button svg,
+    a.btn-sunset svg,
+    a.btn-primary svg,
+    a.btn-secondary svg,
+    a.btn-outline svg {
+      width: 0.95rem !important;
+      height: 0.95rem !important;
+    }
+  }
 }
 
 @layer components {

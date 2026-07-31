@@ -19,11 +19,75 @@ import {
   Trophy,
   Camera,
   Upload,
-  Trash2
+  Trash2,
+  LogOut,
+  FileText,
+  ShieldAlert,
+  Award,
+  Star,
+  Zap,
+  CheckCircle,
+  ExternalLink,
+  HelpCircle,
+  Headphones,
+  Copy
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import TermsModal from '../components/TermsModal'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
+
+// Visual Developer Skill Matrix & Proficiency Bar Chart
+const SkillProficiencyChart = ({ skills = [] }) => {
+  const skillNames = skills.map(s => (typeof s === 'string' ? s : s.skill_name || '').toLowerCase())
+
+  const frontendSkills = ['react', 'node', 'javascript', 'typescript', 'html', 'css', 'ui/ux', 'figma', 'flutter', 'tailwind', 'vue', 'angular']
+  const backendSkills = ['node.js', 'express.js', 'python', 'java', 'c++', 'c', 'django', 'fastapi', 'go', 'php']
+  const databaseSkills = ['mongodb', 'mysql', 'postgresql', 'aws', 'docker', 'git', 'firebase', 'redis']
+  const aiSkills = ['machine learning', 'data science', 'pytorch', 'tensorflow', 'opencv', 'deep learning', 'ai']
+
+  const countMatches = (list) => list.filter(item => skillNames.some(s => s.includes(item))).length
+
+  const feCount = countMatches(frontendSkills)
+  const beCount = countMatches(backendSkills)
+  const dbCount = countMatches(databaseSkills)
+  const aiCount = countMatches(aiSkills)
+
+  const maxVal = Math.max(feCount, beCount, dbCount, aiCount, 1)
+
+  const domains = [
+    { label: 'Frontend & UI Engineering', count: feCount, color: '#3b82f6', percent: Math.min(100, Math.round((feCount > 0 ? (feCount / maxVal) * 75 + 25 : 15))) },
+    { label: 'Backend Systems & APIs', count: beCount, color: '#a855f7', percent: Math.min(100, Math.round((beCount > 0 ? (beCount / maxVal) * 75 + 25 : 15))) },
+    { label: 'Database & Cloud DevOps', count: dbCount, color: '#10b981', percent: Math.min(100, Math.round((dbCount > 0 ? (dbCount / maxVal) * 75 + 25 : 15))) },
+    { label: 'AI, ML & Data Analytics', count: aiCount, color: '#f97316', percent: Math.min(100, Math.round((aiCount > 0 ? (aiCount / maxVal) * 75 + 25 : 15))) }
+  ]
+
+  return (
+    <div className="space-y-3.5 pt-3 border-t border-white/10 mt-4">
+      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Technical Proficiency Matrix</h4>
+      {domains.map((domain, i) => (
+        <div key={i} className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-gray-300 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full" style={{ background: domain.color }} />
+              {domain.label}
+            </span>
+            <span className="font-bold text-gray-400">{domain.percent}%</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${domain.percent}%`,
+                background: `linear-gradient(90deg, ${domain.color}, #6366f1)`
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const Profile = () => {
   const { user, logout } = useAuth()
@@ -34,6 +98,8 @@ const Profile = () => {
   const [previewImage, setPreviewImage] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [isTermsOpen, setIsTermsOpen] = useState(false)
+  const [termsTab, setTermsTab] = useState('terms')
   const fileInputRef = useRef(null)
 
   const { data: profileData, isLoading } = useQuery(
@@ -193,37 +259,50 @@ const Profile = () => {
   })()
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4 overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-white">My Profile</h1>
-        {!isEditing ? (
-          <button
-            onClick={handleEdit}
-            className="btn-primary flex items-center"
-          >
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit Profile
-          </button>
-        ) : (
-          <div className="flex items-center space-x-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">My Profile</h1>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {!isEditing ? (
+            <button
+              onClick={handleEdit}
+              className="btn-primary flex items-center text-xs sm:text-sm px-3 sm:px-4 py-2"
+            >
+              <Edit2 className="w-4 h-4 mr-1.5" />
+              Edit Profile
+            </button>
+          ) : (
             <button
               onClick={handleCancel}
-              className="btn-secondary flex items-center"
+              className="btn-secondary flex items-center text-xs sm:text-sm px-3 sm:px-4 py-2"
             >
-              <X className="w-4 h-4 mr-2" />
+              <X className="w-4 h-4 mr-1.5" />
               Cancel
             </button>
-          </div>
-        )}
+          )}
+
+          <button
+            onClick={() => {
+              logout()
+              toast.success('Logged out successfully')
+              navigate('/login')
+            }}
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 transition-all duration-200 shadow-sm cursor-pointer"
+            title="Log out of your account"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Main Profile */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6 sm:space-y-8 min-w-0">
           {/* Profile Card */}
-          <div className="card">
-            <div className="flex items-start space-x-6">
+          <div className="card overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 sm:gap-6 min-w-0">
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <div className="relative">
@@ -231,11 +310,11 @@ const Profile = () => {
                     <img
                       src={previewImage || profile?.profile_image}
                       alt="Profile"
-                      className="w-24 h-24 rounded-full object-cover"
+                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
-                      <span className="text-3xl font-bold text-white">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                      <span className="text-2xl sm:text-3xl font-bold text-white">
                         {profile?.name?.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -345,47 +424,97 @@ const Profile = () => {
                         </span>
                       )}
                     </div>
+                    {/* Dynamic Verified Student Badges */}
+                    <div className="flex flex-wrap gap-2 my-3">
+                      {/* 1. College Email Verification Badge */}
+                      {(profile?.email?.endsWith('@knit.ac.in') || profile?.isVerified) && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm" title="Verified KNIT College Email">
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          KNIT Verified Student
+                        </span>
+                      )}
+
+                      {/* 3. Top Contributor Badge */}
+                      {(profile?.skills?.length >= 3 || profileCompletion >= 75) && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm" title="Top Contributor - High Skills & Profile Completion">
+                          <Star className="w-3.5 h-3.5" />
+                          Top Contributor
+                        </span>
+                      )}
+
+                      {/* 4. Fast Responder Badge */}
+                      {profile?.availability_status === 'Available' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm" title="Fast Responder - Active & Available">
+                          <Zap className="w-3.5 h-3.5" />
+                          Fast Responder
+                        </span>
+                      )}
+                    </div>
+
                     <p className="text-gray-400 mb-4">{profile?.bio || 'No bio added yet'}</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <Mail className="w-4 h-4 flex-shrink-0" />
+                        <Mail className="w-4 h-4 flex-shrink-0 text-primary-400" />
                         <span>{profile?.email}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                        <MapPin className="w-4 h-4 flex-shrink-0 text-orange-400" />
                         <span>{profile?.college}</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        <Calendar className="w-4 h-4 flex-shrink-0 text-purple-400" />
                         <span>{profile?.year}{profile?.year === 1 ? 'st' : profile?.year === 2 ? 'nd' : profile?.year === 3 ? 'rd' : 'th'} Year</span>
                       </div>
                       <div className="flex items-center space-x-2 text-gray-300">
-                        <User className="w-4 h-4 flex-shrink-0" />
+                        <User className="w-4 h-4 flex-shrink-0 text-emerald-400" />
                         <span>{profile?.branch}</span>
                       </div>
                     </div>
 
-                    {/* Social Links - properly shown with URLs */}
+                    {/* GitHub Developer Card */}
+                    {profile?.github && (
+                      <div className="mt-5 p-4 rounded-2xl bg-[#0d0d14] border border-white/10 space-y-3 relative overflow-hidden shadow-xl">
+                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-purple-500 via-emerald-400 to-cyan-500" />
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white border border-white/20 flex-shrink-0">
+                              <Github className="w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                <span>GitHub Developer Stats</span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Active</span>
+                              </h4>
+                              <p className="text-xs text-gray-400 truncate max-w-[200px] sm:max-w-xs">{profile.github}</p>
+                            </div>
+                          </div>
+                          <a
+                            href={profile.github.startsWith('http') ? profile.github : `https://${profile.github}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-sunset text-xs px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 flex-shrink-0"
+                          >
+                            <span>View GitHub</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Links */}
                     <div className="flex flex-wrap items-center gap-3 mt-4">
-                      {profile?.github && (
-                        <a href={profile.github.startsWith('http') ? profile.github : `https://${profile.github}`}
-                          target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 hover:text-white hover:bg-white/20 transition-all text-sm">
-                          <Github className="w-4 h-4" /> GitHub
-                        </a>
-                      )}
                       {profile?.linkedin && (
                         <a href={profile.linkedin.startsWith('http') ? profile.linkedin : `https://${profile.linkedin}`}
                           target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-all text-sm">
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-all text-sm font-medium">
                           <Linkedin className="w-4 h-4" /> LinkedIn
                         </a>
                       )}
                       {profile?.portfolio && (
                         <a href={profile.portfolio.startsWith('http') ? profile.portfolio : `https://${profile.portfolio}`}
                           target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 transition-all text-sm">
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-600/20 text-purple-400 hover:bg-purple-600/30 transition-all text-sm font-medium">
                           <Globe className="w-4 h-4" /> Portfolio
                         </a>
                       )}
@@ -407,7 +536,7 @@ const Profile = () => {
                 profile.skills.map((skill, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-lg text-sm"
+                    className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-lg text-sm font-medium border border-primary-500/30"
                   >
                     {skill.skill_name}
                   </span>
@@ -416,6 +545,9 @@ const Profile = () => {
                 <p className="text-gray-400">No skills added yet</p>
               )}
             </div>
+
+            {/* Visual Technical Matrix */}
+            <SkillProficiencyChart skills={profile?.skills} />
           </div>
 
           {/* Achievements */}
@@ -493,6 +625,93 @@ const Profile = () => {
               <p>• Complete your profile with bio and links</p>
               <p>• Showcase your best projects</p>
               <p>• Keep achievements updated</p>
+            </div>
+          </div>
+
+          {/* Platform Terms & Rules */}
+          <div className="card border border-white/10 space-y-3">
+            <div className="flex items-center gap-2 text-white font-semibold text-base">
+              <ShieldAlert className="w-5 h-5 text-orange-400" />
+              <h3>Terms & Safety Policy</h3>
+            </div>
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 space-y-1">
+              <p className="font-bold text-red-400">🚨 Zero Tolerance Policy:</p>
+              <p>Engaging in spam, abusive chat, or illegal activity will result in <strong className="text-white underline">PERMANENT ACCOUNT DELETION</strong>.</p>
+            </div>
+            <p className="text-xs text-gray-400">By using TeamZen, you agree to accept all platform terms and conditions.</p>
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => { setTermsTab('terms'); setIsTermsOpen(true) }}
+                className="btn-secondary text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Terms & Rules</span>
+              </button>
+              <button
+                onClick={() => { setTermsTab('privacy'); setIsTermsOpen(true) }}
+                className="btn-secondary text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1"
+              >
+                <span>Privacy</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Account Actions */}
+          <div className="card border border-white/10">
+            <h3 className="text-base font-semibold text-white mb-2">Account Options</h3>
+            <p className="text-xs text-gray-400 mb-4">Sign out of your active session on TeamZen.</p>
+            <button
+              onClick={() => {
+                logout()
+                toast.success('Logged out successfully')
+                navigate('/login')
+              }}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 transition-all duration-200 cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Log Out of TeamZen</span>
+            </button>
+          </div>
+
+          {/* Help & Direct Email Support */}
+          <div className="card border border-white/10 space-y-3 relative overflow-hidden bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-black shadow-xl">
+            <div className="flex items-center gap-2.5 text-white font-bold text-base">
+              <div className="w-8 h-8 rounded-xl bg-primary-500/20 border border-primary-500/30 flex items-center justify-center text-primary-400">
+                <HelpCircle className="w-4 h-4" />
+              </div>
+              <h3>Need Help & Support?</h3>
+            </div>
+
+            <p className="text-xs text-gray-300 leading-relaxed">
+              Have questions, feedback, or technical issues with TeamZen? Reach out directly to our admin team anytime!
+            </p>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">Official Support Email</span>
+              <p className="text-xs font-mono font-bold text-primary-300 select-all">mukul.knit26@gmail.com</p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 pt-1">
+              <a
+                href="mailto:mukul.knit26@gmail.com?subject=TeamZen%20Query%20/%20Support%20Request"
+                className="btn-sunset text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1.5 rounded-xl font-semibold shadow-md"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Send Email Query</span>
+              </a>
+              
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('mukul.knit26@gmail.com')
+                  toast.success('Support Email copied to clipboard!')
+                }}
+                className="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1.5 rounded-xl"
+                title="Copy Email Address"
+              >
+                <Copy className="w-3 h-3" />
+                <span>Copy</span>
+              </button>
             </div>
           </div>
 
@@ -579,6 +798,13 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* Terms & Privacy Policy Modal */}
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        initialTab={termsTab}
+      />
     </div>
   )
 }

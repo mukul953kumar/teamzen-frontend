@@ -9,6 +9,8 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import { useAuth } from '../contexts/useAuth'
 import toast from 'react-hot-toast'
+import { soundManager } from '../services/soundUtils'
+import AIMatchModal from '../components/AIMatchModal'
 
 const TeammateFinder = () => {
   const { user } = useAuth()
@@ -17,6 +19,7 @@ const TeammateFinder = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
+  const [aiMatchUser, setAiMatchUser] = useState(null)
   const [selectedTeam, setSelectedTeam] = useState('')
   const [inviteMessage, setInviteMessage] = useState('')
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set())
@@ -54,12 +57,12 @@ const TeammateFinder = () => {
     () => api.get('/teams/my-teams').then(res => res.data),
     { enabled: showInviteModal, retry: false }
   )
-
   const inviteMutation = useMutation(
     ({ teamId, userId, message }) => api.post(`/teams/${teamId}/invite`, { user_id: userId, message }),
     {
       onSuccess: () => {
-        toast.success('Team invitation sent successfully!')
+        soundManager.playInviteSound()
+        toast.success('🎉 Team invitation sent successfully!')
         setShowInviteModal(false)
         setSelectedUser(null)
         setSelectedTeam('')
@@ -241,102 +244,140 @@ const TeammateFinder = () => {
                 const isBookmarked = bookmarkedIds.has(u._id)
 
                 return (
-                  <div key={u._id} className="relative overflow-hidden glass-3d rounded-2xl border border-white/10 hover:border-white/20 transition-all duration-300 group">
-                    <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-                    <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-                    <div className="relative z-10 p-5">
+                  <div key={u._id} className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid rgba(255, 255, 255, 0.09)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                    }}>
+
+                    {/* Top Accent Gradient Line */}
+                    <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                      style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4, #8b5cf6)' }} />
+
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%)' }} />
+
+                    <div className="relative z-10">
                       {/* Header */}
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-start space-x-3 flex-1 min-w-0">
-                          <div className="flex-shrink-0">
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className="flex items-start space-x-3.5 flex-1 min-w-0">
+                          {/* Avatar with Glow Ring */}
+                          <div className="relative flex-shrink-0">
                             {u.profile_image ? (
                               <img src={u.profile_image} alt={u.name}
-                                className="w-14 h-14 rounded-full object-cover border-2 border-white/20" />
+                                className={`w-14 h-14 rounded-2xl object-cover border ${
+                                  u.availability_status === 'Available' ? 'ring-2 ring-emerald-400/80 border-emerald-400/30' :
+                                  u.availability_status === 'Open to work' ? 'ring-2 ring-cyan-400/80 border-cyan-400/30' :
+                                  'ring-2 ring-gray-400/40 border-gray-400/20'
+                                }`} />
                             ) : (
-                              <div className="w-14 h-14 rounded-full flex items-center justify-center"
-                                style={{ background: 'linear-gradient(135deg, #4A5568, #1A202C)' }}>
-                                <span className="text-xl font-bold text-white">{u.name?.charAt(0).toUpperCase()}</span>
+                              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-xl text-white shadow-md ${
+                                u.availability_status === 'Available' ? 'ring-2 ring-emerald-400/80' :
+                                u.availability_status === 'Open to work' ? 'ring-2 ring-cyan-400/80' :
+                                'ring-2 ring-gray-400/40'
+                              }`}
+                                style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}>
+                                {u.name?.charAt(0).toUpperCase() || 'U'}
                               </div>
                             )}
+                            {/* Online status indicator badge */}
+                            <span className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0f] flex items-center justify-center text-[8px] ${
+                              u.availability_status === 'Available' ? 'bg-emerald-400' :
+                              u.availability_status === 'Open to work' ? 'bg-cyan-400' :
+                              'bg-gray-500'
+                            }`} />
                           </div>
+
+                          {/* Student info */}
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-white text-base mb-1">{u.name}</h3>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                                {u.name}
+                              </h3>
+                              {matchPercentage > 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setAiMatchUser({ ...u, matchPercentage })}
+                                  className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/15 text-green-400 border border-green-500/30 flex items-center gap-1 flex-shrink-0 hover:bg-green-500/25 transition-all cursor-pointer"
+                                  title="Click to view AI Compatibility Breakdown"
+                                >
+                                  ⚡ {matchPercentage}% Match
+                                </button>
+                              )}
+                            </div>
+
                             <div className="space-y-1 text-xs text-gray-400">
-                              <div className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3 flex-shrink-0" />
-                                <span className="truncate">{u.college}</span>
+                              <div className="flex items-center gap-1 text-gray-300">
+                                <MapPin className="w-3 h-3 text-indigo-400 flex-shrink-0" />
+                                <span className="truncate font-medium">{u.college || 'KNIT Sultanpur'}</span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <User className="w-3 h-3 flex-shrink-0" />
-                                <span>{u.branch} • {u.year}{u.year===1?'st':u.year===2?'nd':u.year===3?'rd':'th'} Year</span>
+                              <div className="flex items-center gap-1.5 text-gray-400">
+                                <span className="px-2 py-0.5 rounded-md bg-white/5 text-[11px] font-medium text-gray-300 border border-white/10">
+                                  {u.branch || 'BTech'}
+                                </span>
+                                <span className="text-[11px] font-medium text-gray-400">
+                                  {u.year ? `${u.year}${u.year===1?'st':u.year===2?'nd':u.year===3?'rd':'th'} Year` : 'Student'}
+                                </span>
                               </div>
                             </div>
                           </div>
                         </div>
-                        {/* Bookmark button */}
-                        <button onClick={() => bookmarkMutation.mutate(u._id)}
-                          className="flex-shrink-0 p-1.5 rounded-lg hover:bg-white/10 transition-colors ml-2">
-                          {isBookmarked
-                            ? <BookmarkCheck className="w-4 h-4 text-primary-400" />
-                            : <Bookmark className="w-4 h-4 text-gray-400" />}
-                        </button>
-                      </div>
 
-                      {/* Availability + Hackathon interests */}
-                      <div className="flex flex-wrap gap-1.5 mb-3">
-                        {u.availability_status && (
-                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${availabilityColor(u.availability_status)}`}>
-                            {u.availability_status === 'Available' ? '🟢' : u.availability_status === 'Open to work' ? '🔵' : '🔴'} {u.availability_status}
-                          </span>
-                        )}
-                        {u.hackathon_interests?.slice(0, 2).map((h, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-purple-400/10 text-purple-300 text-xs rounded-full border border-purple-400/20">
-                            {h}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Bio */}
-                      {u.bio && <p className="text-xs text-gray-300 mb-3 line-clamp-2">{u.bio}</p>}
-
-                      {/* Skills */}
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {u.skills?.slice(0, 4).map((skill, i) => (
-                          <span key={i} className="px-2 py-0.5 text-xs rounded-full"
-                            style={{ background: 'rgba(66,153,225,0.1)', color: '#63B3ED', border: '1px solid rgba(66,153,225,0.4)' }}>
-                            {typeof skill === 'string' ? skill : skill.skill_name}
-                          </span>
-                        ))}
-                        {u.skills?.length > 4 && (
-                          <span className="px-2 py-0.5 text-xs rounded-full"
-                            style={{ background: 'rgba(66,153,225,0.05)', color: '#4299E1', border: '1px solid rgba(66,153,225,0.3)' }}>
-                            +{u.skills.length - 4} more
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
-                        {matchPercentage > 0 && (
-                          <span className="text-xs text-green-400 font-medium flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>
-                            {matchPercentage}% Match
-                          </span>
-                        )}
-                        <div className="flex gap-2 ml-auto">
-                          <button onClick={() => handleInviteClick(u)}
-                            className="flex items-center px-3 py-1.5 rounded-xl text-xs font-medium transition-all hover:scale-105"
-                            style={{ background: 'rgba(66,153,225,0.1)', color: '#63B3ED', border: '1px solid rgba(66,153,225,0.4)' }}
-                            disabled={inviteMutation.isLoading}>
-                            <Send className="w-3 h-3 mr-1" /> Invite
-                          </button>
-                          <button onClick={() => navigate(`/user/${u._id}`)}
-                            className="flex items-center px-3 py-1.5 rounded-xl text-xs font-medium transition-all hover:scale-105"
-                            style={{ background: 'linear-gradient(135deg,#2C5282,#1A365D)', color: 'white', border: '1px solid rgba(66,153,225,0.5)' }}>
-                            <Users className="w-3 h-3 mr-1" /> View
+                        {/* Social & Bookmark Actions */}
+                        <div className="flex items-center space-x-2">
+                          <button onClick={() => bookmarkMutation.mutate(u._id)}
+                            className={`p-2 rounded-xl border transition-all ${
+                              isBookmarked ? 'bg-amber-400/20 border-amber-400/40 text-amber-400' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+                            }`} title={isBookmarked ? 'Remove bookmark' : 'Bookmark profile'}>
+                            {isBookmarked ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
+
+                      {/* Skills */}
+                      <div className="mb-4">
+                        <div className="flex flex-wrap gap-1.5">
+                          {u.skills?.length > 0 ? (
+                            u.skills.slice(0, 4).map((skill, index) => (
+                              <span key={index} className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                                {typeof skill === 'string' ? skill : skill.skill_name}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-500">No skills listed</span>
+                          )}
+                          {u.skills?.length > 4 && (
+                            <span className="px-2 py-1 text-[10px] font-medium text-gray-400 bg-white/5 rounded-lg border border-white/10">
+                              +{u.skills.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Action Buttons */}
+                    <div className="relative z-10 flex items-center justify-between pt-3 border-t border-white/10 gap-1.5">
+                      <button onClick={() => setAiMatchUser({ ...u, matchPercentage: matchPercentage || 92 })}
+                        className="px-2.5 py-2 text-xs font-semibold rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-all flex items-center gap-1 cursor-pointer"
+                        title="View AI Match Breakdown">
+                        <span>⚡ AI Breakdown</span>
+                      </button>
+
+                      <button onClick={() => navigate(`/user/${u._id}`)}
+                        className="btn-secondary py-2 px-2.5 text-xs font-semibold rounded-xl flex items-center justify-center gap-1 transition-all duration-200">
+                        <User className="w-3.5 h-3.5" />
+                        <span>Profile</span>
+                      </button>
+
+                      <button onClick={() => handleInviteClick(u)}
+                        className="btn-sunset py-2 px-3 text-xs font-semibold rounded-xl flex items-center justify-center gap-1 transition-all duration-200 shadow-md shadow-orange-500/15"
+                        disabled={inviteMutation.isLoading}>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Invite</span>
+                      </button>
                     </div>
                   </div>
                 )
@@ -470,6 +511,17 @@ const TeammateFinder = () => {
           </div>
         </div>
       )}
+
+      {/* AI Match Breakdown Modal */}
+      <AIMatchModal
+        isOpen={!!aiMatchUser}
+        onClose={() => setAiMatchUser(null)}
+        candidate={aiMatchUser}
+        currentUser={user}
+        onInvite={(c) => {
+          handleInviteClick(c)
+        }}
+      />
     </div>
   )
 }

@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
+import AIMatchModal from '../components/AIMatchModal'
 
 const getActivityIcon = (iconName) => {
   switch (iconName) {
@@ -33,6 +34,7 @@ const getActivityIcon = (iconName) => {
 const Dashboard = () => {
   const { user } = useAuth()
   const { unreadCount } = useNotifications()
+  const [aiMatchUser, setAiMatchUser] = React.useState(null)
 
   const { data: dashboardData, isLoading } = useQuery(
     'dashboard',
@@ -356,62 +358,107 @@ const Dashboard = () => {
               <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
             ) : teams.length > 0 ? (
               <div className="space-y-4">
-                {teams.slice(0, 3).map((team) => (
-                  <div key={team._id} className="p-3 md:p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10 no-horizontal-scroll">
-                    <div className="space-y-3">
-                      {/* Title and badges */}
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium text-white text-sm md:text-base flex-1">{team.team_name}</h3>
-                        <div className="flex gap-1 flex-shrink-0">
-                          {team.user_role === 'Leader' && (
-                            <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded-full whitespace-nowrap">Leader</span>
-                          )}
-                          <span className={`px-2 py-0.5 rounded-full text-xs whitespace-nowrap ${
-                            team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                            team.status === 'Full' ? 'bg-red-400/20 text-red-400' :
-                            'bg-blue-400/20 text-blue-400'
-                          }`}>{team.status}</span>
-                        </div>
-                      </div>
+                {teams.slice(0, 3).map((team) => {
+                  const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
+                  return (
+                    <div key={team._id} className="relative group rounded-xl p-4 transition-all duration-300 overflow-hidden"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)'
+                      }}>
+                      {/* Top Accent Gradient Line */}
+                      <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                        style={{ background: 'linear-gradient(90deg, #6366f1, #a855f7, #f97316)' }} />
                       
-                      {/* Project title */}
-                      <p className="text-xs md:text-sm text-gray-400">{team.project_title}</p>
-                      
-                      {/* Members and actions */}
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <Users className="w-3 h-3 flex-shrink-0" /> {team.current_members}/{team.max_members}
-                        </span>
-                        <div className="flex gap-2 flex-shrink-0">
-                          <Link to={`/teams/${team._id}`} className="text-primary-400 hover:text-primary-300 text-xs whitespace-nowrap">
-                            View
-                          </Link>
-                          {team.user_role === 'Leader' && (
-                            <Link to="/chat" className="text-green-400 hover:text-green-300 text-xs whitespace-nowrap">
-                              Chat
-                            </Link>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Skills */}
-                      {team.required_skills?.length > 0 && (
-                        <div className="flex flex-wrap gap-1 pt-2 border-t border-white/10">
-                          {team.required_skills.slice(0, 4).map((skill, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded whitespace-nowrap">
-                              {skill.skill_name || skill}
+                      {/* Hover Ambient Glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%)' }} />
+
+                      <div className="relative z-10 space-y-3">
+                        {/* Header */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-sm flex-shrink-0"
+                              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                              {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                            </div>
+                            <div className="min-w-0">
+                              <h3 className="font-bold text-white text-sm md:text-base group-hover:text-primary-300 transition-colors truncate">
+                                {team.team_name}
+                              </h3>
+                              <p className="text-xs text-gray-400 truncate">{team.project_title || 'Project'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {team.user_role === 'Leader' && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                👑 Leader
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                              team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
+                              team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                              'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                            }`}>
+                              {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
                             </span>
-                          ))}
-                          {team.required_skills.length > 4 && (
-                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded whitespace-nowrap">
-                              +{team.required_skills.length - 4}
-                            </span>
-                          )}
+                          </div>
                         </div>
-                      )}
+
+                        {/* Members Capacity Progress */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-400 flex items-center gap-1">
+                              <Users className="w-3 h-3 text-indigo-400" />
+                              <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <Link to={`/teams/${team._id}`} className="text-xs font-semibold text-primary-400 hover:text-primary-300 flex items-center gap-0.5">
+                                Details <ChevronRight className="w-3 h-3" />
+                              </Link>
+                              {team.user_role === 'Leader' && (
+                                <Link to="/chat" className="text-xs font-semibold text-emerald-400 hover:text-emerald-300">
+                                  Chat
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${memberPercent}%`,
+                                background: memberPercent === 100
+                                  ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                                  : 'linear-gradient(90deg, #6366f1, #3b82f6)'
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Skills */}
+                        {team.required_skills?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
+                            {team.required_skills.slice(0, 4).map((skill, i) => (
+                              <span key={i} className="px-2 py-0.5 text-[11px] font-medium rounded-md"
+                                style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#a5b4fc', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                                {typeof skill === 'string' ? skill : skill.skill_name || skill}
+                              </span>
+                            ))}
+                            {team.required_skills.length > 4 && (
+                              <span className="px-2 py-0.5 text-[11px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10">
+                                +{team.required_skills.length - 4}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <div className="text-center py-8">
@@ -443,35 +490,85 @@ const Dashboard = () => {
             </div>
             <div className="relative z-10">
             {recommendedTeammates.length > 0 ? (
-              <div className="space-y-4 lg:max-h-96 lg:overflow-y-auto pr-2 custom-scrollbar">
+              <div className="space-y-3 lg:max-h-96 lg:overflow-y-auto pr-1 custom-scrollbar">
                 {recommendedTeammates.map((teammate, index) => (
-                  <div key={teammate._id || index} className="p-3 md:p-4 rounded-xl glass-3d hover:border-white/20 transition-all duration-300 border border-white/10 no-horizontal-scroll">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0">
+                  <Link key={teammate._id || index} to={teammate._id ? `/user/${teammate._id}` : '/teammate-finder'}
+                    className="block group relative rounded-xl p-3.5 transition-all duration-300 overflow-hidden"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)'
+                    }}>
+
+                    {/* Top Accent Line */}
+                    <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                      style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4)' }} />
+
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.1) 0%, transparent 70%)' }} />
+
+                    <div className="relative z-10 flex items-start gap-3">
+                      {/* Avatar with Glow Ring */}
+                      <div className="relative flex-shrink-0">
                         {teammate.profile_image ? (
-                          <img src={teammate.profile_image} alt={teammate.name} className="w-full h-full object-cover" />
+                          <img src={teammate.profile_image} alt={teammate.name}
+                            className="w-10 h-10 rounded-xl object-cover ring-2 ring-blue-400/50 border border-blue-400/20" />
                         ) : (
-                          teammate.name?.charAt(0).toUpperCase()
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm ring-2 ring-blue-400/50"
+                            style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}>
+                            {teammate.name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
                         )}
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0a0a0f]" />
                       </div>
+
+                      {/* Info */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                          <h3 className="font-medium text-white text-sm md:text-base flex-1">{teammate.name}</h3>
-                          <span className="text-xs text-primary-400 font-medium flex-shrink-0">{teammate.match}</span>
-                        </div>
-                        <p className="text-xs text-gray-400">{teammate.college}</p>
-                        <p className="text-xs text-gray-500">{teammate.branch} • Year {teammate.year}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {teammate.skills?.slice(0, 3).map((skill, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-white/10 text-gray-300 text-xs rounded">{skill}</span>
-                          ))}
-                          {teammate.skills?.length > 3 && (
-                            <span className="px-2 py-0.5 bg-white/10 text-gray-400 text-xs rounded">+{teammate.skills.length - 3}</span>
+                        <div className="flex items-center justify-between gap-2 mb-0.5">
+                          <h3 className="font-bold text-white text-sm group-hover:text-primary-300 transition-colors truncate">
+                            {teammate.name}
+                          </h3>
+                          {teammate.match && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setAiMatchUser({ ...teammate, matchPercentage: parseInt(teammate.match) || 94 })
+                              }}
+                              className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/15 text-green-400 border border-green-500/30 flex-shrink-0 hover:bg-green-500/30 transition-all cursor-pointer"
+                              title="Click to view AI Compatibility Breakdown"
+                            >
+                              ⚡ {teammate.match}
+                            </button>
                           )}
                         </div>
+
+                        <p className="text-xs text-gray-400 truncate">{teammate.college || 'KNIT Sultanpur'}</p>
+                        <p className="text-[11px] text-gray-500 font-medium truncate mt-0.5">
+                          {teammate.branch} · Year {teammate.year}
+                        </p>
+
+                        {/* Skill Pills */}
+                        {teammate.skills?.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2.5">
+                            {teammate.skills.slice(0, 3).map((skill, i) => (
+                              <span key={i} className="px-2 py-0.5 text-[10px] font-medium rounded-md"
+                                style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
+                                {typeof skill === 'string' ? skill : skill.skill_name || skill}
+                              </span>
+                            ))}
+                            {teammate.skills.length > 3 && (
+                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10">
+                                +{teammate.skills.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -541,6 +638,14 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* AI Match Breakdown Modal */}
+      <AIMatchModal
+        isOpen={!!aiMatchUser}
+        onClose={() => setAiMatchUser(null)}
+        candidate={aiMatchUser}
+        currentUser={user}
+      />
     </div>
   )
 }

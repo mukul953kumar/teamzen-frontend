@@ -206,65 +206,112 @@ const Teams = () => {
             <span className="text-sm text-gray-400">{myTeams.length} teams</span>
           </div>
           <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {myTeams.map((team) => (
-              <div key={team._id} className="relative group">
-                <Link to={`/teams/${team._id}`} className="block">
-                  <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1 min-w-0 pr-2">
-                          <h3 className="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors truncate">
-                            {team.team_name}
-                          </h3>
-                          <p className="text-sm text-gray-400 truncate">{team.project_title}</p>
-                        </div>
-                        <div className="flex items-center space-x-2 flex-shrink-0">
-                          {team.user_role === 'Leader' && (
-                            <div className="flex items-center space-x-1 bg-yellow-400/10 px-2 py-1 rounded-lg">
-                              <Crown className="w-4 h-4 text-yellow-400" />
-                              <span className="text-xs text-yellow-400 font-medium">Leader</span>
+            {myTeams.map((team) => {
+              const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
+              return (
+                <div key={team._id} className="relative group">
+                  <Link to={`/teams/${team._id}`} className="block">
+                    <div className="relative rounded-2xl p-6 transition-all duration-300 overflow-hidden"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 255, 255, 0.09)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                      }}>
+                      
+                      {/* Top Accent Gradient Line */}
+                      <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                        style={{ background: 'linear-gradient(90deg, #6366f1, #a855f7, #f97316)' }} />
+                      
+                      {/* Hover Ambient Glow */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
+
+                      <div className="relative z-10">
+                        {/* Header */}
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0"
+                              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+                              {team.team_name?.charAt(0).toUpperCase() || 'T'}
                             </div>
-                          )}
+                            <div className="min-w-0">
+                              <h3 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                                {team.team_name}
+                              </h3>
+                              <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            {(team.user_role === 'Leader' || team.user_role === 'leader') && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                                style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                                <Crown className="w-3 h-3 text-amber-400" />
+                                <span>Leader</span>
+                              </span>
+                            )}
+                          </div>
                         </div>
+
+                        {/* Description */}
+                        <p className="text-xs text-gray-300 mb-5 line-clamp-2 leading-relaxed">
+                          {team.description || 'No description provided.'}
+                        </p>
+
+                        {/* Capacity Progress Bar */}
+                        <div className="space-y-1.5 mb-4">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-400 flex items-center gap-1">
+                              <Users className="w-3.5 h-3.5 text-indigo-400" />
+                              <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                            </span>
+                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                              team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
+                              team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                              'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                            }`}>
+                              {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Team Full' : team.status}
+                            </span>
+                          </div>
+
+                          {/* Progress Track */}
+                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${memberPercent}%`,
+                                background: memberPercent === 100
+                                  ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                                  : 'linear-gradient(90deg, #6366f1, #3b82f6)'
+                              }}
+                            />
+                          </div>
+                        </div>
+
                       </div>
-                    
-                    <p className="text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
-                    
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-400">{team.current_members}/{team.max_members}</span>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                        team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
-                        'bg-blue-400/20 text-blue-400'
-                      }`}>
-                        {team.status}
-                      </span>
                     </div>
-                  </div>
+                  </Link>
+
+                  {/* Delete button for team leaders */}
+                  {(team.user_role === 'Leader' || team.user_role === 'leader') && (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDeleteTeam(team._id, team.team_name)
+                      }}
+                      className="absolute top-3 right-3 p-2 bg-red-500/90 backdrop-blur-md text-white rounded-xl hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
+                      title="Delete team"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
-                </Link>
-                
-                {/* Delete button for team leaders - appears on hover */}
-                {(team.user_role === 'Leader' || team.user_role === 'leader') && (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleDeleteTeam(team._id, team.team_name)
-                    }}
-                    className="absolute top-3 right-3 p-2 bg-red-500/90 backdrop-blur-sm text-white rounded-lg hover:bg-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg z-10"
-                    title="Delete team"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
@@ -370,79 +417,134 @@ const Teams = () => {
         {/* Teams Grid */}
         {teams.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teams.map((team) => (
-              <div key={team._id} className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-white mb-1">{team.team_name}</h3>
-                      <p className="text-sm text-gray-400">{team.project_title}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                      team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
-                      'bg-blue-400/20 text-blue-400'
-                    }`}>
-                      {team.status}
-                    </span>
-                  </div>
-                  
-                  <p className="text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
-                  
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-400">{team.current_members}/{team.max_members}</span>
-                    </div>
-                    {team.hackathon_name && (
-                      <span className="text-xs text-gray-500">{team.hackathon_name}</span>
-                    )}
-                  </div>
+            {teams.map((team) => {
+              const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
+              return (
+                <div key={team._id} className="relative group rounded-2xl p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.09)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                  }}>
 
-                  {/* Required Skills */}
-                  {team.required_skills && team.required_skills.length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex flex-wrap gap-1">
-                        {team.required_skills.slice(0, 3).map((skill, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 bg-primary-600/20 text-primary-400 text-xs rounded"
-                          >
-                            {skill.skill_name}
-                          </span>
-                        ))}
-                        {team.required_skills.length > 3 && (
-                          <span className="px-2 py-1 bg-white/10 text-gray-400 text-xs rounded">
-                            +{team.required_skills.length - 3}
+                  {/* Top Accent Gradient Line */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                    style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)' }} />
+
+                  {/* Hover Glow */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                    style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%)' }} />
+
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
+                          {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                            {team.team_name}
+                          </h3>
+                          <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
+                        </div>
+                      </div>
+
+                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex-shrink-0 ${
+                        team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
+                        team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                        'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                      }`}>
+                        {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-xs text-gray-300 mb-4 line-clamp-2 leading-relaxed">
+                      {team.description || 'No project description provided.'}
+                    </p>
+
+                    {/* Capacity Progress Bar */}
+                    <div className="space-y-1.5 mb-4">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-gray-400 flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-blue-400" />
+                          <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                        </span>
+                        {team.hackathon_name && (
+                          <span className="text-[11px] font-semibold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 truncate max-w-[120px]">
+                            🏆 {team.hackathon_name}
                           </span>
                         )}
                       </div>
+
+                      {/* Progress Track */}
+                      <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                        <div
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{
+                            width: `${memberPercent}%`,
+                            background: memberPercent === 100
+                              ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                              : 'linear-gradient(90deg, #3b82f6, #06b6d4)'
+                          }}
+                        />
+                      </div>
                     </div>
-                  )}
+
+                    {/* Required Skills */}
+                    {team.required_skills && team.required_skills.length > 0 && (
+                      <div className="mb-5">
+                        <div className="flex flex-wrap gap-1.5">
+                          {team.required_skills.slice(0, 3).map((skill, index) => (
+                            <span
+                              key={index}
+                              className="px-2.5 py-1 text-[11px] font-medium rounded-lg"
+                              style={{
+                                background: 'rgba(99, 102, 241, 0.12)',
+                                color: '#a5b4fc',
+                                border: '1px solid rgba(99, 102, 241, 0.25)'
+                              }}
+                            >
+                              {typeof skill === 'string' ? skill : skill.skill_name}
+                            </span>
+                          ))}
+                          {team.required_skills.length > 3 && (
+                            <span className="px-2 py-1 text-[11px] font-medium rounded-lg text-gray-400 bg-white/5 border border-white/10">
+                              +{team.required_skills.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Action Buttons */}
-                  <div className="flex items-center space-x-2">
+                  <div className="relative z-10 flex items-center gap-2 pt-3 border-t border-white/10">
                     <Link
                       to={`/teams/${team._id}`}
-                      className="btn-outline text-sm px-3 py-1.5 flex-1 flex items-center justify-center"
+                      className="btn-secondary text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1 rounded-xl transition-all duration-200"
                     >
-                      <Eye className="w-3 h-3 mr-1" />
-                      View
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Details</span>
                     </Link>
+
                     {team.status === 'Open' && !team.is_full && (
                       <button
                         onClick={() => handleJoinTeam(team._id)}
                         disabled={joinTeamMutation.isLoading}
-                        className="btn-primary text-sm px-3 py-1.5 flex-1 flex items-center justify-center"
+                        className="btn-sunset text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold transition-all duration-200 shadow-md shadow-orange-500/15"
                       >
-                        <UserPlus className="w-3 h-3 mr-1" />
-                        Join
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Join Team</span>
                       </button>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="text-center py-12">

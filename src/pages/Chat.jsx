@@ -9,10 +9,53 @@ import {
   CheckCheck,
   MoreVertical,
   Hash,
-  Crown
+  Crown,
+  Code,
+  Copy,
+  Check,
+  Sparkles
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
+import toast from 'react-hot-toast'
+import { soundManager } from '../services/soundUtils'
+
+// Code Snippet Message Component with syntax formatting & 1-click copy
+const CodeSnippetMessage = ({ text }) => {
+  const [copied, setCopied] = useState(false)
+  const cleanCode = text.replace(/^```[a-z]*\n?/, '').replace(/```$/, '').trim()
+  const matchLang = text.match(/^```([a-z]+)/i)
+  const language = matchLang ? matchLang[1].toUpperCase() : 'CODE'
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(cleanCode)
+    setCopied(true)
+    toast.success('Code snippet copied to clipboard!')
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="rounded-xl overflow-hidden my-1 text-xs border border-white/15 bg-[#0a0a0f] w-full max-w-[420px] shadow-lg">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-white/5 border-b border-white/10 text-gray-400">
+        <span className="font-mono font-bold text-[10px] text-amber-400 uppercase tracking-widest flex items-center gap-1">
+          <Code className="w-3.5 h-3.5 text-amber-400" />
+          {language}
+        </span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1 text-[10px] text-gray-300 hover:text-white transition-colors cursor-pointer"
+        >
+          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          <span>{copied ? 'Copied!' : 'Copy Code'}</span>
+        </button>
+      </div>
+      <pre className="p-3 overflow-x-auto text-emerald-300 font-mono text-[11px] leading-relaxed custom-scrollbar bg-black/40">
+        <code>{cleanCode}</code>
+      </pre>
+    </div>
+  )
+}
 
 const Chat = () => {
   const [selectedConversation, setSelectedConversation] = useState(null)
@@ -61,6 +104,7 @@ const Chat = () => {
     (messageData) => api.post('/chat/send', messageData),
     {
       onSuccess: () => {
+        soundManager.playChime()
         queryClient.invalidateQueries('conversations')
         queryClient.invalidateQueries(['messages', selectedConversation?.type, selectedConversation?.team_id || selectedConversation?.partner?._id])
         setMessage('')
@@ -429,29 +473,29 @@ const Chat = () => {
                                 </div>
                               )}
                               
-                              {/* Message bubble */}
-                              <div
-                                className={`px-4 py-2 rounded-2xl ${
-                                  isOwn
-                                    ? 'bg-primary-500 text-white'
-                                    : 'bg-gray-700 text-white'
-                                }`}
-                              >
-                                <p className="text-sm break-words">{msg.message}</p>
-                              </div>
+                              {/* Message bubble / Code Snippet */}
+                              {msg.message?.startsWith('```') || msg.message?.includes('```') ? (
+                                <CodeSnippetMessage text={msg.message} />
+                              ) : (
+                                <div
+                                  className={`px-4 py-2 rounded-2xl ${
+                                    isOwn
+                                      ? 'bg-primary-500 text-white'
+                                      : 'bg-gray-700 text-white'
+                                  }`}
+                                >
+                                  <p className="text-sm break-words">{msg.message}</p>
+                                </div>
+                              )}
                               
                               {/* Timestamp and read status */}
-                              <div className={`flex items-center space-x-1 mt-1 px-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                                <span className="text-xs text-gray-500">
+                              <div className={`flex items-center space-x-1.5 mt-1 px-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                                <span className="text-[11px] text-gray-400">
                                   {formatTime(msg.createdAt)}
                                 </span>
                                 {isOwn && (
-                                  <div className="flex items-center">
-                                    {msg.is_read ? (
-                                      <CheckCheck className="w-3 h-3 text-blue-400" />
-                                    ) : (
-                                      <CheckCheck className="w-3 h-3 text-gray-400" />
-                                    )}
+                                  <div className="flex items-center" title={msg.is_read ? 'Read' : 'Delivered'}>
+                                    <CheckCheck className={`w-3.5 h-3.5 ${msg.is_read ? 'text-emerald-400' : 'text-gray-400'}`} />
                                   </div>
                                 )}
                               </div>
@@ -474,13 +518,29 @@ const Chat = () => {
               )}
             </div>
 
+            {/* Live Typing Indicator */}
+            {message.trim().length > 0 && (
+              <div className="px-4 py-1 text-xs text-emerald-400 font-medium flex items-center gap-1.5 bg-emerald-500/10 border-t border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Typing code snippet / message...</span>
+              </div>
+            )}
+
             {/* Message Input */}
             <div className="p-4 border-t border-gray-700">
               <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setMessage(prev => prev ? `${prev}\n\`\`\`js\n// paste code here\n\`\`\`` : '```js\n// paste code here\n```')}
+                  className="p-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-600 transition-colors cursor-pointer"
+                  title="Insert Code Snippet"
+                >
+                  <Code className="w-4 h-4" />
+                </button>
                 <input
                   type="text"
                   className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500"
-                  placeholder={`Message ${selectedConversation.type === 'team' ? 'team' : selectedConversation.partner.name}...`}
+                  placeholder={`Message ${selectedConversation.type === 'team' ? 'team' : selectedConversation.partner.name} (use \`\`\` for code)...`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}

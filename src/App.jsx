@@ -65,6 +65,7 @@ function App() {
         <NotificationProvider>
           <AppContent />
         </NotificationProvider>
+        
       </AuthProvider>
     </ThemeProvider>
   )
