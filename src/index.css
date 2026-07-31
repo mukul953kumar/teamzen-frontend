@@ -126,9 +126,9 @@
     }
 
     .btn-sunset {
-      padding: 0.55rem 1.1rem !important;
-      min-height: 38px !important;
-      font-size: 0.84rem !important;
+      padding: 0.5rem 0.75rem !important;
+      min-height: 36px !important;
+      font-size: 0.8125rem !important;
       border-radius: 0.75rem !important;
     }
 
@@ -201,7 +201,7 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-    @apply rounded-2xl p-6 transition-all duration-300;
+    @apply rounded-2xl p-4 sm:p-6 transition-all duration-300;
   }
 
   .card:hover {

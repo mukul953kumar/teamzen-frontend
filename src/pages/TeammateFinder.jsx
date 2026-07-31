@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { 
-  Search, Filter, User, MapPin, Users, X, Send, Bookmark, BookmarkCheck
+  Search, Filter, User, MapPin, Users, X, Send, Bookmark, BookmarkCheck, Heart
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -23,6 +23,7 @@ const TeammateFinder = () => {
   const [selectedTeam, setSelectedTeam] = useState('')
   const [inviteMessage, setInviteMessage] = useState('')
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set())
+  const [likesState, setLikesState] = useState({})
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -45,11 +46,29 @@ const TeammateFinder = () => {
       if (filters.search) params.append('search', filters.search)
       if (filters.availability) params.append('availability', filters.availability)
       if (filters.hackathon_type) params.append('hackathon_type', filters.hackathon_type)
+      if (filters.sortBy) params.append('sortBy', filters.sortBy)
       params.append('page', currentPage)
       params.append('limit', 6)
       return api.get(`/profile/search?${params.toString()}`).then(res => res.data.data)
     },
     { enabled: true, cacheTime: 0, staleTime: 0 }
+  )
+
+  const likeMutation = useMutation(
+    (targetUserId) => api.post(`/profile/like/${targetUserId}`),
+    {
+      onSuccess: (res, targetUserId) => {
+        setLikesState(prev => ({
+          ...prev,
+          [targetUserId]: {
+            liked: res.data.liked,
+            count: res.data.likesCount
+          }
+        }))
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like profile')
+    }
   )
 
   const { data: myTeamsData } = useQuery(
@@ -215,6 +234,13 @@ const TeammateFinder = () => {
                   <input type="text" className="input w-full" placeholder="KNIT Sultanpur"
                     {...register('college')} />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
+                  <select className="input w-full" {...register('sortBy')}>
+                    <option value="">Default (Newest)</option>
+                    <option value="most_popular">🔥 Most Popular (Most Liked)</option>
+                  </select>
+                </div>
               </div>
             </div>
           )}
@@ -223,13 +249,27 @@ const TeammateFinder = () => {
 
       {/* Results */}
       <div>
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h2 className="text-xl font-semibold text-white">{pagination.total || 0} Potential Teammates Found</h2>
-          {Object.keys(filters).some(k => filters[k]) && (
-            <button onClick={clearFilters} className="text-sm text-primary-400 hover:text-primary-300">
-              Clear Filters
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            <select
+              value={filters.sortBy || ''}
+              onChange={(e) => {
+                const newSort = e.target.value
+                setFilters(prev => ({ ...prev, sortBy: newSort }))
+                setCurrentPage(1)
+              }}
+              className="input text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 focus:outline-none"
+            >
+              <option value="">Sort: Newest</option>
+              <option value="most_popular">🔥 Sort: Most Popular</option>
+            </select>
+            {Object.keys(filters).some(k => filters[k]) && (
+              <button onClick={clearFilters} className="text-sm text-primary-400 hover:text-primary-300 whitespace-nowrap">
+                Clear Filters
+              </button>
+            )}
+          </div>
         </div>
 
         {isLoading ? (
@@ -326,8 +366,51 @@ const TeammateFinder = () => {
                           </div>
                         </div>
 
-                        {/* Social & Bookmark Actions */}
-                        <div className="flex items-center space-x-2">
+                        {/* Social, Like & Bookmark Actions */}
+                        <div className="flex items-center space-x-1.5 flex-shrink-0">
+                          {/* Like Button */}
+                          {(() => {
+                            const isSelf = user && user._id === u._id
+                            const userLikesInfo = likesState[u._id] || {
+                              liked: user && Array.isArray(u.likedBy)
+                                ? u.likedBy.some(id => id.toString() === user._id || id === user._id)
+                                : false,
+                              count: u.likesCount || 0
+                            }
+                            const isLiked = userLikesInfo.liked
+                            const count = userLikesInfo.count
+
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!user) {
+                                    toast.error('Please login to like profiles')
+                                    navigate('/login')
+                                    return
+                                  }
+                                  if (isSelf) {
+                                    toast.error('You cannot like your own profile')
+                                    return
+                                  }
+                                  likeMutation.mutate(u._id)
+                                }}
+                                disabled={likeMutation.isLoading}
+                                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all duration-200 ${
+                                  isLiked
+                                    ? 'bg-rose-500/20 border-rose-500/40 text-rose-400 shadow-sm shadow-rose-500/20'
+                                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10'
+                                } ${isSelf ? 'opacity-60 cursor-not-allowed' : ''}`}
+                                title={isSelf ? 'Your own profile' : isLiked ? 'Unlike profile' : 'Like profile'}
+                              >
+                                <Heart className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                  isLiked ? 'fill-rose-500 text-rose-500 scale-110' : ''
+                                }`} />
+                                <span>{count}</span>
+                              </button>
+                            )
+                          })()}
+
                           <button onClick={() => bookmarkMutation.mutate(u._id)}
                             className={`p-2 rounded-xl border transition-all ${
                               isBookmarked ? 'bg-amber-400/20 border-amber-400/40 text-amber-400' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'

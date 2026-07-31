@@ -180,16 +180,16 @@ const Teams = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Teams</h1>
-          <p className="text-gray-400">Find and join teams for your projects and hackathons</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">Teams</h1>
+          <p className="text-xs sm:text-sm text-gray-400">Find and join teams for your projects and hackathons</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center"
+          className="btn-primary flex items-center justify-center w-full sm:w-auto"
         >
           <Plus className="w-5 h-5 mr-2" />
           Create Team
@@ -198,20 +198,20 @@ const Teams = () => {
 
       {/* My Teams Section */}
       {myTeams.length > 0 && (
-        <div className="card relative overflow-hidden">
+        <div className="card relative overflow-hidden p-4 sm:p-6">
           <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
           <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-          <div className="relative z-10 flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white">My Teams</h2>
-            <span className="text-sm text-gray-400">{myTeams.length} teams</span>
+          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-white">My Teams</h2>
+            <span className="text-xs sm:text-sm text-gray-400">{myTeams.length} teams</span>
           </div>
-          <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {myTeams.map((team) => {
               const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
               return (
                 <div key={team._id} className="relative group">
                   <Link to={`/teams/${team._id}`} className="block">
-                    <div className="relative rounded-2xl p-6 transition-all duration-300 overflow-hidden"
+                    <div className="relative rounded-2xl p-4 sm:p-6 transition-all duration-300 overflow-hidden"
                       style={{
                         background: 'rgba(255, 255, 255, 0.03)',
                         backdropFilter: 'blur(16px)',
@@ -229,14 +229,14 @@ const Teams = () => {
 
                       <div className="relative z-10">
                         {/* Header */}
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0"
+                        <div className="flex items-start justify-between gap-2.5 mb-4">
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md flex-shrink-0"
                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
                               {team.team_name?.charAt(0).toUpperCase() || 'T'}
                             </div>
-                            <div className="min-w-0">
-                              <h3 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors truncate">
                                 {team.team_name}
                               </h3>
                               <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
@@ -245,9 +245,9 @@ const Teams = () => {
 
                           <div className="flex items-center gap-1.5 flex-shrink-0">
                             {(team.user_role === 'Leader' || team.user_role === 'leader') && (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold"
                                 style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-                                <Crown className="w-3 h-3 text-amber-400" />
+                                <Crown className="w-3 h-3 text-amber-400 flex-shrink-0" />
                                 <span>Leader</span>
                               </span>
                             )}
@@ -255,18 +255,18 @@ const Teams = () => {
                         </div>
 
                         {/* Description */}
-                        <p className="text-xs text-gray-300 mb-5 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-gray-300 mb-4 line-clamp-2 leading-relaxed">
                           {team.description || 'No description provided.'}
                         </p>
 
                         {/* Capacity Progress Bar */}
                         <div className="space-y-1.5 mb-4">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-400 flex items-center gap-1">
-                              <Users className="w-3.5 h-3.5 text-indigo-400" />
-                              <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                          <div className="flex items-center justify-between text-xs gap-2">
+                            <span className="text-gray-400 flex items-center gap-1 min-w-0">
+                              <Users className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                              <span className="font-medium text-white truncate">{team.current_members || 1} / {team.max_members || 4} Members</span>
                             </span>
-                            <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
                               team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
                               team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
                               'bg-blue-500/15 text-blue-400 border border-blue-500/30'
@@ -318,17 +318,17 @@ const Teams = () => {
 
       {/* Pending Requests Section */}
       {myRequests.filter(r => r.status === 'Pending').length > 0 && (
-        <div className="card relative overflow-hidden">
+        <div className="card relative overflow-hidden p-4 sm:p-6">
           <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
           <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-          <div className="relative z-10 flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <Clock className="w-5 h-5 text-orange-400" />
-              Pending Join Requests
+          <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-2">
+              <Clock className="w-5 h-5 text-orange-400 flex-shrink-0" />
+              <span>Pending Join Requests</span>
             </h2>
-            <span className="text-sm text-gray-400">{myRequests.filter(r => r.status === 'Pending').length} pending</span>
+            <span className="text-xs sm:text-sm text-gray-400 flex-shrink-0">{myRequests.filter(r => r.status === 'Pending').length} pending</span>
           </div>
-          <div className="relative z-10 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {myRequests.filter(r => r.status === 'Pending').map((request) => {
               const team = request.team_id
               if (!team) return null
@@ -336,14 +336,14 @@ const Teams = () => {
               return (
                 <div key={request._id} className="relative group">
                   <Link to={`/teams/${team._id}`} className="block">
-                    <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10">
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1 min-w-0 pr-2">
+                    <div className="glass-3d rounded-2xl hover:border-white/20 transition-all duration-300 border border-white/10 p-4 sm:p-6">
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-4">
+                          <div className="flex-1 min-w-0">
                             <h3 className="font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors truncate">
                               {team.team_name}
                             </h3>
-                            <p className="text-sm text-gray-400 truncate">{team.project_title}</p>
+                            <p className="text-xs sm:text-sm text-gray-400 truncate">{team.project_title}</p>
                           </div>
                           <div className="flex-shrink-0">
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -356,16 +356,16 @@ const Teams = () => {
                           </div>
                         </div>
                       
-                        <p className="text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
+                        <p className="text-xs sm:text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
                       
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-2">
-                            <Clock className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-400 text-xs">
+                        <div className="flex items-center justify-between text-xs sm:text-sm gap-2">
+                          <div className="flex items-center space-x-2 min-w-0">
+                            <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            <span className="text-gray-400 text-xs truncate">
                               {new Date(request.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs ${
+                          <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${
                             team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
                             team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
                             'bg-blue-400/20 text-blue-400'
@@ -384,17 +384,17 @@ const Teams = () => {
       )}
 
       {/* All Teams Section */}
-      <div className="card relative overflow-hidden">
+      <div className="card relative overflow-hidden p-4 sm:p-6">
         <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl" style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
         <div className="absolute top-0 left-0 right-0 h-px pointer-events-none" style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-        <div className="relative z-10 flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">All Teams</h2>
-          <span className="text-sm text-gray-400">{teams.length} teams available</span>
+        <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6">
+          <h2 className="text-lg sm:text-xl font-semibold text-white">All Teams</h2>
+          <span className="text-xs sm:text-sm text-gray-400">{teams.length} teams available</span>
         </div>
         <div className="relative z-10">
         {/* Search Bar */}
         <form onSubmit={handleSubmit(onSearch)} className="mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -406,7 +406,7 @@ const Teams = () => {
             </div>
             <button
               type="submit"
-              className="btn-primary flex items-center justify-center px-6"
+              className="btn-primary flex items-center justify-center px-6 w-full sm:w-auto"
             >
               <Search className="w-4 h-4 mr-2" />
               Search
@@ -416,11 +416,11 @@ const Teams = () => {
 
         {/* Teams Grid */}
         {teams.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {teams.map((team) => {
               const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
               return (
-                <div key={team._id} className="relative group rounded-2xl p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                <div key={team._id} className="relative group rounded-2xl p-4 sm:p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between"
                   style={{
                     background: 'rgba(255, 255, 255, 0.03)',
                     backdropFilter: 'blur(16px)',
@@ -438,21 +438,21 @@ const Teams = () => {
 
                   <div className="relative z-10">
                     {/* Header */}
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0"
+                    <div className="flex items-start justify-between gap-2.5 mb-4">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-md flex-shrink-0"
                           style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}>
                           {team.team_name?.charAt(0).toUpperCase() || 'T'}
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-white text-base group-hover:text-primary-300 transition-colors truncate">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors truncate">
                             {team.team_name}
                           </h3>
                           <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
                         </div>
                       </div>
 
-                      <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold flex-shrink-0 ${
+                      <span className={`px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
                         team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
                         team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
                         'bg-blue-500/15 text-blue-400 border border-blue-500/30'
@@ -468,13 +468,13 @@ const Teams = () => {
 
                     {/* Capacity Progress Bar */}
                     <div className="space-y-1.5 mb-4">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-400 flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-blue-400" />
-                          <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                      <div className="flex items-center justify-between text-xs gap-2">
+                        <span className="text-gray-400 flex items-center gap-1 min-w-0">
+                          <Users className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                          <span className="font-medium text-white truncate"><span className="text-white font-medium">{team.current_members || 1}</span> / {team.max_members || 4} Members</span>
                         </span>
                         {team.hackathon_name && (
-                          <span className="text-[11px] font-semibold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 truncate max-w-[120px]">
+                          <span className="text-[10px] sm:text-[11px] font-semibold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 truncate max-w-[100px] sm:max-w-[120px] flex-shrink-0">
                             🏆 {team.hackathon_name}
                           </span>
                         )}
@@ -496,12 +496,12 @@ const Teams = () => {
 
                     {/* Required Skills */}
                     {team.required_skills && team.required_skills.length > 0 && (
-                      <div className="mb-5">
+                      <div className="mb-4 sm:mb-5">
                         <div className="flex flex-wrap gap-1.5">
                           {team.required_skills.slice(0, 3).map((skill, index) => (
                             <span
                               key={index}
-                              className="px-2.5 py-1 text-[11px] font-medium rounded-lg"
+                              className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg truncate max-w-[110px]"
                               style={{
                                 background: 'rgba(99, 102, 241, 0.12)',
                                 color: '#a5b4fc',
@@ -512,7 +512,7 @@ const Teams = () => {
                             </span>
                           ))}
                           {team.required_skills.length > 3 && (
-                            <span className="px-2 py-1 text-[11px] font-medium rounded-lg text-gray-400 bg-white/5 border border-white/10">
+                            <span className="px-2 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg text-gray-400 bg-white/5 border border-white/10 flex-shrink-0">
                               +{team.required_skills.length - 3} more
                             </span>
                           )}
@@ -525,20 +525,20 @@ const Teams = () => {
                   <div className="relative z-10 flex items-center gap-2 pt-3 border-t border-white/10">
                     <Link
                       to={`/teams/${team._id}`}
-                      className="btn-secondary text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1 rounded-xl transition-all duration-200"
+                      className="btn-secondary text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl transition-all duration-200 min-w-0"
                     >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Details</span>
+                      <Eye className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">Details</span>
                     </Link>
 
                     {team.status === 'Open' && !team.is_full && (
                       <button
                         onClick={() => handleJoinTeam(team._id)}
                         disabled={joinTeamMutation.isLoading}
-                        className="btn-sunset text-xs py-2 px-3 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold transition-all duration-200 shadow-md shadow-orange-500/15"
+                        className="btn-sunset text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold transition-all duration-200 shadow-md shadow-orange-500/15 min-w-0"
                       >
-                        <UserPlus className="w-3.5 h-3.5" />
-                        <span>Join Team</span>
+                        <UserPlus className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">Join Team</span>
                       </button>
                     )}
                   </div>
@@ -569,20 +569,20 @@ const Teams = () => {
 
       {/* Create Team Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50">
-          <div className="w-full max-w-2xl card max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Create New Team</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-2xl card max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Create New Team</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-gray-400 hover:text-white p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(handleCreateTeam)} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit(handleCreateTeam)} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Team Name *
@@ -651,7 +651,7 @@ const Teams = () => {
                 <p className="text-gray-400 text-sm mt-1">Enter skills separated by commas</p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Max Members *
@@ -693,7 +693,7 @@ const Teams = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-4">
+              <div className="flex items-center justify-end space-x-4 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}

@@ -228,36 +228,37 @@ const TeamDetail = () => {
   })
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
           <button
             onClick={() => navigate('/teams')}
-            className="btn-secondary flex items-center"
+            className="btn-secondary flex items-center justify-center text-xs sm:text-sm py-2 px-3 flex-shrink-0"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Teams
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            Back
           </button>
-          <h1 className="text-3xl font-bold text-white">Team Details</h1>
+          <h1 className="text-xl sm:text-3xl font-bold text-white truncate">Team Details</h1>
         </div>
         
-        {canJoin && (
-          <button
-            onClick={() => setShowJoinModal(true)}
-            className="btn-primary flex items-center"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Join Team
-          </button>
-        )}
-        
-        {isMember && !isLeader && (
-          <button
-            onClick={handleLeaveTeam}
-            disabled={leaveTeamMutation.isLoading}
-            className="btn-danger flex items-center"
-          >
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          {canJoin && (
+            <button
+              onClick={() => setShowJoinModal(true)}
+              className="btn-primary flex items-center justify-center text-xs sm:text-sm w-full sm:w-auto"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Join Team
+            </button>
+          )}
+          
+          {isMember && !isLeader && (
+            <button
+              onClick={handleLeaveTeam}
+              disabled={leaveTeamMutation.isLoading}
+              className="btn-danger flex items-center justify-center text-xs sm:text-sm w-full sm:w-auto"
+            >
             <XCircle className="w-4 h-4 mr-2" />
             Leave Team
           </button>
@@ -273,6 +274,7 @@ const TeamDetail = () => {
             {deleteTeamMutation.isLoading ? 'Deleting...' : 'Delete Team'}
           </button>
         )}
+        </div>
       </div>
 
       {/* Team Overview Card */}

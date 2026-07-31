@@ -340,16 +340,17 @@ const Dashboard = () => {
         <div className="lg:col-span-2 space-y-4 lg:space-y-8 min-w-0">
 
           {/* Recent Teams */}
-          <div className="card relative overflow-hidden">
+          <div className="card relative overflow-hidden p-4 sm:p-6">
             <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl"
               style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
             <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
               style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-            <div className="relative z-10 flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-primary-400" /> Recent Teams
+            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6 gap-2">
+              <h2 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-2 min-w-0">
+                <Users className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                <span className="truncate">Recent Teams</span>
               </h2>
-              <Link to="/teams" className="text-primary-400 hover:text-primary-300 text-sm font-medium flex items-center gap-1">
+              <Link to="/teams" className="text-primary-400 hover:text-primary-300 text-xs sm:text-sm font-medium flex items-center gap-1 flex-shrink-0">
                 View All <ExternalLink className="w-3 h-3" />
               </Link>
             </div>
@@ -357,11 +358,11 @@ const Dashboard = () => {
             {isLoading ? (
               <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
             ) : teams.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {teams.slice(0, 3).map((team) => {
                   const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
                   return (
-                    <div key={team._id} className="relative group rounded-xl p-4 transition-all duration-300 overflow-hidden"
+                    <div key={team._id} className="relative group rounded-xl p-3.5 sm:p-4 transition-all duration-300 overflow-hidden"
                       style={{
                         background: 'rgba(255, 255, 255, 0.03)',
                         backdropFilter: 'blur(16px)',
@@ -377,21 +378,21 @@ const Dashboard = () => {
 
                       <div className="relative z-10 space-y-3">
                         {/* Header */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-sm flex-shrink-0"
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-sm flex-shrink-0"
                               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
                               {team.team_name?.charAt(0).toUpperCase() || 'T'}
                             </div>
-                            <div className="min-w-0">
-                              <h3 className="font-bold text-white text-sm md:text-base group-hover:text-primary-300 transition-colors truncate">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors truncate">
                                 {team.team_name}
                               </h3>
                               <p className="text-xs text-gray-400 truncate">{team.project_title || 'Project'}</p>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap flex-shrink-0">
                             {team.user_role === 'Leader' && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 bg-amber-500/15 text-amber-400 border border-amber-500/30">
                                 👑 Leader
@@ -408,13 +409,13 @@ const Dashboard = () => {
                         </div>
 
                         {/* Members Capacity Progress */}
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-400 flex items-center gap-1">
-                              <Users className="w-3 h-3 text-indigo-400" />
-                              <span className="font-medium text-white">{team.current_members || 1}</span> / {team.max_members || 4} Members
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between text-xs gap-2">
+                            <span className="text-gray-400 flex items-center gap-1 min-w-0">
+                              <Users className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                              <span className="font-medium text-white truncate"><span className="text-white font-medium">{team.current_members || 1}</span> / {team.max_members || 4} Members</span>
                             </span>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-shrink-0">
                               <Link to={`/teams/${team._id}`} className="text-xs font-semibold text-primary-400 hover:text-primary-300 flex items-center gap-0.5">
                                 Details <ChevronRight className="w-3 h-3" />
                               </Link>
@@ -442,15 +443,15 @@ const Dashboard = () => {
                         {/* Skills */}
                         {team.required_skills?.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
-                            {team.required_skills.slice(0, 4).map((skill, i) => (
-                              <span key={i} className="px-2 py-0.5 text-[11px] font-medium rounded-md"
+                            {team.required_skills.slice(0, 3).map((skill, i) => (
+                              <span key={i} className="px-2 py-0.5 text-[10px] sm:text-[11px] font-medium rounded-md truncate max-w-[110px]"
                                 style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#a5b4fc', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
                                 {typeof skill === 'string' ? skill : skill.skill_name || skill}
                               </span>
                             ))}
-                            {team.required_skills.length > 4 && (
-                              <span className="px-2 py-0.5 text-[11px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10">
-                                +{team.required_skills.length - 4}
+                            {team.required_skills.length > 3 && (
+                              <span className="px-1.5 py-0.5 text-[10px] sm:text-[11px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10 flex-shrink-0">
+                                +{team.required_skills.length - 3}
                               </span>
                             )}
                           </div>
