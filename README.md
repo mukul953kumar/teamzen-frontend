@@ -4,7 +4,7 @@ React-based frontend for **TeamZen** — A BTech Teammate & Hackathon Finder Pla
 
 ## 🔗 Links
 - **Frontend Repo**: [teamzen-frontend](https://github.com/mukul953kumar/teamzen-frontend)
-- **Live App**: [teamzen-frontend.vercel.app](https://teamzen-frontend.vercel.app/)
+- **Live App**: [teamzenconnect.vercel.app](https://teamzenconnect.vercel.app/)
 - **Backend Repo**: [teamzen-backend](https://github.com/mukul953kumar/teamzen-backend)
 - **Live API**: [teamzen-backend-1.onrender.com/api](https://teamzen-backend-1.onrender.com/api)
 
