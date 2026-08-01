@@ -38,6 +38,7 @@ const Layout = () => {
   ]
 
   const isActive = (href) => location.pathname === href
+  const isChatPage = location.pathname === '/chat' || location.pathname.startsWith('/chat/')
 
   return (
     <div className="h-screen flex overflow-hidden w-full max-w-full">
@@ -122,20 +123,60 @@ const Layout = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden w-full max-w-full">
         {/* Mobile Header */}
-        <div className="lg:hidden border-b border-white/10 p-4 flex-shrink-0 relative overflow-hidden"
+        <div className="lg:hidden border-b border-white/10 py-2.5 px-3 sm:px-4 flex-shrink-0 relative overflow-hidden shadow-md"
           style={{ backgroundImage: 'url("/images/image2.png")', backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <div className="absolute inset-0" style={{ background: overlayBg, zIndex: 0 }} />
-          <div className="relative z-10 flex items-center justify-between">
-            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-white/10 flex-shrink-0">
+          <div className="relative z-10 flex items-center justify-between gap-2">
+            {/* Left Hamburger menu */}
+            <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 flex-shrink-0 text-white" aria-label="Open Navigation Menu">
               <Menu className="w-5 h-5" />
             </button>
-            <img src="/images/logo26.png" alt="TeamZen" className="h-20 w-auto max-w-[60%] object-contain" />
-            <div className="w-10" />
+
+            {/* Logo in Center */}
+            <Link to="/dashboard" className="flex items-center justify-center min-w-0">
+              <img src="/images/logo26.png" alt="TeamZen" className="h-14 sm:h-16 w-auto max-w-[130px] sm:max-w-[160px] object-contain" />
+            </Link>
+
+            {/* Right Top Header Actions: Notification Bell + Profile Avatar */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              {/* Notification Bell */}
+              <Link
+                to="/teams/invitations"
+                className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-white flex items-center justify-center"
+                title="Notifications & Invitations"
+              >
+                <Bell className="w-4.5 h-4.5 text-gray-200" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] bg-orange-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1 shadow-lg border border-gray-950">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Profile Avatar */}
+              <Link
+                to="/profile"
+                className="relative p-0.5 rounded-xl bg-gradient-to-tr from-primary-400 to-purple-500 hover:scale-105 transition-all shadow-md flex-shrink-0"
+                title="View Profile"
+              >
+                <div className="w-8 h-8 rounded-[10px] bg-gray-900 flex items-center justify-center overflow-hidden">
+                  {user?.profile_image ? (
+                    <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-white">{user?.name?.charAt(0).toUpperCase() || 'U'}</span>
+                  )}
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 md:p-6 pb-24 lg:pb-6 overflow-y-auto overflow-x-hidden w-full max-w-full" style={{
+        <main className={`flex-1 ${
+          isChatPage 
+            ? 'p-2 sm:p-4 pb-[72px] lg:pb-4 flex flex-col h-[calc(100dvh-64px)] lg:h-full overflow-hidden' 
+            : 'p-4 md:p-6 pb-24 lg:pb-6 overflow-y-auto'
+        } overflow-x-hidden w-full max-w-full`} style={{
           backgroundImage: getBackgroundImage(),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -143,7 +184,7 @@ const Layout = () => {
           position: 'relative'
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: overlayBg, zIndex: 0 }} />
-          <div className="relative z-10 w-full max-w-full overflow-x-hidden">
+          <div className={`relative z-10 w-full max-w-full ${isChatPage ? 'h-full flex flex-col overflow-hidden' : 'overflow-x-hidden'}`}>
             <Outlet />
           </div>
         </main>

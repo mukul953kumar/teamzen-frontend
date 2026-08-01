@@ -11,6 +11,7 @@ import { useAuth } from '../contexts/useAuth'
 import toast from 'react-hot-toast'
 import { soundManager } from '../services/soundUtils'
 import AIMatchModal from '../components/AIMatchModal'
+import { getDomainBadgeStyle } from '../utils/domainUtils'
 
 const TeammateFinder = () => {
   const { user } = useAuth()
@@ -419,6 +420,22 @@ const TeammateFinder = () => {
                           </button>
                         </div>
                       </div>
+
+                      {/* Domain Interests */}
+                      {u.hackathon_interests?.length > 0 && (
+                        <div className="mb-2.5">
+                          <div className="flex flex-wrap gap-1">
+                            {u.hackathon_interests.slice(0, 3).map((interest, idx) => {
+                              const style = getDomainBadgeStyle(interest)
+                              return (
+                                <span key={idx} className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${style.color}`}>
+                                  {style.icon} {interest}
+                                </span>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Skills */}
                       <div className="mb-4">

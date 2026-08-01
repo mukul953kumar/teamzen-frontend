@@ -120,77 +120,50 @@ const Dashboard = () => {
           style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }}
         />
 
-        <div className="relative z-10 flex items-center justify-between px-5 py-4 gap-4">
-          {/* Left — Avatar + Greeting */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative flex-shrink-0">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden ring-2 ring-white/10">
+        <div className="relative z-10 p-3.5 sm:p-5 flex items-center justify-between gap-3 sm:gap-4">
+          {/* Avatar + Greeting & Student Details */}
+          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+            <div className="relative flex-shrink-0 mt-0.5 sm:mt-0">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden ring-2 ring-white/10 shadow-md">
                 {user?.profile_image ? (
                   <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-base font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
+                  <span className="text-base sm:text-lg font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
                 )}
               </div>
               {/* Online dot */}
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-black" />
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base md:text-lg font-semibold text-white leading-tight truncate">
+                <h1 className="text-base sm:text-lg font-bold text-white leading-tight">
                   Welcome, {user?.name?.split(' ')[0]} 👋
                 </h1>
+                
                 {/* Streak & Zen Points Button */}
                 <button
                   type="button"
                   onClick={() => setShowStreakModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-orange-400 border border-orange-500/30 hover:bg-amber-500/25 transition-all cursor-pointer shadow-sm"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-orange-400 border border-orange-500/30 hover:bg-amber-500/25 transition-all cursor-pointer shadow-sm active:scale-95"
                   title="Click to view Streak & Zen Points benefits"
                 >
                   <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400 flex-shrink-0" />
                   <span>{user?.loginStreak || 1}d Streak</span>
-                  <span className="text-[10px] text-gray-400 ml-0.5 font-normal">| ⚡ {user?.zenPoints || 10} Pts</span>
-                  <HelpCircle className="w-3 h-3 text-orange-400 ml-0.5 opacity-80 flex-shrink-0" />
+                  <span className="text-[10px] text-gray-400 font-normal">| ⚡ {user?.zenPoints || 10} Pts</span>
+                  <HelpCircle className="w-3 h-3 text-orange-400 opacity-80 flex-shrink-0" />
                 </button>
               </div>
-              <p className="text-xs text-gray-400 truncate mt-0.5">
-                {user?.branch} · Year {user?.year} · {user?.college}
-              </p>
-            </div>
-          </div>
 
-          {/* Right — Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Notification Bell */}
-            <Link
-              to="/teams/invitations"
-              className="relative p-2 rounded-xl hover:bg-white/10 transition-all duration-200 group"
-              title="Notifications"
-            >
-              <Bell className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-orange-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white px-1 shadow-lg">
-                  {unreadCount > 9 ? '9+' : unreadCount}
+              {/* Branch, Year & College - Responsive & Un-truncated */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-300 font-medium">
+                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-primary-300 font-bold text-[11px]">
+                  {user?.branch || 'CSE'}
                 </span>
-              )}
-            </Link>
-
-            {/* Divider */}
-            <div className="w-px h-6 bg-white/10 hidden sm:block" />
-
-            {/* Edit Profile */}
-            <Link
-              to="/profile"
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 border border-white/10 hover:border-white/20"
-            >
-              <User className="w-3.5 h-3.5" />
-              Profile
-            </Link>
-
-            {/* Mobile profile icon */}
-            <Link to="/profile" className="sm:hidden p-2 rounded-xl hover:bg-white/10 transition-all duration-200">
-              <User className="w-5 h-5 text-gray-300" />
-            </Link>
+                <span>• Year {user?.year || 1} ({user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))}-{user?.endYear || ((user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))) + 4)})</span>
+                <span>• {user?.college || 'KNIT Sultanpur'}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -302,7 +275,7 @@ const Dashboard = () => {
             <p className="text-xs text-gray-500 mt-0.5">Create or join a project.</p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Link to="/achievements"
+            <Link to="/projects"
               className="px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
               style={{ background: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)' }}>
               Browse

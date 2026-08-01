@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { 
-  Users, 
-  Plus, 
-  Search, 
+import {
+  Users,
+  Plus,
+  Search,
   Filter,
   Calendar,
   MapPin,
@@ -128,7 +128,7 @@ const Teams = () => {
     // Process required_skills from string to array
     const processedData = {
       ...data,
-      required_skills: data.required_skills 
+      required_skills: data.required_skills
         ? data.required_skills.split(',').map(skill => skill.trim()).filter(skill => skill)
         : []
     }
@@ -263,11 +263,11 @@ const Teams = () => {
                         border: '1px solid rgba(255, 255, 255, 0.09)',
                         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
                       }}>
-                      
+
                       {/* Top Accent Gradient Line */}
                       <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
                         style={{ background: 'linear-gradient(90deg, #6366f1, #a855f7, #f97316)' }} />
-                      
+
                       {/* Hover Ambient Glow */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                         style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 70%)' }} />
@@ -311,11 +311,10 @@ const Teams = () => {
                               <Users className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
                               <span className="font-medium text-white truncate">{team.current_members || 1} / {team.max_members || 4} Members</span>
                             </span>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
-                              team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
-                              team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                              'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
+                                team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                                  'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                              }`}>
                               {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Team Full' : team.status}
                             </span>
                           </div>
@@ -377,7 +376,7 @@ const Teams = () => {
             {myRequests.filter(r => r.status === 'Pending').map((request) => {
               const team = request.team_id
               if (!team) return null
-              
+
               return (
                 <div key={request._id} className="relative group">
                   <Link to={`/teams/${team._id}`} className="block">
@@ -391,18 +390,17 @@ const Teams = () => {
                             <p className="text-xs sm:text-sm text-gray-400 truncate">{team.project_title}</p>
                           </div>
                           <div className="flex-shrink-0">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              request.status === 'Pending' ? 'bg-orange-400/20 text-orange-400' :
-                              request.status === 'Accepted' ? 'bg-green-400/20 text-green-400' :
-                              'bg-red-400/20 text-red-400'
-                            }`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.status === 'Pending' ? 'bg-orange-400/20 text-orange-400' :
+                                request.status === 'Accepted' ? 'bg-green-400/20 text-green-400' :
+                                  'bg-red-400/20 text-red-400'
+                              }`}>
                               {request.status}
                             </span>
                           </div>
                         </div>
-                      
+
                         <p className="text-xs sm:text-sm text-gray-300 mb-4 line-clamp-2">{team.description}</p>
-                      
+
                         <div className="flex items-center justify-between text-xs sm:text-sm gap-2">
                           <div className="flex items-center space-x-2 min-w-0">
                             <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -410,11 +408,10 @@ const Teams = () => {
                               {new Date(request.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${
-                            team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                            team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
-                            'bg-blue-400/20 text-blue-400'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs flex-shrink-0 ${team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
+                              team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
+                                'bg-blue-400/20 text-blue-400'
+                            }`}>
                             {team.status}
                           </span>
                         </div>
@@ -437,355 +434,365 @@ const Teams = () => {
           <span className="text-xs sm:text-sm text-gray-400">{teams.length} teams available</span>
         </div>
         <div className="relative z-10">
-        {/* Search Bar */}
-        <form onSubmit={handleSubmit(onSearch)} className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                className="input pl-12 w-full"
-                placeholder="Search teams..."
-                {...register('search')}
-              />
+          {/* Search Bar */}
+          <form onSubmit={handleSubmit(onSearch)} className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  className="input pl-12 w-full"
+                  placeholder="Search teams..."
+                  {...register('search')}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary flex items-center justify-center px-6 w-full sm:w-auto"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </button>
             </div>
-            <button
-              type="submit"
-              className="btn-primary flex items-center justify-center px-6 w-full sm:w-auto"
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </button>
-          </div>
-        </form>
+          </form>
 
-        {/* Teams Grid */}
-        {teams.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {teams.map((team) => {
-              const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
-              return (
-                <div key={team._id} className="relative group rounded-2xl p-4 sm:p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255, 255, 255, 0.09)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-                  }}>
+          {/* Teams Grid */}
+          {teams.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {teams.map((team) => {
+                const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
+                return (
+                  <div key={team._id} className="relative group rounded-2xl p-4 sm:p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.03)',
+                      backdropFilter: 'blur(16px)',
+                      border: '1px solid rgba(255, 255, 255, 0.09)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                    }}>
 
-                  {/* Top Accent Gradient Line */}
-                  <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
-                    style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)' }} />
+                    {/* Top Accent Gradient Line */}
+                    <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                      style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899)' }} />
 
-                  {/* Hover Glow */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                    style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%)' }} />
+                    {/* Hover Glow */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 70%)' }} />
 
-                  <div className="relative z-10">
-                    {/* Header Top Row */}
-                    <div className="flex items-start justify-between gap-3 mb-2.5">
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {team.leader_id?.profile_image ? (
-                          <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}>
-                            <img
-                              src={team.leader_id.profile_image}
-                              alt={team.leader_id?.name || team.team_name}
-                              className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-white/20 shadow-md"
-                            />
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500/90 flex items-center justify-center text-[9px] shadow-sm border border-black/40">
-                              👑
+                    <div className="relative z-10">
+                      {/* Header Top Row */}
+                      <div className="flex items-start justify-between gap-3 mb-2.5">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {team.leader_id?.profile_image ? (
+                            <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}>
+                              <img
+                                src={team.leader_id.profile_image}
+                                alt={team.leader_id?.name || team.team_name}
+                                className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl object-cover border border-white/20 shadow-md"
+                              />
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500/90 flex items-center justify-center text-[9px] shadow-sm border border-black/40">
+                                👑
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <div
-                            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md flex-shrink-0 border border-white/10"
-                            style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
-                            title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}
-                          >
-                            {team.team_name?.charAt(0).toUpperCase() || 'T'}
-                          </div>
-                        )}
-
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-white text-base sm:text-lg group-hover:text-primary-300 transition-colors break-words leading-snug">
-                            {team.team_name}
-                          </h3>
-                          <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{team.project_title || 'Project'}</p>
-                        </div>
-                      </div>
-
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${
-                        team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
-                        team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                        'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                      }`}>
-                        {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
-                      </span>
-                    </div>
-
-                    {/* Deadline Badge Bar */}
-                    {team.deadline && (
-                      <div className="mb-3">
-                        {getDeadlineBadge(team.deadline)}
-                      </div>
-                    )}
-
-                    {/* Description */}
-                    <p className="text-xs text-gray-300 mb-4 line-clamp-2 leading-relaxed">
-                      {team.description || 'No project description provided.'}
-                    </p>
-
-                    {/* Capacity Progress Bar */}
-                    <div className="space-y-1.5 mb-4">
-                      <div className="flex items-center justify-between text-xs gap-2">
-                        <span className="text-gray-400 flex items-center gap-1 min-w-0">
-                          <Users className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                          <span className="font-medium text-white truncate"><span className="text-white font-medium">{team.current_members || 1}</span> / {team.max_members || 4} Members</span>
-                        </span>
-                        {team.hackathon_name && (
-                          <span className="text-[10px] sm:text-[11px] font-semibold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 truncate max-w-[100px] sm:max-w-[120px] flex-shrink-0">
-                            🏆 {team.hackathon_name}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Progress Track */}
-                      <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${memberPercent}%`,
-                            background: memberPercent === 100
-                              ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
-                              : 'linear-gradient(90deg, #3b82f6, #06b6d4)'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Required Skills */}
-                    {team.required_skills && team.required_skills.length > 0 && (
-                      <div className="mb-4 sm:mb-5">
-                        <div className="flex flex-wrap gap-1.5">
-                          {team.required_skills.slice(0, 3).map((skill, index) => (
-                            <span
-                              key={index}
-                              className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg truncate max-w-[110px]"
-                              style={{
-                                background: 'rgba(99, 102, 241, 0.12)',
-                                color: '#a5b4fc',
-                                border: '1px solid rgba(99, 102, 241, 0.25)'
-                              }}
+                          ) : (
+                            <div
+                              className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-md flex-shrink-0 border border-white/10"
+                              style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+                              title={`Leader: ${team.leader_id?.name || 'Team Leader'}`}
                             >
-                              {typeof skill === 'string' ? skill : skill.skill_name}
-                            </span>
-                          ))}
-                          {team.required_skills.length > 3 && (
-                            <span className="px-2 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg text-gray-400 bg-white/5 border border-white/10 flex-shrink-0">
-                              +{team.required_skills.length - 3} more
+                              {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                            </div>
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-bold text-white text-base sm:text-lg group-hover:text-primary-300 transition-colors break-words leading-snug">
+                              {team.team_name}
+                            </h3>
+                            <p className="text-xs text-gray-400 font-medium truncate mt-0.5">{team.project_title || 'Project'}</p>
+                          </div>
+                        </div>
+
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold flex-shrink-0 ${team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
+                            team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                              'bg-blue-500/15 text-blue-400 border border-blue-500/30'
+                          }`}>
+                          {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
+                        </span>
+                      </div>
+
+                      {/* Deadline Badge Bar */}
+                      {team.deadline && (
+                        <div className="mb-3">
+                          {getDeadlineBadge(team.deadline)}
+                        </div>
+                      )}
+
+                      {/* Description */}
+                      <p className="text-xs text-gray-300 mb-4 line-clamp-2 leading-relaxed">
+                        {team.description || 'No project description provided.'}
+                      </p>
+
+                      {/* Capacity Progress Bar */}
+                      <div className="space-y-1.5 mb-4">
+                        <div className="flex items-center justify-between text-xs gap-2">
+                          <span className="text-gray-400 flex items-center gap-1 min-w-0">
+                            <Users className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                            <span className="font-medium text-white truncate"><span className="text-white font-medium">{team.current_members || 1}</span> / {team.max_members || 4} Members</span>
+                          </span>
+                          {team.hackathon_name && (
+                            <span className="text-[10px] sm:text-[11px] font-semibold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 truncate max-w-[100px] sm:max-w-[120px] flex-shrink-0">
+                              🏆 {team.hackathon_name}
                             </span>
                           )}
                         </div>
+
+                        {/* Progress Track */}
+                        <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${memberPercent}%`,
+                              background: memberPercent === 100
+                                ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                                : 'linear-gradient(90deg, #3b82f6, #06b6d4)'
+                            }}
+                          />
+                        </div>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="relative z-10 flex items-center gap-2 pt-3 border-t border-white/10">
-                    <Link
-                      to={`/teams/${team._id}`}
-                      className="btn-secondary text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl transition-all duration-200 min-w-0"
-                    >
-                      <Eye className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="truncate">Details</span>
-                    </Link>
+                      {/* Required Skills */}
+                      {team.required_skills && team.required_skills.length > 0 && (
+                        <div className="mb-4 sm:mb-5">
+                          <div className="flex flex-wrap gap-1.5">
+                            {team.required_skills.slice(0, 3).map((skill, index) => (
+                              <span
+                                key={index}
+                                className="px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg truncate max-w-[110px]"
+                                style={{
+                                  background: 'rgba(99, 102, 241, 0.12)',
+                                  color: '#a5b4fc',
+                                  border: '1px solid rgba(99, 102, 241, 0.25)'
+                                }}
+                              >
+                                {typeof skill === 'string' ? skill : skill.skill_name}
+                              </span>
+                            ))}
+                            {team.required_skills.length > 3 && (
+                              <span className="px-2 py-0.5 sm:py-1 text-[10px] sm:text-[11px] font-medium rounded-lg text-gray-400 bg-white/5 border border-white/10 flex-shrink-0">
+                                +{team.required_skills.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-                    {team.status === 'Open' && !team.is_full && (
-                      <button
-                        onClick={() => handleJoinTeam(team._id)}
-                        disabled={joinTeamMutation.isLoading}
-                        className="btn-sunset text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold transition-all duration-200 shadow-md shadow-orange-500/15 min-w-0"
+                    {/* Action Buttons */}
+                    <div className="relative z-10 flex items-center gap-2 pt-3 border-t border-white/10">
+                      <Link
+                        to={`/teams/${team._id}`}
+                        className="btn-secondary text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl transition-all duration-200 min-w-0"
                       >
-                        <UserPlus className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="truncate">Join Team</span>
-                      </button>
-                    )}
+                        <Eye className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">Details</span>
+                      </Link>
+
+                      {team.status === 'Open' && !team.is_full && (
+                        <button
+                          onClick={() => handleJoinTeam(team._id)}
+                          disabled={joinTeamMutation.isLoading}
+                          className="btn-sunset text-xs py-2 px-2 sm:px-3 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold transition-all duration-200 shadow-md shadow-orange-500/15 min-w-0"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="truncate">Join Team</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No teams found</h3>
-            <p className="text-gray-400 mb-6">
-              {filters.search ? 'Try adjusting your search criteria' : 'Be the first to create a team!'}
-            </p>
-            {!filters.search && (
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="btn-primary"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Team
-              </button>
-            )}
-          </div>
-        )}
+                )
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No teams found</h3>
+              <p className="text-gray-400 mb-6">
+                {filters.search ? 'Try adjusting your search criteria' : 'Be the first to create a team!'}
+              </p>
+              {!filters.search && (
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn-primary"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create Team
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Create Team Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/50 backdrop-blur-sm">
-          <div className="w-full max-w-2xl card max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-white">Create New Team</h2>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-hidden">
+          <div className="w-full max-w-2xl max-h-[85vh] sm:max-h-[90vh] flex flex-col rounded-2xl sm:rounded-3xl border border-white/15 bg-[#0f0f17] shadow-2xl overflow-hidden">
+
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0 bg-white/[0.02]">
+              <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary-400" />
+                <span>Create New Team</span>
+              </h2>
               <button
+                type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-gray-400 hover:text-white p-1"
+                className="text-gray-400 hover:text-white p-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(handleCreateTeam)} className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {/* Modal Form */}
+            <form onSubmit={handleSubmit(handleCreateTeam)} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              {/* Form Body - Scrollable */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Team Name *
+                    </label>
+                    <input
+                      type="text"
+                      className="input w-full"
+                      placeholder="Enter team name"
+                      {...register('team_name', { required: 'Team name is required' })}
+                    />
+                    {errors.team_name && (
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.team_name.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Project Title *
+                    </label>
+                    <input
+                      type="text"
+                      className="input w-full"
+                      placeholder="Enter project title"
+                      {...register('project_title', { required: 'Project title is required' })}
+                    />
+                    {errors.project_title && (
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.project_title.message}</p>
+                    )}
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Team Name *
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                    Description *
+                  </label>
+                  <textarea
+                    className="input w-full resize-none"
+                    rows={3}
+                    placeholder="Describe your team and project..."
+                    {...register('description', { required: 'Description is required' })}
+                  />
+                  {errors.description && (
+                    <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.description.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                    Required Skills *
                   </label>
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="Enter team name"
-                    {...register('team_name', { required: 'Team name is required' })}
-                  />
-                  {errors.team_name && (
-                    <p className="text-red-400 text-sm mt-1">{errors.team_name.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Project Title *
-                  </label>
-                  <input
-                    type="text"
-                    className="input w-full"
-                    placeholder="Enter project title"
-                    {...register('project_title', { required: 'Project title is required' })}
-                  />
-                  {errors.project_title && (
-                    <p className="text-red-400 text-sm mt-1">{errors.project_title.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  className="input w-full resize-none"
-                  rows={4}
-                  placeholder="Describe your team and project..."
-                  {...register('description', { required: 'Description is required' })}
-                />
-                {errors.description && (
-                  <p className="text-red-400 text-sm mt-1">{errors.description.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Required Skills *
-                </label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="e.g., React, Node.js, MongoDB (comma separated)"
-                  {...register('required_skills', { 
-                    required: 'At least one skill is required',
-                    validate: (value) => {
-                      const skills = value.split(',').map(s => s.trim()).filter(s => s)
-                      return skills.length > 0 || 'At least one skill is required'
-                    }
-                  })}
-                />
-                {errors.required_skills && (
-                  <p className="text-red-400 text-sm mt-1">{errors.required_skills.message}</p>
-                )}
-                <p className="text-gray-400 text-sm mt-1">Enter skills separated by commas</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Max Members *
-                  </label>
-                  <input
-                    type="number"
-                    className="input w-full"
-                    min="2"
-                    max="10"
-                    placeholder="5"
-                    {...register('max_members', { required: 'Max members is required' })}
-                  />
-                  {errors.max_members && (
-                    <p className="text-red-400 text-sm mt-1">{errors.max_members.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Deadline
-                  </label>
-                  <input
-                    type="date"
-                    className="input w-full"
-                    min={new Date().toISOString().split('T')[0]}
-                    {...register('deadline', {
-                      validate: (val) => {
-                        if (!val) return true
-                        const selected = new Date(val)
-                        const today = new Date()
-                        today.setHours(0, 0, 0, 0)
-                        return selected >= today || 'Deadline date cannot be in the past'
+                    placeholder="e.g., React, Node.js, MongoDB (comma separated)"
+                    {...register('required_skills', {
+                      required: 'At least one skill is required',
+                      validate: (value) => {
+                        const skills = value.split(',').map(s => s.trim()).filter(s => s)
+                        return skills.length > 0 || 'At least one skill is required'
                       }
                     })}
                   />
-                  {errors.deadline && (
-                    <p className="text-red-400 text-sm mt-1">{errors.deadline.message}</p>
+                  {errors.required_skills && (
+                    <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.required_skills.message}</p>
                   )}
+                  <p className="text-gray-400 text-xs mt-1">Enter skills separated by commas</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Hackathon
-                  </label>
-                  <input
-                    type="text"
-                    className="input w-full"
-                    placeholder="Hackathon name"
-                    {...register('hackathon_name')}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Max Members *
+                    </label>
+                    <input
+                      type="number"
+                      className="input w-full"
+                      min="2"
+                      max="10"
+                      placeholder="5"
+                      {...register('max_members', { required: 'Max members is required' })}
+                    />
+                    {errors.max_members && (
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.max_members.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Deadline
+                    </label>
+                    <input
+                      type="date"
+                      className="input w-full"
+                      min={new Date().toISOString().split('T')[0]}
+                      {...register('deadline', {
+                        validate: (val) => {
+                          if (!val) return true
+                          const selected = new Date(val)
+                          const today = new Date()
+                          today.setHours(0, 0, 0, 0)
+                          return selected >= today || 'Deadline date cannot be in the past'
+                        }
+                      })}
+                    />
+                    {errors.deadline && (
+                      <p className="text-red-400 text-xs sm:text-sm mt-1">{errors.deadline.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-2">
+                      Hackathon
+                    </label>
+                    <input
+                      type="text"
+                      className="input w-full"
+                      placeholder="Hackathon name"
+                      {...register('hackathon_name')}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end space-x-4 pt-2">
+              {/* Action Footer - Sticky at bottom of modal */}
+              <div className="p-3 sm:p-5 border-t border-white/10 bg-gray-950/90 backdrop-blur-md flex items-center justify-end space-x-3 sm:space-x-4 flex-shrink-0 z-10">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="btn-secondary"
+                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-gray-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createTeamMutation.isLoading}
-                  className="btn-primary"
+                  className="btn-sunset px-5 py-2 rounded-xl text-xs sm:text-sm font-bold text-white shadow-lg shadow-orange-500/20 flex items-center justify-center min-w-[120px] disabled:opacity-50"
                 >
                   {createTeamMutation.isLoading ? 'Creating...' : 'Create Team'}
                 </button>

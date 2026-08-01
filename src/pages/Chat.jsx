@@ -13,7 +13,8 @@ import {
   Code,
   Copy,
   Check,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -201,7 +202,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex relative"
+    <div className="h-full flex-1 flex relative rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
       style={{
         backgroundImage: 'url("/images/image3.png")',
         backgroundSize: 'cover',
@@ -209,11 +210,11 @@ const Chat = () => {
         backgroundRepeat: 'no-repeat'
       }}>
       <div className="absolute inset-0 bg-black/80 z-0" />
-      <div className="relative z-10 flex w-full">
+      <div className="relative z-10 flex w-full h-full overflow-hidden">
       {/* Conversations List */}
       <div className={`${
         selectedConversation ? 'hidden md:flex' : 'flex'
-      } w-full md:w-80 border-r border-gray-700 flex-col bg-black/40 backdrop-blur-sm`}>
+      } w-full md:w-80 border-r border-gray-700/80 flex-col bg-black/40 backdrop-blur-md h-full overflow-hidden`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white flex items-center mb-4">
@@ -362,54 +363,58 @@ const Chat = () => {
       {/* Chat Area */}
       <div className={`${
         selectedConversation ? 'flex' : 'hidden md:flex'
-      } flex-1 flex-col`}>
+      } flex-1 flex-col h-full overflow-hidden bg-black/20 backdrop-blur-sm`}>
         
         {selectedConversation ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-              {/* Back button - mobile only */}
-              <button
-                className="md:hidden mr-2 p-1 rounded-lg hover:bg-gray-700 transition-colors"
-                onClick={() => setSelectedConversation(null)}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <div className="flex items-center space-x-3">
+            <div className="p-3 sm:p-4 border-b border-gray-700/80 flex items-center justify-between flex-shrink-0 bg-gray-900/60 backdrop-blur-md">
+              <div className="flex items-center space-x-3 min-w-0">
+                {/* Back button - mobile only */}
+                <button
+                  type="button"
+                  className="md:hidden p-2 rounded-xl bg-gray-800/90 hover:bg-gray-700 text-white transition-colors border border-gray-700 flex items-center justify-center shrink-0 active:scale-95 shadow-sm"
+                  onClick={() => setSelectedConversation(null)}
+                  title="Back to conversations"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0 shadow-md">
                   {selectedConversation.type === 'team' ? (
                     <Hash className="w-5 h-5 text-white" />
+                  ) : selectedConversation.partner?.profile_image ? (
+                    <img src={selectedConversation.partner.profile_image} alt={selectedConversation.partner.name} className="w-full h-full rounded-full object-cover" />
                   ) : (
                     <span className="text-sm font-bold text-white">
-                      {selectedConversation.partner.name?.charAt(0).toUpperCase()}
+                      {selectedConversation.partner?.name?.charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-white flex items-center">
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-white flex items-center truncate text-sm sm:text-base">
                     {selectedConversation.type === 'team' ? (
                       <>
-                        <Hash className="w-4 h-4 mr-1" />
-                        {selectedConversation.team_name}
+                        <Hash className="w-4 h-4 mr-1 text-primary-400 shrink-0" />
+                        <span className="truncate">{selectedConversation.team_name}</span>
                       </>
                     ) : (
-                      selectedConversation.partner.name
+                      <span className="truncate">{selectedConversation.partner?.name}</span>
                     )}
                   </h3>
-                  <p className="text-sm text-gray-400">
+                  <p className="text-xs text-gray-400 truncate">
                     {selectedConversation.type === 'team' 
                       ? `${selectedConversation.project_title || 'Team Group Chat'}`
-                      : `${selectedConversation.partner.college} • ${selectedConversation.partner.branch}`
+                      : `${selectedConversation.partner?.college || ''} ${selectedConversation.partner?.branch ? '• ' + selectedConversation.partner.branch : ''}`
                     }
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button className="p-2 rounded-lg hover:bg-gray-700 transition-colors">
-                  <MoreVertical className="w-4 h-4 text-gray-400" />
+              <div className="flex items-center space-x-1 shrink-0">
+                <button className="p-2 rounded-lg hover:bg-gray-800 text-gray-400 hover:text-white transition-colors">
+                  <MoreVertical className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -520,27 +525,27 @@ const Chat = () => {
 
             {/* Live Typing Indicator */}
             {message.trim().length > 0 && (
-              <div className="px-4 py-1 text-xs text-emerald-400 font-medium flex items-center gap-1.5 bg-emerald-500/10 border-t border-emerald-500/20">
+              <div className="px-4 py-1.5 text-xs text-emerald-400 font-medium flex items-center gap-1.5 bg-emerald-500/10 border-t border-emerald-500/20 flex-shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Typing code snippet / message...</span>
+                <span>Typing message...</span>
               </div>
             )}
 
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-700">
+            {/* Message Input Container - Sticky at bottom of chat area */}
+            <div className="p-3 sm:p-4 border-t border-gray-700/80 bg-gray-900/95 backdrop-blur-md flex-shrink-0 z-20">
               <div className="flex items-center space-x-2">
                 <button
                   type="button"
                   onClick={() => setMessage(prev => prev ? `${prev}\n\`\`\`js\n// paste code here\n\`\`\`` : '```js\n// paste code here\n```')}
-                  className="p-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-600 transition-colors cursor-pointer"
+                  className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 transition-all cursor-pointer shrink-0 active:scale-95 shadow-sm"
                   title="Insert Code Snippet"
                 >
-                  <Code className="w-4 h-4" />
+                  <Code className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <input
                   type="text"
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary-500"
-                  placeholder={`Message ${selectedConversation.type === 'team' ? 'team' : selectedConversation.partner.name} (use \`\`\` for code)...`}
+                  className="flex-1 min-w-0 px-3.5 py-2.5 bg-gray-800/90 border border-gray-700 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-primary-500 transition-colors"
+                  placeholder={`Message ${selectedConversation.type === 'team' ? 'team' : selectedConversation.partner?.name?.split(' ')[0] || ''}...`}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -548,12 +553,12 @@ const Chat = () => {
                 <button
                   onClick={sendMessage}
                   disabled={!message.trim() || sendMessageMutation.isLoading}
-                  className="p-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed shrink-0 flex items-center justify-center min-w-[42px] min-h-[42px] active:scale-95 shadow-md shadow-primary-500/20"
                 >
                   {sendMessageMutation.isLoading ? (
                     <LoadingSpinner size="small" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </button>
               </div>

@@ -23,12 +23,15 @@ import {
   CheckCircle,
   Globe,
   Award,
-  X
+  X,
+  Send
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/useAuth'
+import { soundManager } from '../services/soundUtils'
+import { getDomainBadgeStyle } from '../utils/domainUtils'
 
 // Visual Developer Skill Matrix & Proficiency Bar Chart
 const SkillProficiencyChart = ({ skills = [] }) => {
@@ -92,6 +95,30 @@ const UserProfile = () => {
   const [selectedAchievement, setSelectedAchievement] = useState(null)
   const [projectLikesState, setProjectLikesState] = useState({})
   const [achievementLikesState, setAchievementLikesState] = useState({})
+
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [selectedTeam, setSelectedTeam] = useState('')
+  const [inviteMessage, setInviteMessage] = useState('')
+
+  const { data: myTeamsData } = useQuery(
+    'myTeams',
+    () => api.get('/teams/my-teams').then(res => res.data),
+    { enabled: showInviteModal, retry: false }
+  )
+
+  const inviteMutation = useMutation(
+    ({ teamId, targetUserId, message }) => api.post(`/teams/${teamId}/invite`, { user_id: targetUserId, message }),
+    {
+      onSuccess: () => {
+        soundManager.playInviteSound()
+        toast.success('🎉 Team invitation sent successfully!')
+        setShowInviteModal(false)
+        setSelectedTeam('')
+        setInviteMessage('')
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to send invitation')
+    }
+  )
 
   const { data: userProfile, isLoading } = useQuery(
     ['userProfile', userId],
@@ -205,7 +232,16 @@ const UserProfile = () => {
   const user = userProfile.user
 
   const handleInviteToTeam = () => {
-    navigate('/teams')
+    setShowInviteModal(true)
+  }
+
+  const handleSendInvite = () => {
+    if (!selectedTeam) return toast.error('Please select a team')
+    inviteMutation.mutate({
+      teamId: selectedTeam,
+      targetUserId: user._id,
+      message: inviteMessage || `Hi ${user.name}, I'd like to invite you to join my team!`
+    })
   }
 
   const getTypeColor = (type) => {
@@ -361,6 +397,29 @@ const UserProfile = () => {
                 </div>
               </div>
             )}
+
+            {/* Domain Interests & Specializations Card */}
+            <div className="mt-4 p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2.5">
+              <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>Domain Interests & Specializations</span>
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {user.hackathon_interests?.length > 0 ? (
+                  user.hackathon_interests.map((interest, idx) => {
+                    const style = getDomainBadgeStyle(interest)
+                    return (
+                      <span key={idx} className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${style.color} shadow-sm`}>
+                        <span>{style.icon}</span>
+                        <span>{interest}</span>
+                      </span>
+                    )
+                  })
+                ) : (
+                  <p className="text-xs text-gray-400">No domain interests specified yet.</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -837,6 +896,89 @@ const UserProfile = () => {
                 </a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Team Invitation Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="relative w-full max-w-md rounded-3xl border border-white/15 bg-[#0f0f17] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-primary-400" />
+                Invite {user.name} to Team
+              </h3>
+              <button onClick={() => setShowInviteModal(false)} className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Select Your Team *</label>
+                {myTeamsData?.data?.teams?.length > 0 ? (
+                  <select
+                    value={selectedTeam}
+                    onChange={(e) => setSelectedTeam(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-800 border border-white/15 rounded-xl text-white text-sm focus:outline-none focus:border-primary-500"
+                  >
+                    <option value="">Choose a team...</option>
+                    {myTeamsData.data.teams.map((team) => (
+                      <option key={team._id} value={team._id}>
+                        {team.team_name} {team.user_role === 'Leader' && '(Leader)'}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="text-center py-6 px-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                    <Users className="w-10 h-10 text-gray-400 mx-auto" />
+                    <p className="text-xs text-gray-300">You haven't created any teams yet</p>
+                    <button
+                      onClick={() => { setShowInviteModal(false); navigate('/teams') }}
+                      className="btn-primary text-xs px-4 py-2"
+                    >
+                      Create Team
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {myTeamsData?.data?.teams?.length > 0 && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">Personal Message (Optional)</label>
+                    <textarea
+                      value={inviteMessage}
+                      onChange={(e) => setInviteMessage(e.target.value)}
+                      placeholder={`Hi ${user.name}, we'd love to have you on our team!`}
+                      className="w-full px-4 py-2.5 bg-gray-800/80 border border-white/15 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-primary-500 resize-none"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      onClick={() => setShowInviteModal(false)}
+                      className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-300 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSendInvite}
+                      disabled={!selectedTeam || inviteMutation.isLoading}
+                      className="btn-sunset px-5 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {inviteMutation.isLoading ? (
+                        <><LoadingSpinner size="small" /> Sending...</>
+                      ) : (
+                        <><Send className="w-4 h-4" /> Send Invitation</>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}

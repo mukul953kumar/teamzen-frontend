@@ -40,6 +40,7 @@ import LoadingSpinner from '../components/LoadingSpinner'
 import TermsModal from '../components/TermsModal'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
+import { getDomainBadgeStyle, POPULAR_DOMAINS } from '../utils/domainUtils'
 
 // Visual Developer Skill Matrix & Proficiency Bar Chart
 const SkillProficiencyChart = ({ skills = [] }) => {
@@ -99,6 +100,7 @@ const Profile = () => {
   const queryClient = useQueryClient()
   const [localUser, setLocalUser] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
+  const [selectedInterests, setSelectedInterests] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -174,8 +176,12 @@ const Profile = () => {
       
       // Add all text fields
       Object.keys(profileData).forEach(key => {
-        if (key !== 'profile_image') {
-          formData.append(key, profileData[key])
+        if (key !== 'profile_image' && profileData[key] !== undefined && profileData[key] !== null) {
+          if (Array.isArray(profileData[key])) {
+            formData.append(key, JSON.stringify(profileData[key]))
+          } else {
+            formData.append(key, profileData[key])
+          }
         }
       })
       
@@ -223,8 +229,18 @@ const Profile = () => {
     formState: { errors },
   } = useForm()
 
+  const toggleInterestDomain = (domain) => {
+    setSelectedInterests(prev => 
+      prev.includes(domain) ? prev.filter(d => d !== domain) : [...prev, domain]
+    )
+  }
+
   const onSubmit = (data) => {
-    updateProfileMutation.mutate(data)
+    const finalData = {
+      ...data,
+      hackathon_interests: selectedInterests
+    }
+    updateProfileMutation.mutate(finalData)
   }
 
   const handleYearChange = (e) => {
@@ -248,6 +264,7 @@ const Profile = () => {
       const sy = profileData.user.startYear || fallbackStart
       const ey = profileData.user.endYear || (sy + 4)
 
+      setSelectedInterests(profileData.user.hackathon_interests || [])
       reset({
         name: profileData.user.name,
         bio: profileData.user.bio,
@@ -259,7 +276,6 @@ const Profile = () => {
         linkedin: profileData.user.linkedin,
         portfolio: profileData.user.portfolio,
         availability_status: profileData.user.availability_status || 'Available',
-        hackathon_interests: profileData.user.hackathon_interests || [],
         skills: profileData.user.skills?.map(skill => skill.skill_name) || []
       })
       setPreviewImage(profileData.user.profile_image)
@@ -464,6 +480,38 @@ const Profile = () => {
                         {...register('bio')} />
                     </div>
 
+                    {/* Domain Interests & Specializations Selector */}
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                      <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                        🎯 Domain Interests & Specialization (Select all that apply)
+                      </label>
+                      <p className="text-xs text-gray-400">
+                        Select what fields you are interested in so teammates and recruiters know your primary focus areas.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {POPULAR_DOMAINS.map(domain => {
+                          const isSelected = selectedInterests.includes(domain)
+                          const style = getDomainBadgeStyle(domain)
+                          return (
+                            <button
+                              key={domain}
+                              type="button"
+                              onClick={() => toggleInterestDomain(domain)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                                isSelected
+                                  ? `${style.color} ring-2 ring-primary-500/50 scale-105 shadow-md`
+                                  : 'bg-white/5 text-gray-400 border-white/10 hover:text-white hover:bg-white/10'
+                              }`}
+                            >
+                              <span>{style.icon}</span>
+                              <span>{domain}</span>
+                              {isSelected && <span className="text-[10px] font-bold text-emerald-400">✓</span>}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
                         <label className="block text-xs text-gray-400 mb-1">GitHub URL</label>
@@ -595,6 +643,29 @@ const Profile = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Domain Interests & Specializations View Card */}
+                    <div className="mt-5 p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                      <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span>Domain Interests & Specializations</span>
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {profile?.hackathon_interests?.length > 0 ? (
+                          profile.hackathon_interests.map((interest, idx) => {
+                            const style = getDomainBadgeStyle(interest)
+                            return (
+                              <span key={idx} className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${style.color} shadow-sm`}>
+                                <span>{style.icon}</span>
+                                <span>{interest}</span>
+                              </span>
+                            )
+                          })
+                        ) : (
+                          <p className="text-xs text-gray-400">No domain interests added yet. Click 'Edit Profile' to choose your interested domains!</p>
+                        )}
+                      </div>
+                    </div>
 
                     {/* Social Links */}
                     <div className="flex flex-wrap items-center gap-3 mt-4">
