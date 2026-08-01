@@ -20,12 +20,22 @@ const AuthCallback = () => {
     }
 
     if (token) {
-      loginWithToken(token).then(() => {
-        if (profileComplete === 'false') {
-          navigate('/complete-profile', { replace: true })
+      loginWithToken(token).then((res) => {
+        if (res && res.success) {
+          toast.success('Successfully signed in!')
+          if (profileComplete === 'false') {
+            navigate('/complete-profile', { replace: true })
+          } else {
+            navigate('/dashboard', { replace: true })
+          }
         } else {
-          navigate('/dashboard', { replace: true })
+          toast.error('Authentication failed. Please try signing in again.')
+          navigate('/login', { replace: true })
         }
+      }).catch((err) => {
+        console.error('Auth callback error:', err)
+        toast.error('Authentication error: ' + (err.message || 'Server error'))
+        navigate('/login', { replace: true })
       })
     } else {
       navigate('/login')

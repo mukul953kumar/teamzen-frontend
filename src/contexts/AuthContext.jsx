@@ -56,14 +56,26 @@ export const AuthProvider = ({ children }) => {
   const loginWithToken = async (token) => {
     try {
       localStorage.setItem('token', token)
-      const response = await authAPI.getCurrentUser()
-      const user = response.data.data.user
+      let response
+      try {
+        response = await authAPI.getCurrentUser()
+      } catch (firstErr) {
+        console.warn('Initial getCurrentUser failed, retrying in 1s...', firstErr)
+        await new Promise(res => setTimeout(res, 1000))
+        response = await authAPI.getCurrentUser()
+      }
+      const user = response.data?.data?.user
+      if (!user) throw new Error('User data empty')
       setUser(user)
       queryClient.setQueryData('currentUser', user)
+      setLoading(false)
       return { success: true, user }
-    } catch {
+    } catch (error) {
+      console.error('loginWithToken failed:', error)
       localStorage.removeItem('token')
-      return { success: false }
+      setUser(null)
+      setLoading(false)
+      return { success: false, error }
     }
   }
 
