@@ -315,11 +315,11 @@ const LandingPage = () => {
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
-            <a href="#how-it-works" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">How It Works</a>
-            <a href="#who-its-for" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Who It's For</a>
-            <a href="#stories" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Stories</a>
-            <a href="#faq" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">FAQ</a>
+            <a href="#features" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
+            <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">How It Works</a>
+            <a href="#who-its-for" onClick={(e) => { e.preventDefault(); document.querySelector('#who-its-for')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Who It's For</a>
+            <a href="#stories" onClick={(e) => { e.preventDefault(); document.querySelector('#stories')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Stories</a>
+            <a href="#faq" onClick={(e) => { e.preventDefault(); document.querySelector('#faq')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-sm font-medium text-gray-400 hover:text-white transition-colors">FAQ</a>
           </nav>
 
           {/* Desktop Actions */}
@@ -332,40 +332,118 @@ const LandingPage = () => {
 
           {/* Mobile Hamburger Button */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+            type="button"
+            onClick={() => setIsMobileMenuOpen(prev => !prev)}
+            className="md:hidden p-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/10 active:bg-white/20 transition-all flex items-center justify-center touch-manipulation relative z-50 cursor-pointer"
             aria-label="Toggle Menu"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isMobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
           </button>
         </div>
+      </header>
 
-        {/* Mobile Nav Dropdown */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
+      {/* Mobile Nav Overlay Drawer */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-white/10 px-6 py-6 flex flex-col gap-4"
-              style={{ background: '#0a0a0f' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-40 md:hidden"
+            />
+
+            {/* Menu Panel */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="fixed top-20 left-0 right-0 z-50 md:hidden bg-[#0a0a0f] border-b border-white/10 px-6 py-6 flex flex-col gap-4 shadow-2xl max-h-[calc(100vh-5rem)] overflow-y-auto"
             >
-              <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Features</a>
-              <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">How It Works</a>
-              <a href="#who-its-for" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Who It's For</a>
-              <a href="#stories" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">Stories</a>
-              <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-medium text-gray-300 hover:text-white py-1">FAQ</a>
+              <a 
+                href="#features" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setIsMobileMenuOpen(false); 
+                  const el = document.getElementById('features');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="text-base font-medium text-gray-200 hover:text-white py-3 border-b border-white/5 active:text-orange-400 flex items-center justify-between"
+              >
+                <span>Features</span>
+                <ArrowRight className="w-4 h-4 opacity-40" />
+              </a>
+              <a 
+                href="#how-it-works" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setIsMobileMenuOpen(false); 
+                  const el = document.getElementById('how-it-works');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="text-base font-medium text-gray-200 hover:text-white py-3 border-b border-white/5 active:text-orange-400 flex items-center justify-between"
+              >
+                <span>How It Works</span>
+                <ArrowRight className="w-4 h-4 opacity-40" />
+              </a>
+              <a 
+                href="#who-its-for" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setIsMobileMenuOpen(false); 
+                  const el = document.getElementById('who-its-for');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="text-base font-medium text-gray-200 hover:text-white py-3 border-b border-white/5 active:text-orange-400 flex items-center justify-between"
+              >
+                <span>Who It's For</span>
+                <ArrowRight className="w-4 h-4 opacity-40" />
+              </a>
+              <a 
+                href="#stories" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setIsMobileMenuOpen(false); 
+                  const el = document.getElementById('stories');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="text-base font-medium text-gray-200 hover:text-white py-3 border-b border-white/5 active:text-orange-400 flex items-center justify-between"
+              >
+                <span>Stories</span>
+                <ArrowRight className="w-4 h-4 opacity-40" />
+              </a>
+              <a 
+                href="#faq" 
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setIsMobileMenuOpen(false); 
+                  const el = document.getElementById('faq');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }} 
+                className="text-base font-medium text-gray-200 hover:text-white py-3 border-b border-white/5 active:text-orange-400 flex items-center justify-between"
+              >
+                <span>FAQ</span>
+                <ArrowRight className="w-4 h-4 opacity-40" />
+              </a>
               
-              <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="btn-sunset w-full text-center py-2.5 text-sm font-semibold rounded-xl flex items-center justify-center gap-2">
+              <div className="pt-4 mt-2 flex flex-col gap-3">
+                <Link 
+                  to="/login" 
+                  onClick={() => setIsMobileMenuOpen(false)} 
+                  className="btn-sunset w-full text-center py-3 text-base font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
+                >
                   <span>Log In</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
