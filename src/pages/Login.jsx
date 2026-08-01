@@ -4,6 +4,8 @@ import { XCircle, X, ShieldAlert, CheckSquare, Square, FileText } from 'lucide-r
 import TermsModal from '../components/TermsModal'
 import ConsentModal from '../components/ConsentModal'
 
+import { getBackendURL } from '../config/api'
+
 const Login = () => {
   const [searchParams] = useSearchParams()
   const [showError, setShowError] = useState(false)
@@ -18,7 +20,7 @@ const Login = () => {
   }, [searchParams])
 
   const triggerGoogleLogin = () => {
-    const backendURL = import.meta.env.VITE_API_URL || 'http://localhost:5001'
+    const backendURL = getBackendURL()
     window.location.href = `${backendURL}/api/auth/google`
   }
 

@@ -4,6 +4,7 @@ import { useAuth } from './useAuth'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 import { io } from 'socket.io-client'
+import { getBackendURL } from '../config/api'
 
 const NotificationContext = createContext()
 
@@ -42,7 +43,7 @@ export const NotificationProvider = ({ children }) => {
 
     fetchNotifications()
 
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
+    const socket = io(getBackendURL(), {
       transports: ['websocket', 'polling']
     })
     socketRef.current = socket

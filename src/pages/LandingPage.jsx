@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import Footer from '../components/Footer'
 import InteractiveDemo from '../components/InteractiveDemo'
+import { API_BASE_URL } from '../config/api'
 import {
   Users,
   Search,
@@ -156,7 +157,7 @@ const LandingPage = () => {
   useEffect(() => {
     const fetchRecent = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api/users/recent-joins`)
+        const res = await fetch(`${API_BASE_URL}/users/recent-joins`)
         const json = await res.json()
         if (json.success && json.data.length > 0) {
           const mapped = json.data.map((u, i) => ({
