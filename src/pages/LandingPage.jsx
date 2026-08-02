@@ -357,15 +357,15 @@ const LandingPage = () => {
   ]
 
   return (
-    <div className="min-h-screen text-slate-100 selection:bg-orange-500/30 selection:text-orange-200" style={{ backgroundColor: '#08080c' }}>
+    <div className="min-h-screen text-slate-100 selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden w-full max-w-full" style={{ backgroundColor: '#08080c' }}>
 
       {/* ── TOP FLOATING NAVBAR ── */}
-      <header className="fixed top-4 left-0 right-0 z-50 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto h-16 rounded-2xl flex items-center justify-between px-6 border border-white/10 backdrop-blur-xl bg-[#0a0a12]/80 shadow-2xl">
+      <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 px-2 sm:px-4 md:px-8">
+        <div className="max-w-6xl mx-auto h-14 sm:h-16 rounded-2xl flex items-center justify-between px-3 sm:px-6 border border-white/10 backdrop-blur-xl bg-[#0a0a12]/80 shadow-2xl">
           
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <img src="/images/logo26.png" alt="TeamZen" className="h-9 w-auto object-contain transition-transform group-hover:scale-105" />
+            <img src="/images/logo26.png" alt="TeamZen" className="h-7 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105" />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -414,7 +414,7 @@ const LandingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.25 }}
-              className="fixed top-24 left-4 right-4 z-50 md:hidden bg-[#0d0d16] border border-white/10 rounded-2xl p-6 flex flex-col gap-4 shadow-2xl"
+              className="fixed top-20 left-4 right-4 z-50 md:hidden bg-[#0d0d16] border border-white/10 rounded-2xl p-6 flex flex-col gap-4 shadow-2xl"
             >
               {['features', 'how-it-works', 'who-its-for', 'stories', 'faq'].map((sec) => (
                 <a
@@ -447,32 +447,31 @@ const LandingPage = () => {
       </AnimatePresence>
 
       {/* ── HERO SECTION WITH TECH GRID ── */}
-      <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden laser-border-top">
+      <section className="relative min-h-screen flex items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden laser-border-top max-w-full">
         {/* Background Grid & Spotlight */}
         <div className="absolute inset-0 tech-grid-bg pointer-events-none" />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full pointer-events-none"
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[350px] rounded-full pointer-events-none overflow-hidden"
           style={{ background: 'radial-gradient(ellipse, rgba(139,92,246,0.14) 0%, rgba(255,107,53,0.08) 50%, transparent 70%)', filter: 'blur(80px)' }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 w-full overflow-hidden">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-8 items-center">
 
             {/* Left Content */}
-            <motion.div variants={fadeUp} initial="hidden" animate="show" className="lg:col-span-7 flex flex-col items-start">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" className="lg:col-span-7 flex flex-col items-start w-full overflow-hidden">
               
               {/* Glowing Live Indicator Pill */}
-              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full mb-8 border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-emerald-300 text-xs font-semibold tracking-wide uppercase">247 Students Active Right Now</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5 sm:mb-8 border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-md max-w-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                <span className="text-emerald-300 text-[10px] sm:text-xs font-semibold tracking-wide uppercase truncate">247 Students Active Right Now</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
-                <span className="gradient-heading">Stop searching in</span>
-                <br />
-                <span className="gradient-accent-text">WhatsApp groups.</span>
-                <br />
-                <span className="text-slate-300 text-3xl sm:text-4xl md:text-5xl font-semibold">
-                  Build teams for{' '}
-                  <span className="relative inline-block text-purple-400 font-bold min-w-[220px]">
+              <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] mb-5 max-w-full overflow-hidden">
+                <span className="gradient-heading block sm:inline">Stop searching in </span>
+                <span className="gradient-accent-text block sm:inline">WhatsApp groups.</span>
+                <br className="hidden sm:block" />
+                <span className="text-slate-300 text-xl sm:text-3xl md:text-5xl font-semibold mt-2 block sm:inline-block">
+                  <span className="block sm:inline">Build teams for</span>{' '}
+                  <span className="relative inline-block text-purple-400 font-bold min-w-0 sm:min-w-[220px]">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}
@@ -489,27 +488,27 @@ const LandingPage = () => {
                 </span>
               </h1>
 
-              <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 max-w-xl">
+              <p className="text-slate-400 text-xs sm:text-lg leading-relaxed mb-6 sm:mb-10 max-w-xl">
                 TeamZen matches BTech developers and designers by real complementary skills — zero overlap, zero random connections.
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                <Link to="/login" className="shimmer-btn inline-flex items-center justify-center gap-2.5 text-base px-7 py-3.5 rounded-xl font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+                <Link to="/login" className="shimmer-btn inline-flex items-center justify-center gap-2 text-sm sm:text-base px-5 sm:px-7 py-3 rounded-xl font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40">
                   <span>Get Started Free</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <a href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-semibold text-slate-300 border border-white/10 hover:border-white/20 bg-white/[0.03] hover:bg-white/[0.08] transition-all">
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 border border-white/10 hover:border-white/20 bg-white/[0.03] hover:bg-white/[0.08] transition-all">
                   See Match Engine
                 </a>
               </div>
 
               {/* Live Proof */}
-              <div className="flex items-center gap-4 mt-12 pt-6 border-t border-white/5 w-full">
-                <div className="flex -space-x-3">
+              <div className="flex items-center gap-3 sm:gap-4 mt-8 pt-5 border-t border-white/5 w-full">
+                <div className="flex -space-x-2.5 flex-shrink-0">
                   {['A','P','R','M','S'].map((letter, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#08080c] flex items-center justify-center text-xs font-bold text-white shadow-md"
+                    <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-[#08080c] flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shadow-md"
                       style={{ background: ['#FF6B35','#9D4EDD','#00A896','#FF6B9D','#52B788'][i] }}>
                       {letter}
                     </div>
@@ -523,13 +522,13 @@ const LandingPage = () => {
             </motion.div>
 
             {/* Right — Interactive Hero Skill Match Sandbox */}
-            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2} className="lg:col-span-5 w-full">
-              <div className="bento-card rounded-3xl p-4 sm:p-6 relative overflow-hidden border border-purple-500/20 shadow-2xl">
+            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2} className="lg:col-span-5 w-full overflow-hidden">
+              <div className="bento-card rounded-3xl p-3.5 sm:p-6 relative overflow-hidden border border-purple-500/20 shadow-2xl max-w-full">
                 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-white/10">
                   <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-ping" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-ping flex-shrink-0" />
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Live Match Simulator</span>
                   </div>
                   <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20">
@@ -545,7 +544,7 @@ const LandingPage = () => {
                       key={sk}
                       type="button"
                       onClick={() => setSelectedSkill(sk)}
-                      className={`text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border font-medium transition-all ${
+                      className={`text-[11px] sm:text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border font-medium transition-all ${
                         selectedSkill === sk
                           ? 'bg-orange-500/20 text-orange-300 border-orange-500/50 shadow-sm shadow-orange-500/20'
                           : 'bg-white/[0.03] text-slate-400 border-white/10 hover:border-white/20'
@@ -557,7 +556,7 @@ const LandingPage = () => {
                 </div>
 
                 {/* Dynamic Auto-Scrolling Candidates Preview List */}
-                <div className="space-y-3 min-h-[280px] relative">
+                <div className="space-y-3 min-h-[280px] relative overflow-hidden">
                   <AnimatePresence mode="popLayout">
                     {visibleCandidates.map((c, i) => (
                       <motion.div
@@ -567,9 +566,9 @@ const LandingPage = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.96 }}
                         transition={{ duration: 0.45, ease: 'easeOut' }}
-                        className="p-3 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-purple-500/30 flex items-center justify-between gap-2.5 sm:gap-3 transition-colors"
+                        className="p-2.5 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-purple-500/30 flex items-center justify-between gap-2 sm:gap-3 transition-colors max-w-full"
                       >
-                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
                           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-bold text-white text-xs flex-shrink-0 shadow-md">
                             {c.avatar || (c.name ? c.name[0] : 'U')}
                           </div>
@@ -584,10 +583,10 @@ const LandingPage = () => {
                         </div>
 
                         <div className="text-right flex flex-col items-end flex-shrink-0">
-                          <span className="text-xs font-black text-emerald-400 flex items-center gap-1">
+                          <span className="text-[11px] sm:text-xs font-black text-emerald-400 flex items-center gap-1 whitespace-nowrap">
                             <Check className="w-3 h-3" /> {c.match}% Match
                           </span>
-                          <span className="text-[10px] text-slate-500 whitespace-nowrap">Zero skill overlap</span>
+                          <span className="text-[9px] sm:text-[10px] text-slate-500 hidden sm:block">Zero skill overlap</span>
                         </div>
                       </motion.div>
                     ))}
@@ -597,7 +596,7 @@ const LandingPage = () => {
                 {/* Footer status */}
                 <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
                     <span>Match accuracy: <strong className="text-slate-200">96.4%</strong></span>
                   </span>
                   <Link to="/login" className="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1">
@@ -658,44 +657,44 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-12 gap-6">
 
             {/* Bento 1: Skill Matrix (Col 7) */}
-            <div className="md:col-span-7 bento-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-7 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-500/20 transition-all" />
               
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-cyan-500/20">
                   <Users className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">Complementary Skill Matching</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Complementary Skill Matching</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-md">
                   Stop teaming up with 4 React developers. TeamZen automatically pair Frontend with Backend, ML, and UI/UX specialists.
                 </p>
               </div>
 
               {/* Visual Tech Matrix Pills */}
-              <div className="p-4 rounded-2xl bg-[#08080d] border border-white/10 space-y-3">
+              <div className="p-3 sm:p-4 rounded-2xl bg-[#08080d] border border-white/10 space-y-3">
                 <div className="flex items-center justify-between text-xs text-slate-300 font-semibold">
                   <span>Stack Balance Index</span>
                   <span className="text-emerald-400">Optimal (100%)</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
-                    <p className="text-[10px] text-slate-400 uppercase">Frontend</p>
-                    <p className="text-xs font-bold text-blue-300">React / Vite</p>
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
+                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">Frontend</p>
+                    <p className="text-[11px] sm:text-xs font-bold text-blue-300 truncate">React / Vite</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center">
-                    <p className="text-[10px] text-slate-400 uppercase">Backend</p>
-                    <p className="text-xs font-bold text-purple-300">Node / Mongo</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center">
+                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">Backend</p>
+                    <p className="text-[11px] sm:text-xs font-bold text-purple-300 truncate">Node / Mongo</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
-                    <p className="text-[10px] text-slate-400 uppercase">AI / ML</p>
-                    <p className="text-xs font-bold text-orange-300">Python / PyTorch</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
+                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">AI / ML</p>
+                    <p className="text-[11px] sm:text-xs font-bold text-orange-300 truncate">Python / ML</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Bento 2: Smart Filters (Col 5) */}
-            <div className="md:col-span-5 bento-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-5 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white mb-6 shadow-lg shadow-purple-500/20">
                   <Sliders className="w-6 h-6" />
@@ -721,7 +720,7 @@ const LandingPage = () => {
             </div>
 
             {/* Bento 3: Built-in Chat (Col 5) */}
-            <div className="md:col-span-5 bento-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-5 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20">
                   <MessageCircle className="w-6 h-6" />
@@ -746,7 +745,7 @@ const LandingPage = () => {
             </div>
 
             {/* Bento 4: Showcase & Proof (Col 7) */}
-            <div className="md:col-span-7 bento-card rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-7 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-orange-500/20">
                   <Trophy className="w-6 h-6" />

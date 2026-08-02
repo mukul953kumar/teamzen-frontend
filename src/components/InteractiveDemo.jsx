@@ -158,7 +158,7 @@ const InteractiveDemo = () => {
           }}>
 
           {/* Mac Top Bar */}
-          <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
               <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
@@ -166,7 +166,7 @@ const InteractiveDemo = () => {
             </div>
 
             {/* Address Bar */}
-            <div className="flex-1 max-w-md mx-4 px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-center text-xs text-gray-400 truncate">
+            <div className="flex-1 max-w-md mx-2 sm:mx-4 px-3 sm:px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-center text-[11px] sm:text-xs text-gray-400 truncate">
               🔒 teamzen.app/demo/<span className="text-white font-medium">{activeTab}</span>
             </div>
 
@@ -176,7 +176,7 @@ const InteractiveDemo = () => {
           </div>
 
           {/* Interactive Screen Display Area */}
-          <div className="p-6 md:p-10 min-h-[420px] flex flex-col justify-center">
+          <div className="p-4 sm:p-6 md:p-10 min-h-[400px] flex flex-col justify-center">
             
             {/* Header info for current active feature */}
             <div className="mb-6">
