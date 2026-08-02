@@ -152,18 +152,42 @@ const LandingPage = () => {
   // Fetch real users from MongoDB for Live Match Simulator
   const fetchRealCandidates = async (skill) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/users/public-matches?skill=${encodeURIComponent(skill || '')}`)
-      const json = await res.json()
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      let res = await fetch(`${API_BASE_URL}/users/public-matches?skill=${encodeURIComponent(skill || '')}`)
+      let json = null
+      if (res.ok) {
+        json = await res.json()
+      }
+
+      // If public-matches 404s or is empty on production backend, fallback to live endpoint /users/recent-joins
+      if (!json || !json.success || !Array.isArray(json.data) || json.data.length === 0) {
+        const res2 = await fetch(`${API_BASE_URL}/users/recent-joins`)
+        if (res2.ok) {
+          const json2 = await res2.json()
+          if (json2.success && Array.isArray(json2.data) && json2.data.length > 0) {
+            json = {
+              success: true,
+              data: json2.data.map((u, i) => ({
+                _id: u._id || `user-${i}`,
+                name: u.displayName || u.name,
+                branch: u.branch ? `${u.branch} · Student` : 'BTech',
+                skills: u.skills && u.skills.length > 0 ? u.skills : ['React', 'Node.js'],
+                match: 98 - (i % 5),
+                role: u.skills && u.skills.length > 0 ? `${u.skills[0]} Dev` : 'Software Developer',
+                avatar: (u.displayName || u.name || 'U')[0].toUpperCase()
+              }))
+            }
+          }
+        }
+      }
+
+      if (json && json.success && Array.isArray(json.data) && json.data.length > 0) {
         if (json.data.length < 4) {
-          // If fewer than 4 real DB users exist, complement with mock candidates for continuous ticker animation
           const mockFillers = mockCandidates.filter(m => !json.data.some(d => d.name === m.name))
           setCandidates([...json.data, ...mockFillers.slice(0, 4 - json.data.length)])
         } else {
           setCandidates(json.data)
         }
       } else {
-        // Fallback to mock candidates with skill-matched scores
         const filteredMock = mockCandidates.map(c => ({
           ...c,
           match: c.skills.some(s => s.toLowerCase().includes((skill || '').toLowerCase())) ? 98 : c.match
@@ -172,7 +196,31 @@ const LandingPage = () => {
       }
     } catch (err) {
       console.warn('Real candidates fetch error:', err)
-      // On network error or cold backend spin-down, maintain fallback mock candidates
+      try {
+        const res2 = await fetch(`${API_BASE_URL}/users/recent-joins`)
+        if (res2.ok) {
+          const json2 = await res2.json()
+          if (json2.success && Array.isArray(json2.data) && json2.data.length > 0) {
+            const mapped = json2.data.map((u, i) => ({
+              _id: u._id || `user-${i}`,
+              name: u.displayName || u.name,
+              branch: u.branch ? `${u.branch} · Student` : 'BTech',
+              skills: u.skills && u.skills.length > 0 ? u.skills : ['React', 'Node.js'],
+              match: 98 - (i % 5),
+              role: u.skills && u.skills.length > 0 ? `${u.skills[0]} Dev` : 'Software Developer',
+              avatar: (u.displayName || u.name || 'U')[0].toUpperCase()
+            }))
+            if (mapped.length < 4) {
+              const mockFillers = mockCandidates.filter(m => !mapped.some(d => d.name === m.name))
+              setCandidates([...mapped, ...mockFillers.slice(0, 4 - mapped.length)])
+            } else {
+              setCandidates(mapped)
+            }
+            return
+          }
+        }
+      } catch (_) {}
+
       const filteredMock = mockCandidates.map(c => ({
         ...c,
         match: c.skills.some(s => s.toLowerCase().includes((skill || '').toLowerCase())) ? 98 : c.match
