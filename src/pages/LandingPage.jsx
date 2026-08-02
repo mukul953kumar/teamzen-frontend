@@ -145,8 +145,8 @@ const LandingPage = () => {
   const [selectedSkill, setSelectedSkill] = useState('React')
   const [activeTab, setActiveTab] = useState('projects')
   
-  // Real-time live candidates ONLY from backend MongoDB database (no demo fillers)
-  const [candidates, setCandidates] = useState([])
+  // Real-time live candidates from backend MongoDB database with high-availability mock fallback
+  const [candidates, setCandidates] = useState(mockCandidates)
   const [candidateOffset, setCandidateOffset] = useState(0)
 
   // Fetch real users from MongoDB for Live Match Simulator
@@ -154,11 +154,30 @@ const LandingPage = () => {
     try {
       const res = await fetch(`${API_BASE_URL}/users/public-matches?skill=${encodeURIComponent(skill || '')}`)
       const json = await res.json()
-      if (json.success && Array.isArray(json.data)) {
-        setCandidates(json.data)
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        if (json.data.length < 4) {
+          // If fewer than 4 real DB users exist, complement with mock candidates for continuous ticker animation
+          const mockFillers = mockCandidates.filter(m => !json.data.some(d => d.name === m.name))
+          setCandidates([...json.data, ...mockFillers.slice(0, 4 - json.data.length)])
+        } else {
+          setCandidates(json.data)
+        }
+      } else {
+        // Fallback to mock candidates with skill-matched scores
+        const filteredMock = mockCandidates.map(c => ({
+          ...c,
+          match: c.skills.some(s => s.toLowerCase().includes((skill || '').toLowerCase())) ? 98 : c.match
+        }))
+        setCandidates(filteredMock)
       }
     } catch (err) {
       console.warn('Real candidates fetch error:', err)
+      // On network error or cold backend spin-down, maintain fallback mock candidates
+      const filteredMock = mockCandidates.map(c => ({
+        ...c,
+        match: c.skills.some(s => s.toLowerCase().includes((skill || '').toLowerCase())) ? 98 : c.match
+      }))
+      setCandidates(filteredMock)
     }
   }
 
@@ -180,8 +199,9 @@ const LandingPage = () => {
     return () => clearInterval(timer)
   }, [candidates.length])
 
-  // Slice visible real candidates (up to 4 at a time)
+  // Slice visible candidates (up to 4 at a time)
   const visibleCandidates = React.useMemo(() => {
+    if (!candidates || candidates.length === 0) return mockCandidates.slice(0, 4)
     if (candidates.length <= 4) return candidates
     const result = []
     for (let i = 0; i < Math.min(4, candidates.length); i++) {
