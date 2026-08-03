@@ -67,17 +67,6 @@ const Login = () => {
             <p className="text-gray-300 text-sm font-medium">Sign in with your KNIT college email</p>
           </div>
 
-          {/* Strict Account Termination Warning Box */}
-          <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-left space-y-1.5">
-            <div className="flex items-center gap-2 text-red-400 font-bold text-xs">
-              <ShieldAlert className="w-4 h-4 flex-shrink-0" />
-              <span>Zero Tolerance Community Policy</span>
-            </div>
-            <p className="text-xs text-red-200 leading-relaxed">
-              If you engage in any <strong className="text-white">spam, abusive chat, or illegal activity</strong>, your account will be <strong className="text-white underline">PERMANENTLY DELETED</strong> without prior warning.
-            </p>
-          </div>
-
           {/* Interactive Checkbox */}
           <button
             type="button"
@@ -92,7 +81,7 @@ const Login = () => {
               )}
             </div>
             <span className="text-xs text-gray-300 leading-relaxed">
-              I accept TeamZen <button type="button" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true) }} className="text-orange-400 underline hover:text-orange-300 font-semibold">Terms of Service & Privacy Policy</button> and agree that any spam or illegal chat will result in permanent account deletion.
+              I accept TeamZen <button type="button" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true) }} className="text-orange-400 underline hover:text-orange-300 font-semibold">Terms of Service & Privacy Policy</button>.
             </span>
           </button>
 

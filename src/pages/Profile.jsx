@@ -871,10 +871,6 @@ const Profile = () => {
               <ShieldAlert className="w-5 h-5 text-orange-400" />
               <h3>Terms & Safety Policy</h3>
             </div>
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 space-y-1">
-              <p className="font-bold text-red-400">🚨 Zero Tolerance Policy:</p>
-              <p>Engaging in spam, abusive chat, or illegal activity will result in <strong className="text-white underline">PERMANENT ACCOUNT DELETION</strong>.</p>
-            </div>
             <p className="text-xs text-gray-400">By using TeamZen, you agree to accept all platform terms and conditions.</p>
             <div className="flex gap-2 pt-1">
               <button

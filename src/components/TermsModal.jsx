@@ -66,11 +66,10 @@ const TermsModal = ({ isOpen, onClose, initialTab = 'terms' }) => {
           <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 space-y-2">
             <div className="flex items-center gap-2 text-red-400 font-bold text-base">
               <ShieldAlert className="w-5 h-5 flex-shrink-0" />
-              <span>STRICT ACCOUNT TERMINATION POLICY</span>
+              <span>⚠️ Strict Deletion Policy</span>
             </div>
             <p className="text-xs md:text-sm text-red-300 font-medium leading-relaxed">
-              <strong>Mandatory Rule:</strong> If you engage in any spam, harassment, abusive speech, illegal chat, or unauthorized unlawful activity, your 
-              <span className="underline ml-1 font-bold text-white">ACCOUNT WILL BE PERMANENTLY DELETED</span> without prior warning (Zero Tolerance Policy).
+              <strong>Mandatory Rule:</strong> Engaging in spam, harassment, abusive speech, illegal chat, or unauthorized unlawful activity will result in <span className="underline ml-1 font-bold text-white">PERMANENT ACCOUNT DELETION</span> without prior warning (Zero Tolerance Policy).
             </p>
           </div>
 

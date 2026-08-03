@@ -134,10 +134,6 @@ const Footer = () => {
                     >
                       Privacy Policy
                     </button>
-                    <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 space-y-1">
-                      <p className="font-semibold text-red-400">⚠️ Strict Deletion Policy:</p>
-                      <p>Engaging in spam, illegal chat, or abusive behavior will result in permanent account deletion.</p>
-                    </div>
                   </div>
                 </div>
 
