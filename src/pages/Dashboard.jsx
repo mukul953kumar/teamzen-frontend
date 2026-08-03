@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/useAuth'
@@ -18,7 +18,11 @@ import {
   UserCheck,
   Flame,
   Zap,
-  HelpCircle
+  HelpCircle,
+  ArrowUpRight,
+  Target,
+  FileCode2,
+  Inbox
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -100,549 +104,470 @@ const Dashboard = () => {
   const pendingJoinRequests = teams.reduce((acc, team) => acc + (team.pending_requests || 0), 0)
   // Unread messages count
   const unreadMessages = conversations.filter(c => c.unread_count > 0).length
-  // AI skill matches = recommended teammates count
+  // AI skill matches count
   const skillMatches = recommendedTeammates.length
 
   return (
-    <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden">
-      {/* ── Premium Dashboard Header ── */}
-      <div className="relative rounded-2xl overflow-hidden mb-2">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 opacity-60"
-          style={{
-            background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)',
-            backgroundSize: '300% 300%',
-            animation: 'gradientShift 8s ease infinite'
-          }}
-        />
-        {/* Subtle top border glow */}
-        <div className="absolute top-0 left-0 right-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }}
-        />
+    <div className="space-y-6 md:space-y-8 w-full max-w-full overflow-x-hidden pb-12">
+      
+      {/* ── Premium Glassmorphism Welcome Header ── */}
+      <div className="relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-8 shadow-2xl space-y-4"
+        style={{
+          background: 'linear-gradient(135deg, rgba(13, 13, 20, 0.95) 0%, rgba(20, 20, 35, 0.85) 100%)',
+          backdropFilter: 'blur(20px)'
+        }}>
+        
+        {/* Ambient Background Lighting Blobs */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 p-3.5 sm:p-5 flex items-center justify-between gap-3 sm:gap-4">
-          {/* Avatar + Greeting & Student Details */}
-          <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-            <div className="relative flex-shrink-0 mt-0.5 sm:mt-0">
-              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center overflow-hidden ring-2 ring-white/10 shadow-md">
-                {user?.profile_image ? (
-                  <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-base sm:text-lg font-bold text-white">{user?.name?.charAt(0).toUpperCase()}</span>
-                )}
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          
+          {/* User Info & Avatar */}
+          <div className="flex items-start sm:items-center gap-4 min-w-0">
+            <div className="relative flex-shrink-0">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600 p-0.5 shadow-xl">
+                <div className="w-full h-full rounded-[14px] bg-[#0d0d14] overflow-hidden flex items-center justify-center">
+                  {user?.profile_image ? (
+                    <img src={user.profile_image} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xl sm:text-2xl font-black text-white">{user?.name?.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
               </div>
-              {/* Online dot */}
-              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-black" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 rounded-full border-2 border-[#0d0d14] shadow-sm" />
             </div>
 
-            <div className="min-w-0 flex-1 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-lg font-bold text-white leading-tight">
-                  Welcome, {user?.name?.split(' ')[0]} 👋
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Welcome back, {user?.name?.split(' ')[0]} 👋
                 </h1>
-                
+
                 {/* Streak & Zen Points Button */}
                 <button
                   type="button"
                   onClick={() => setShowStreakModal(true)}
-                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/15 text-orange-400 border border-orange-500/30 hover:bg-amber-500/25 transition-all cursor-pointer shadow-sm active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/15 text-orange-400 border border-orange-500/30 hover:bg-amber-500/25 transition-all cursor-pointer shadow-sm active:scale-95"
                   title="Click to view Streak & Zen Points benefits"
                 >
                   <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400 flex-shrink-0" />
                   <span>{user?.loginStreak || 1}d Streak</span>
-                  <span className="text-[10px] text-gray-400 font-normal">| ⚡ {user?.zenPoints || 10} Pts</span>
+                  <span className="text-[10px] text-gray-400 font-medium">| ⚡ {user?.zenPoints || 10} Pts</span>
                   <HelpCircle className="w-3 h-3 text-orange-400 opacity-80 flex-shrink-0" />
                 </button>
               </div>
 
-              {/* Branch, Year & College - Responsive & Un-truncated */}
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-gray-300 font-medium">
-                <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-primary-300 font-bold text-[11px]">
+              {/* Student Tags */}
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-gray-300 font-medium">
+                <span className="px-2.5 py-0.5 rounded-lg bg-orange-500/15 border border-orange-500/30 text-orange-400 font-bold text-[11px]">
                   {user?.branch || 'CSE'}
                 </span>
-                <span>• Year {user?.year || 1} ({user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))}-{user?.endYear || ((user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))) + 4)})</span>
-                <span>• {user?.college || 'KNIT Sultanpur'}</span>
+                <span>Year {user?.year || 1} ({user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))}-{user?.endYear || ((user?.startYear || (2026 - ((Number(user?.year) || 1) - 1))) + 4)})</span>
+                <span className="text-gray-500">•</span>
+                <span className="text-gray-300 font-semibold">{user?.college || 'KNIT Sultanpur'}</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* ── Workspace Overview ── */}
-      <div className="relative rounded-2xl overflow-hidden"
-        style={{
-          background: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)'
-        }}>
-
-        {/* Animated gradient background — same as header */}
-        <div className="absolute inset-0 opacity-60 pointer-events-none"
-          style={{
-            background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)',
-            backgroundSize: '300% 300%',
-            animation: 'gradientShift 8s ease infinite'
-          }}
-        />
-        {/* Top shimmer border — same as header */}
-        <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }}
-        />
-
-        {/* Section header */}
-        <div className="relative z-10 px-5 pt-5 pb-3 flex items-center justify-between">
-          <span className="text-xs font-semibold uppercase tracking-widest text-gray-500">Workspace Overview</span>
-        </div>
-
-        {/* Row 1 — Pending Join Requests */}
-        <Link to="/teams/invitations"
-          className="relative z-10 flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors duration-200 group">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)' }}>
-            <UserCheck className="w-4 h-4" style={{ color: '#a78bfa' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white leading-tight">Pending Join Requests</p>
-            <p className="text-xs text-gray-500 mt-0.5">Students want to join your teams.</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="min-w-[24px] h-6 px-2 rounded-full text-xs font-semibold flex items-center justify-center"
-              style={{ background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>
-              {pendingJoinRequests}
-            </span>
-            <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
-          </div>
-        </Link>
-
-        {/* Divider */}
-        <div className="relative z-10 mx-5 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-        {/* Row 2 — Unread Messages */}
-        <Link to="/chat"
-          className="relative z-10 flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors duration-200 group">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.22)' }}>
-            <MessageCircle className="w-4 h-4" style={{ color: '#6ee7b7' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white leading-tight">Unread Messages</p>
-            <p className="text-xs text-gray-500 mt-0.5">Open your messages to respond.</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="min-w-[24px] h-6 px-2 rounded-full text-xs font-semibold flex items-center justify-center"
-              style={{ background: 'rgba(52,211,153,0.15)', color: '#6ee7b7' }}>
-              {unreadMessages}
-            </span>
-            <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
-          </div>
-        </Link>
-
-        {/* Divider */}
-        <div className="relative z-10 mx-5 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-        {/* Row 3 — AI Skill Matches */}
-        <Link to="/teammate-finder"
-          className="relative z-10 flex items-center gap-4 px-5 py-4 hover:bg-white/5 transition-colors duration-200 group">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.22)' }}>
-            <Sparkles className="w-4 h-4" style={{ color: '#fdba74' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white leading-tight">AI Skill Matches</p>
-            <p className="text-xs text-gray-500 mt-0.5">Students match your skills.</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="min-w-[24px] h-6 px-2 rounded-full text-xs font-semibold flex items-center justify-center"
-              style={{ background: 'rgba(251,146,60,0.15)', color: '#fdba74' }}>
-              {skillMatches}
-            </span>
-            <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-gray-400 transition-colors" />
-          </div>
-        </Link>
-
-        {/* Divider */}
-        <div className="relative z-10 mx-5 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
-
-        {/* Row 4 — Projects */}
-        <div className="relative z-10 flex items-center gap-4 px-5 py-4">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.22)' }}>
-            <FolderOpen className="w-4 h-4" style={{ color: '#93c5fd' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white leading-tight">Projects</p>
-            <p className="text-xs text-gray-500 mt-0.5">Create or join a project.</p>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Link to="/projects"
-              className="px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 hover:scale-105"
-              style={{ background: 'rgba(59,130,246,0.15)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.25)' }}>
-              Browse
+          {/* Direct CTA */}
+          <div className="flex items-center gap-3 relative z-10">
+            <Link
+              to="/teammate-finder"
+              className="btn-sunset text-xs sm:text-sm px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-transform"
+            >
+              <Sparkles className="w-4 h-4 text-white" />
+              <span>AI Teammate Finder</span>
             </Link>
-            <ChevronRight className="w-4 h-4 text-gray-600" />
           </div>
+
+        </div>
+      </div>
+
+      {/* ── Sleek Glass Workspace Control Center ── */}
+      <div className="rounded-3xl p-6 border border-white/10 relative overflow-hidden shadow-2xl space-y-5"
+        style={{
+          background: 'linear-gradient(135deg, rgba(13, 13, 20, 0.95) 0%, rgba(20, 20, 35, 0.85) 100%)',
+          backdropFilter: 'blur(20px)'
+        }}>
+        
+        {/* Ambient Background Lighting */}
+        <div className="absolute top-0 right-0 w-72 h-72 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+
+        {/* Section Header & Status */}
+        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-4 relative z-10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center text-orange-400">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white tracking-tight">Workspace Overview</h2>
+              <p className="text-xs text-gray-400">Real-time team activity, messages & quick tools</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs font-semibold text-emerald-400">Live Synchronized</span>
+          </div>
+        </div>
+
+        {/* 4 Interactive Glass Stat Capsules */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 relative z-10">
+          
+          {/* Stat 1: Pending Join Requests */}
+          <Link
+            to="/teams/invitations"
+            className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/40 transition-all duration-300 group flex flex-col justify-between space-y-3 cursor-pointer shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-300">Join Requests</span>
+              <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-xs">
+                <Inbox className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-black text-white group-hover:text-purple-300 transition-colors">
+                {pendingJoinRequests}
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                pendingJoinRequests > 0 ? 'bg-purple-500/30 text-purple-200 animate-pulse' : 'bg-white/10 text-gray-400'
+              }`}>
+                {pendingJoinRequests > 0 ? 'Action Needed' : 'Clean'}
+              </span>
+            </div>
+          </Link>
+
+          {/* Stat 2: Unread Messages */}
+          <Link
+            to="/chat"
+            className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/40 transition-all duration-300 group flex flex-col justify-between space-y-3 cursor-pointer shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-300">Team Messages</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">
+                <MessageCircle className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-black text-white group-hover:text-emerald-300 transition-colors">
+                {unreadMessages}
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                unreadMessages > 0 ? 'bg-emerald-500/30 text-emerald-200 animate-pulse' : 'bg-white/10 text-gray-400'
+              }`}>
+                {unreadMessages > 0 ? 'New Unread' : 'Up to date'}
+              </span>
+            </div>
+          </Link>
+
+          {/* Stat 3: AI Skill Matches */}
+          <Link
+            to="/teammate-finder"
+            className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/40 transition-all duration-300 group flex flex-col justify-between space-y-3 cursor-pointer shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-300">AI Candidates</span>
+              <div className="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-300 flex items-center justify-center text-xs">
+                <Sparkles className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-black text-white group-hover:text-orange-300 transition-colors">
+                {skillMatches}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                Matched ⚡
+              </span>
+            </div>
+          </Link>
+
+          {/* Stat 4: Active Projects */}
+          <Link
+            to="/projects"
+            className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/40 transition-all duration-300 group flex flex-col justify-between space-y-3 cursor-pointer shadow-md"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-300">Showcase Projects</span>
+              <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center text-xs">
+                <FolderOpen className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-2xl font-black text-white group-hover:text-blue-300 transition-colors">
+                {projects.length}
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                Published
+              </span>
+            </div>
+          </Link>
+
+        </div>
+
+        {/* Quick Launch Action Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/10 relative z-10">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/teams"
+              className="btn-primary text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1.5 shadow-md"
+            >
+              <Plus className="w-3.5 h-3.5" /> Create New Team
+            </Link>
+
+            <Link
+              to="/teammate-finder"
+              className="btn-secondary text-xs px-4 py-2 rounded-xl font-semibold flex items-center gap-1.5 text-gray-200"
+            >
+              <Users className="w-3.5 h-3.5 text-orange-400" /> Find Teammates
+            </Link>
+
+            <Link
+              to="/projects"
+              className="btn-secondary text-xs px-4 py-2 rounded-xl font-semibold flex items-center gap-1.5 text-gray-200"
+            >
+              <FileCode2 className="w-3.5 h-3.5 text-blue-400" /> Manage Projects
+            </Link>
+          </div>
+
+          <Link
+            to="/teams/invitations"
+            className="text-xs font-bold text-purple-400 hover:text-purple-300 flex items-center gap-1"
+          >
+            <span>Review All Invitations</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
       </div>
 
-      {/* ── Quick Actions ── */}
-      <div className="grid grid-cols-2 gap-3">
-
-        {/* Create Team */}
-        <Link to="/teams"
-          className="group relative flex items-center gap-3 px-4 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-          <div className="absolute inset-0 opacity-60 pointer-events-none"
-            style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-          <div className="relative z-10 flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}>
-            <Plus className="w-4 h-4 text-white" />
-          </div>
-          <div className="relative z-10 min-w-0">
-            <p className="text-sm font-semibold text-white leading-tight">Create Team</p>
-            <p className="text-xs text-gray-500 mt-0.5 truncate">Start a new team</p>
-          </div>
-        </Link>
-
-        {/* Find Teammates */}
-        <Link to="/teammate-finder"
-          className="group relative flex items-center gap-3 px-4 py-4 rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-          <div className="absolute inset-0 opacity-60 pointer-events-none"
-            style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-          <div className="relative z-10 flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #ff6b35, #f97316)' }}>
-            <Users className="w-4 h-4 text-white" />
-          </div>
-          <div className="relative z-10 min-w-0">
-            <p className="text-sm font-semibold text-white leading-tight">Find Teammates</p>
-            <p className="text-xs text-gray-500 mt-0.5 truncate">Discover matches</p>
-          </div>
-        </Link>
-
-      </div>
-
-      <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
-        {/* Left - Recent Teams */}
-        <div className="lg:col-span-2 space-y-4 lg:space-y-8 min-w-0">
-
-          {/* Recent Teams */}
-          <div className="card relative overflow-hidden p-4 sm:p-6">
-            <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl"
-              style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-            <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-            <div className="relative z-10 flex items-center justify-between mb-4 sm:mb-6 gap-2">
-              <h2 className="text-lg sm:text-xl font-semibold text-white flex items-center gap-2 min-w-0">
-                <Users className="w-5 h-5 text-primary-400 flex-shrink-0" />
-                <span className="truncate">Recent Teams</span>
-              </h2>
-              <Link to="/teams" className="text-primary-400 hover:text-primary-300 text-xs sm:text-sm font-medium flex items-center gap-1 flex-shrink-0">
-                View All <ExternalLink className="w-3 h-3" />
+      {/* ── Main Content Grid: Recent Teams & Recommended Sidebar ── */}
+      <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        
+        {/* Left Column: Recent Teams Workspace */}
+        <div className="lg:col-span-2 space-y-6 min-w-0">
+          <div className="card relative overflow-hidden p-5 sm:p-6 space-y-5 border border-white/10">
+            <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-orange-400" /> Active Workspace Teams
+                </h2>
+                <p className="text-xs text-gray-400">Teams you own or contribute to</p>
+              </div>
+              <Link to="/teams" className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1">
+                <span>View All Teams</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
-            <div className="relative z-10">
+
             {isLoading ? (
               <div className="flex justify-center py-8"><LoadingSpinner size="medium" /></div>
             ) : teams.length > 0 ? (
-              <div className="space-y-3 sm:space-y-4">
-                {teams.slice(0, 3).map((team) => {
+              <div className="space-y-4">
+                {teams.slice(0, 4).map((team) => {
                   const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
                   return (
-                    <div key={team._id} className="relative group rounded-xl p-3.5 sm:p-4 transition-all duration-300 overflow-hidden"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        backdropFilter: 'blur(16px)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)'
-                      }}>
-                      {/* Top Accent Gradient Line */}
-                      <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
-                        style={{ background: 'linear-gradient(90deg, #6366f1, #a855f7, #f97316)' }} />
-                      
-                      {/* Hover Ambient Glow */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                        style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.1) 0%, transparent 70%)' }} />
-
-                      <div className="relative z-10 space-y-3">
-                        {/* Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            {team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image) ? (
-                              <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Leader'}`}>
-                                <img
-                                  src={team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image)}
-                                  alt={team.team_name}
-                                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover border border-white/20 shadow-sm"
-                                />
-                                <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center text-[8px] shadow-sm border border-black/40">
-                                  👑
-                                </div>
+                    <div key={team._id} className="relative group rounded-2xl p-4 transition-all duration-300 overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 space-y-3.5 shadow-lg">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image) ? (
+                            <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Leader'}`}>
+                              <img
+                                src={team.leader_id?.profile_image || (team.members && team.members.find(m => m.role === 'Leader')?.profile_image)}
+                                alt={team.team_name}
+                                className="w-10 h-10 rounded-xl object-cover border border-white/20 shadow-md"
+                              />
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] shadow-sm border border-black">
+                                👑
                               </div>
-                            ) : (
-                              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-sm flex-shrink-0 border border-white/10"
-                                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
-                                {team.team_name?.charAt(0).toUpperCase() || 'T'}
-                              </div>
-                            )}
-                            <div className="min-w-0 flex-1">
-                              <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-primary-300 transition-colors break-words leading-tight">
-                                {team.team_name}
-                              </h3>
-                              <p className="text-xs text-gray-400 truncate">{team.project_title || 'Project'}</p>
                             </div>
-                          </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-md flex-shrink-0 border border-white/10 bg-gradient-to-br from-orange-500 to-purple-600">
+                              {team.team_name?.charAt(0).toUpperCase() || 'T'}
+                            </div>
+                          )}
 
-                          <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap flex-shrink-0">
-                            {team.user_role === 'Leader' && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                                👑 Leader
-                              </span>
-                            )}
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                              team.status === 'Open' ? 'bg-green-500/15 text-green-400 border border-green-500/30' :
-                              team.status === 'Full' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
-                              'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-                            }`}>
-                              {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
-                            </span>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-bold text-white text-base group-hover:text-orange-300 transition-colors truncate">
+                              {team.team_name}
+                            </h3>
+                            <p className="text-xs text-gray-400 truncate">{team.project_title || 'Academic Project'}</p>
                           </div>
                         </div>
 
-                        {/* Members Capacity Progress */}
-                        <div className="space-y-1.5">
-                          <div className="flex items-center justify-between text-xs gap-2">
-                            <span className="text-gray-400 flex items-center gap-1 min-w-0">
-                              <Users className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-                              <span className="font-medium text-white truncate"><span className="text-white font-medium">{team.current_members || 1}</span> / {team.max_members || 4} Members</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {team.user_role === 'Leader' && (
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              👑 Leader
                             </span>
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <Link to={`/teams/${team._id}`} className="text-xs font-semibold text-primary-400 hover:text-primary-300 flex items-center gap-0.5">
-                                Details <ChevronRight className="w-3 h-3" />
-                              </Link>
-                              {team.user_role === 'Leader' && (
-                                <Link to="/chat" className="text-xs font-semibold text-emerald-400 hover:text-emerald-300">
-                                  Chat
-                                </Link>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
-                            <div
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{
-                                width: `${memberPercent}%`,
-                                background: memberPercent === 100
-                                  ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
-                                  : 'linear-gradient(90deg, #6366f1, #3b82f6)'
-                              }}
-                            />
-                          </div>
+                          )}
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            team.status === 'Open' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                            team.status === 'Full' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                            'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          }`}>
+                            {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
+                          </span>
                         </div>
-
-                        {/* Skills */}
-                        {team.required_skills?.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
-                            {team.required_skills.slice(0, 3).map((skill, i) => (
-                              <span key={i} className="px-2 py-0.5 text-[10px] sm:text-[11px] font-medium rounded-md truncate max-w-[110px]"
-                                style={{ background: 'rgba(99, 102, 241, 0.12)', color: '#a5b4fc', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
-                                {typeof skill === 'string' ? skill : skill.skill_name || skill}
-                              </span>
-                            ))}
-                            {team.required_skills.length > 3 && (
-                              <span className="px-1.5 py-0.5 text-[10px] sm:text-[11px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10 flex-shrink-0">
-                                +{team.required_skills.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        )}
                       </div>
+
+                      {/* Recruitment Capacity Meter */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-300 font-semibold flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-orange-400" />
+                            <span>Capacity: <strong className="text-white">{team.current_members || 1}</strong> / {team.max_members || 4} Members</span>
+                          </span>
+                          <div className="flex items-center gap-3 font-semibold">
+                            <Link to={`/teams/${team._id}`} className="text-xs text-orange-400 hover:text-orange-300 flex items-center gap-0.5">
+                              Details <ChevronRight className="w-3 h-3" />
+                            </Link>
+                            {team.user_role === 'Leader' && (
+                              <Link to="/chat" className="text-xs text-emerald-400 hover:text-emerald-300">
+                                Chat
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                          <div
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{
+                              width: `${memberPercent}%`,
+                              background: memberPercent === 100
+                                ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                                : 'linear-gradient(90deg, #f97316, #6366f1)'
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Skill Tags */}
+                      {team.required_skills?.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
+                          {team.required_skills.slice(0, 4).map((skill, i) => (
+                            <span key={i} className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/10 text-orange-300 border border-orange-500/20">
+                              {typeof skill === 'string' ? skill : skill.skill_name || skill}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
                     </div>
                   )
                 })}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-4">No teams yet</p>
-                <Link to="/teams" className="btn-primary inline-flex items-center gap-2">
-                  <Plus className="w-4 h-4" /> Create Team
+              <div className="text-center py-8 space-y-3">
+                <Users className="w-10 h-10 text-gray-500 mx-auto" />
+                <p className="text-sm text-gray-400">You have not joined or created any teams yet</p>
+                <Link to="/teams" className="btn-primary text-xs px-4 py-2 rounded-xl inline-flex items-center gap-1.5 font-bold">
+                  <Plus className="w-4 h-4" /> Create Your First Team
                 </Link>
               </div>
             )}
-            </div>
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-4 lg:space-y-8 min-w-0">
-
+        {/* Right Sidebar: Recommended Teammates & Timeline */}
+        <div className="space-y-6 min-w-0">
+          
           {/* Recommended Teammates */}
-          <div className="card no-horizontal-scroll relative overflow-hidden">
-            <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl"
-              style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-            <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-            <div className="relative z-10 flex items-center justify-between mb-6 gap-2">
-              <h2 className="text-base md:text-xl font-semibold text-white">Recommended</h2>
-              <Link to="/teammate-finder" className="text-primary-400 hover:text-primary-300 text-xs md:text-sm font-medium flex items-center gap-1 flex-shrink-0">
-                Find More <ExternalLink className="w-3 h-3" />
+          <div className="card space-y-4 border border-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-orange-400" /> Recommended Teammates
+              </h2>
+              <Link to="/teammate-finder" className="text-xs font-bold text-orange-400 hover:text-orange-300">
+                View All
               </Link>
             </div>
-            <div className="relative z-10">
+
             {recommendedTeammates.length > 0 ? (
-              <div className="space-y-3 lg:max-h-96 lg:overflow-y-auto pr-1 custom-scrollbar">
+              <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar pr-1">
                 {recommendedTeammates.map((teammate, index) => (
-                  <Link key={teammate._id || index} to={teammate._id ? `/user/${teammate._id}` : '/teammate-finder'}
-                    className="block group relative rounded-xl p-3.5 transition-all duration-300 overflow-hidden"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.03)',
-                      backdropFilter: 'blur(16px)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)'
-                    }}>
-
-                    {/* Top Accent Line */}
-                    <div className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
-                      style={{ background: 'linear-gradient(90deg, #3b82f6, #06b6d4)' }} />
-
-                    {/* Hover Glow */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.1) 0%, transparent 70%)' }} />
-
-                    <div className="relative z-10 flex items-start gap-3">
-                      {/* Avatar with Glow Ring */}
-                      <div className="relative flex-shrink-0">
-                        {teammate.profile_image ? (
-                          <img src={teammate.profile_image} alt={teammate.name}
-                            className="w-10 h-10 rounded-xl object-cover ring-2 ring-blue-400/50 border border-blue-400/20" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm ring-2 ring-blue-400/50"
-                            style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}>
-                            {teammate.name?.charAt(0).toUpperCase() || 'U'}
-                          </div>
-                        )}
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#0a0a0f]" />
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-0.5">
-                          <h3 className="font-bold text-white text-sm group-hover:text-primary-300 transition-colors truncate">
-                            {teammate.name}
-                          </h3>
-                          {teammate.match && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                setAiMatchUser({ ...teammate, matchPercentage: parseInt(teammate.match) || 94 })
-                              }}
-                              className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/15 text-green-400 border border-green-500/30 flex-shrink-0 hover:bg-green-500/30 transition-all cursor-pointer"
-                              title="Click to view AI Compatibility Breakdown"
-                            >
-                              ⚡ {teammate.match}
-                            </button>
+                  <div key={teammate._id || index}
+                    className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-500/30 transition-all space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <Link to={teammate._id ? `/user/${teammate._id}` : '/teammate-finder'} className="flex items-center gap-2.5 min-w-0 flex-1 group">
+                        <div className="w-9 h-9 rounded-xl bg-orange-500/20 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 border border-orange-500/30">
+                          {teammate.profile_image ? (
+                            <img src={teammate.profile_image} alt={teammate.name} className="w-full h-full rounded-xl object-cover" />
+                          ) : (
+                            teammate.name?.charAt(0).toUpperCase()
                           )}
                         </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-bold text-white group-hover:text-orange-300 truncate">{teammate.name}</h4>
+                          <p className="text-[11px] text-gray-400 truncate">{teammate.branch} · Year {teammate.year}</p>
+                        </div>
+                      </Link>
 
-                        <p className="text-xs text-gray-400 truncate">{teammate.college || 'KNIT Sultanpur'}</p>
-                        <p className="text-[11px] text-gray-500 font-medium truncate mt-0.5">
-                          {teammate.branch} · Year {teammate.year}
-                        </p>
-
-                        {/* Skill Pills */}
-                        {teammate.skills?.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2.5">
-                            {teammate.skills.slice(0, 3).map((skill, i) => (
-                              <span key={i} className="px-2 py-0.5 text-[10px] font-medium rounded-md"
-                                style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.25)' }}>
-                                {typeof skill === 'string' ? skill : skill.skill_name || skill}
-                              </span>
-                            ))}
-                            {teammate.skills.length > 3 && (
-                              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-md text-gray-400 bg-white/5 border border-white/10">
-                                +{teammate.skills.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {teammate.match && (
+                        <button
+                          type="button"
+                          onClick={() => setAiMatchUser({ ...teammate, matchPercentage: parseInt(teammate.match) || 94 })}
+                          className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex-shrink-0 hover:bg-emerald-500/30 transition-all cursor-pointer"
+                          title="Click to view AI Compatibility Breakdown"
+                        >
+                          ⚡ {teammate.match}
+                        </button>
+                      )}
                     </div>
-                  </Link>
+
+                    {teammate.skills?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {teammate.skills.slice(0, 3).map((skill, i) => (
+                          <span key={i} className="px-2 py-0.5 text-[9px] font-semibold rounded bg-white/5 text-gray-300 border border-white/10">
+                            {typeof skill === 'string' ? skill : skill.skill_name || skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                <p className="text-gray-400 mb-2">No recommendations yet</p>
-                <p className="text-sm text-gray-500">Add skills to your profile for better matches</p>
+              <div className="text-center py-6">
+                <Users className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                <p className="text-xs text-gray-400">Add more skills to get AI match suggestions</p>
               </div>
             )}
-            </div>
           </div>
 
-          {/* Recent Activity — Timeline */}
-          <div className="card no-horizontal-scroll relative overflow-hidden">
-            <div className="absolute inset-0 opacity-60 pointer-events-none rounded-2xl"
-              style={{ background: 'linear-gradient(120deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.14) 40%, rgba(255,107,53,0.12) 100%)', backgroundSize: '300% 300%', animation: 'gradientShift 8s ease infinite' }} />
-            <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.5), rgba(255,107,53,0.4), transparent)' }} />
-            <div className="relative z-10 flex items-center justify-between mb-5">
-              <h2 className="text-base md:text-lg font-semibold text-white">Recent Activity</h2>
-              <span className="text-xs text-gray-600 uppercase tracking-widest">Timeline</span>
+          {/* Recent Activity Timeline */}
+          <div className="card space-y-4 border border-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Clock className="w-4 h-4 text-purple-400" /> Recent Activity
+              </h2>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500">Timeline</span>
             </div>
-            <div className="relative z-10">
-            {activityLoading ? (
-              <div className="flex justify-center py-8"><LoadingSpinner size="small" /></div>
-            ) : recentActivity.length > 0 ? (
-              <div className="relative">
-                {/* Vertical line */}
-                <div className="absolute left-[7px] top-2 bottom-2 w-px"
-                  style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.08), rgba(255,255,255,0.03))' }} />
 
-                <div className="space-y-5">
-                  {recentActivity.map((activity, index) => {
-                    const colors = [
-                      { dot: '#a78bfa', glow: 'rgba(139,92,246,0.4)' },
-                      { dot: '#60a5fa', glow: 'rgba(59,130,246,0.4)' },
-                      { dot: '#34d399', glow: 'rgba(52,211,153,0.4)' },
-                      { dot: '#fb923c', glow: 'rgba(251,146,60,0.4)' },
-                      { dot: '#f472b6', glow: 'rgba(244,114,182,0.4)' },
-                    ]
-                    const c = colors[index % colors.length]
-                    return (
-                      <div key={index} className="flex items-start gap-4 pl-1">
-                        {/* Dot */}
-                        <div className="relative flex-shrink-0 mt-1.5">
-                          <div className="w-3.5 h-3.5 rounded-full border-2 border-black"
-                            style={{ backgroundColor: c.dot, boxShadow: `0 0 6px ${c.glow}` }} />
-                        </div>
-                        {/* Content */}
-                        <div className="flex-1 min-w-0 pb-1">
-                          <p className="text-sm text-gray-200 leading-snug">{activity.message}</p>
-                          <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.25)' }}>{activity.time}</p>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+            {activityLoading ? (
+              <div className="flex justify-center py-6"><LoadingSpinner size="small" /></div>
+            ) : recentActivity.length > 0 ? (
+              <div className="space-y-4 relative pl-2">
+                <div className="absolute left-[13px] top-2 bottom-2 w-[2px] bg-white/10" />
+                {recentActivity.map((act, index) => (
+                  <div key={index} className="flex items-start gap-3 relative z-10">
+                    <div className="w-3 h-3 rounded-full bg-purple-500 border-2 border-[#0d0d14] mt-1 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-gray-200 leading-snug">{act.message}</p>
+                      <p className="text-[10px] text-gray-500 mt-0.5">{act.time}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <div className="w-8 h-8 rounded-full mx-auto mb-3"
-                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }} />
-                <p className="text-gray-500 text-sm">No activity yet</p>
-              </div>
+              <p className="text-xs text-gray-400 text-center py-4">No recent activity logged yet</p>
             )}
-            </div>
           </div>
+
         </div>
+
       </div>
 
       {/* AI Match Breakdown Modal */}
@@ -659,6 +584,7 @@ const Dashboard = () => {
         onClose={() => setShowStreakModal(false)}
         user={user}
       />
+
     </div>
   )
 }

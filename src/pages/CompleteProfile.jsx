@@ -68,7 +68,6 @@ const CompleteProfile = () => {
   const [selectedSkills, setSelectedSkills] = useState([])
   const [customSkillInput, setCustomSkillInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [activeCategory, setActiveCategory] = useState('All')
 
   const toggleSkill = (skill) => {
     setSelectedSkills(prev =>
@@ -116,32 +115,30 @@ const CompleteProfile = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12"
-      style={{
-        backgroundImage: 'url("/images/image3.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        position: 'relative'
-      }}
+      className="min-h-screen flex items-center justify-center px-4 py-8 sm:py-12 bg-[#09090e] relative overflow-hidden"
     >
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(5, 5, 12, 0.82)', backdropFilter: 'blur(8px)', zIndex: 0 }} />
+      {/* Ambient Lighting Blobs */}
+      <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-2xl my-auto">
-        <div className="card border border-white/15 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="card border border-white/10 p-6 sm:p-8 shadow-2xl space-y-6 bg-[#0d0d14]/90 backdrop-blur-xl">
+          
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center p-2 rounded-2xl bg-white/10 border border-white/15 mb-1">
               <img src="/images/TeamZen.png" alt="TeamZen" className="h-10 w-auto" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center justify-center gap-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center justify-center gap-2">
               Complete Your Profile <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
             </h2>
             <p className="text-xs sm:text-sm text-gray-300">
-              Welcome, <span className="font-bold text-primary-300">{user?.name}</span>! Tell us about your branch, session, and skills to connect with ideal teammates.
+              Welcome, <span className="font-bold text-orange-400">{user?.name}</span>! Tell us about your branch, session, and skills to connect with ideal teammates.
             </p>
           </div>
 
           <form onSubmit={onSubmit} className="space-y-6">
+            
             {/* Academic Details Section */}
             <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
               <h3 className="text-xs sm:text-sm font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
@@ -157,10 +154,9 @@ const CompleteProfile = () => {
                     className="input w-full text-xs sm:text-sm"
                     value={branch}
                     onChange={e => setBranch(e.target.value)}
-                    style={{ backgroundColor: '#181824', color: '#f1f5f9' }}
                   >
                     {branches.map(b => (
-                      <option key={b} value={b} style={{ backgroundColor: '#181824', color: '#f1f5f9' }}>
+                      <option key={b} value={b}>
                         {b === 'CSE' ? 'CSE (Computer Science)' :
                          b === 'ECE' ? 'ECE (Electronics)' :
                          b === 'EEE' ? 'EEE (Electrical)' :
@@ -179,10 +175,9 @@ const CompleteProfile = () => {
                     className="input w-full text-xs sm:text-sm"
                     value={year}
                     onChange={e => setYear(e.target.value)}
-                    style={{ backgroundColor: '#181824', color: '#f1f5f9' }}
                   >
                     {years.map(y => (
-                      <option key={y} value={y} style={{ backgroundColor: '#181824', color: '#f1f5f9' }}>
+                      <option key={y} value={y}>
                         {y}{y === 1 ? 'st' : y === 2 ? 'nd' : y === 3 ? 'rd' : 'th'} Year Student
                       </option>
                     ))}
@@ -201,12 +196,9 @@ const CompleteProfile = () => {
                     className="input w-full text-xs sm:text-sm"
                     value={startYear}
                     onChange={e => setStartYear(e.target.value)}
-                    style={{ backgroundColor: '#181824', color: '#f1f5f9' }}
                   >
                     {startYearsList.map(sy => (
-                      <option key={sy} value={sy} style={{ backgroundColor: '#181824', color: '#f1f5f9' }}>
-                        {sy} (Joined)
-                      </option>
+                      <option key={sy} value={sy}>{sy}</option>
                     ))}
                   </select>
                 </div>
@@ -214,158 +206,98 @@ const CompleteProfile = () => {
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
                     <Calendar className="w-3.5 h-3.5 text-purple-400" />
-                    Ending Year (Graduation)
+                    Passing Year (Batch End)
                   </label>
                   <select
                     className="input w-full text-xs sm:text-sm"
                     value={endYear}
                     onChange={e => setEndYear(e.target.value)}
-                    style={{ backgroundColor: '#181824', color: '#f1f5f9' }}
                   >
                     {endYearsList.map(ey => (
-                      <option key={ey} value={ey} style={{ backgroundColor: '#181824', color: '#f1f5f9' }}>
-                        {ey} (Passout)
-                      </option>
+                      <option key={ey} value={ey}>{ey}</option>
                     ))}
                   </select>
                 </div>
               </div>
-
-              <div className="text-[11px] text-gray-400 text-center font-medium pt-1">
-                Academic Batch: <span className="text-amber-400 font-bold">{startYear} – {endYear}</span> ({endYear - startYear} Year Degree Program)
-              </div>
             </div>
 
-            {/* Technical Skills Section */}
+            {/* Skills Selector */}
             <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs sm:text-sm font-bold text-gray-200 uppercase tracking-wider flex items-center gap-2">
-                  <Code className="w-4 h-4 text-primary-400" />
-                  Select Your Skills
+                  <Code className="w-4 h-4 text-orange-400" /> Select Technical Skills
                 </h3>
-                <span className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                <span className="text-xs font-bold text-orange-400 bg-orange-500/10 px-2.5 py-1 rounded-full border border-orange-500/20">
                   {selectedSkills.length} Selected
                 </span>
               </div>
 
-              {/* Category Filter Pills */}
-              <div className="flex overflow-x-auto gap-1.5 pb-2 custom-scrollbar text-xs">
+              {/* Custom Skill Input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customSkillInput}
+                  onChange={e => setCustomSkillInput(e.target.value)}
+                  placeholder="Type a custom skill (e.g. Next.js, Rust)..."
+                  className="input flex-1 text-xs"
+                />
                 <button
                   type="button"
-                  onClick={() => setActiveCategory('All')}
-                  className={`px-3 py-1 rounded-lg font-semibold whitespace-nowrap transition-colors ${
-                    activeCategory === 'All'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white/5 text-gray-400 hover:text-white'
-                  }`}
+                  onClick={handleAddCustomSkill}
+                  className="btn-secondary text-xs px-3.5 py-2 rounded-xl font-bold flex items-center gap-1 shrink-0"
                 >
-                  All Domains
+                  <Plus className="w-3.5 h-3.5" /> Add
                 </button>
-                {skillCategories.map(cat => (
-                  <button
-                    key={cat.category}
-                    type="button"
-                    onClick={() => setActiveCategory(cat.category)}
-                    className={`px-3 py-1 rounded-lg font-semibold whitespace-nowrap transition-colors ${
-                      activeCategory === cat.category
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-white/5 text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    {cat.category}
-                  </button>
+              </div>
+
+              {/* Skill Categories */}
+              <div className="space-y-4 max-h-64 overflow-y-auto custom-scrollbar p-1">
+                {skillCategories.map(group => (
+                  <div key={group.category} className="space-y-2">
+                    <h4 className="text-xs font-semibold text-gray-400">{group.category}</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.skills.map(skill => {
+                        const isSelected = selectedSkills.includes(skill)
+                        return (
+                          <button
+                            type="button"
+                            key={skill}
+                            onClick={() => toggleSkill(skill)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-400 shadow-md'
+                                : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            }`}
+                          >
+                            <span>{skill}</span>
+                            {isSelected && <Check className="w-3 h-3 text-white" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
-
-              {/* Skills Grid */}
-              <div className="max-h-56 overflow-y-auto custom-scrollbar space-y-3 p-1">
-                {skillCategories
-                  .filter(cat => activeCategory === 'All' || activeCategory === cat.category)
-                  .map(cat => (
-                    <div key={cat.category} className="space-y-2">
-                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">{cat.category}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {cat.skills.map(skill => {
-                          const isSelected = selectedSkills.includes(skill)
-                          return (
-                            <button
-                              key={skill}
-                              type="button"
-                              onClick={() => toggleSkill(skill)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 border flex items-center gap-1.5 ${
-                                isSelected
-                                  ? 'bg-primary-600/30 border-primary-400 text-primary-300 shadow-md shadow-primary-500/20 scale-105'
-                                  : 'bg-white/5 border-white/10 text-gray-300 hover:border-white/30 hover:text-white'
-                              }`}
-                            >
-                              {isSelected && <Check className="w-3.5 h-3.5 text-primary-400" />}
-                              <span>{skill}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-
-              {/* Custom Skill Input */}
-              <div className="pt-3 border-t border-white/10">
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
-                  Don't see your skill? Add Custom Skill:
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={customSkillInput}
-                    onChange={e => setCustomSkillInput(e.target.value)}
-                    placeholder="e.g. Solana, PySpark, Figma, Swift UI..."
-                    className="input flex-1 text-xs sm:text-sm"
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddCustomSkill(e) }}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddCustomSkill}
-                    className="btn-secondary text-xs px-4 py-2 flex items-center gap-1 font-semibold rounded-xl"
-                  >
-                    <Plus className="w-4 h-4" /> Add
-                  </button>
-                </div>
-              </div>
-
-              {/* Selected Pills Display */}
-              {selectedSkills.length > 0 && (
-                <div className="pt-2">
-                  <p className="text-[11px] font-bold text-gray-400 mb-1.5">Your Selected Skills:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedSkills.map(skill => (
-                      <span
-                        key={skill}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold"
-                      >
-                        {skill}
-                        <button
-                          type="button"
-                          onClick={() => toggleSkill(skill)}
-                          className="hover:text-red-400 transition-colors ml-0.5"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full py-4 text-sm sm:text-base font-bold shadow-xl shadow-primary-500/20 flex items-center justify-center gap-2 rounded-xl"
+              className="btn-sunset w-full py-3.5 rounded-xl font-bold text-white text-sm shadow-xl flex items-center justify-center gap-2 cursor-pointer hover:scale-102 transition-transform"
             >
-              {isLoading ? 'Saving Your Profile...' : 'Complete Profile & Get Started →'}
+              {isLoading ? (
+                <span>Saving Profile...</span>
+              ) : (
+                <>
+                  <span>Complete Profile & Launch Dashboard</span>
+                  <Sparkles className="w-4 h-4" />
+                </>
+              )}
             </button>
+
           </form>
+
         </div>
       </div>
     </div>

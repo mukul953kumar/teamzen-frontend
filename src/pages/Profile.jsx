@@ -42,6 +42,7 @@ import {
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import TermsModal from '../components/TermsModal'
+import ImageCropModal from '../components/ImageCropModal'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 import { getDomainBadgeStyle, POPULAR_DOMAINS } from '../utils/domainUtils'
@@ -108,6 +109,9 @@ const Profile = () => {
   const [selectedInterests, setSelectedInterests] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
   const [previewImage, setPreviewImage] = useState(null)
+  const [removeImage, setRemoveImage] = useState(false)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [tempImageSrc, setTempImageSrc] = useState(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [isTermsOpen, setIsTermsOpen] = useState(false)
@@ -190,8 +194,10 @@ const Profile = () => {
         }
       })
       
-      // Add image if selected
-      if (selectedImage) {
+      // Handle remove or set profile image
+      if (removeImage) {
+        formData.append('remove_profile_image', 'true')
+      } else if (selectedImage) {
         formData.append('profile_image', selectedImage)
       }
       
@@ -218,6 +224,7 @@ const Profile = () => {
         setIsEditing(false)
         setSelectedImage(null)
         setPreviewImage(null)
+        setRemoveImage(false)
       },
       onError: (error) => {
         toast.error(error.response?.data?.message || 'Failed to update profile')
@@ -294,13 +301,14 @@ const Profile = () => {
     reset()
     setSelectedImage(null)
     setPreviewImage(null)
+    setRemoveImage(false)
   }
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size should be less than 5MB')
+      if (file.size > 8 * 1024 * 1024) {
+        toast.error('Image size should be less than 8MB')
         return
       }
       
@@ -309,13 +317,81 @@ const Profile = () => {
         return
       }
       
-      setSelectedImage(file)
       const reader = new FileReader()
       reader.onloadend = () => {
-        setPreviewImage(reader.result)
+        setTempImageSrc(reader.result)
+        setCropModalOpen(true)
       }
       reader.readAsDataURL(file)
+      e.target.value = ''
     }
+  }
+
+  const handleCropComplete = (croppedFile, previewUrl) => {
+    setSelectedImage(croppedFile)
+    setPreviewImage(previewUrl)
+    setRemoveImage(false)
+    setCropModalOpen(false)
+    
+    // Automatically upload & save cropped image to MongoDB
+    const loadingToast = toast.loading('Uploading cropped profile picture...')
+    const formData = new FormData()
+    formData.append('profile_image', croppedFile)
+
+    api.put('/auth/update-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+      .then(res => {
+        toast.dismiss(loadingToast)
+        const updatedUser = res?.data?.data?.user
+        if (updatedUser) {
+          setLocalUser(updatedUser)
+          queryClient.setQueryData('profile', { user: updatedUser })
+          queryClient.setQueryData('currentUser', updatedUser)
+          if (updateUser) updateUser(updatedUser)
+        }
+        queryClient.invalidateQueries('profile')
+        queryClient.invalidateQueries('userProfile')
+        queryClient.invalidateQueries('currentUser')
+        refetchProfile()
+        toast.success('🎉 Profile picture updated & saved!')
+      })
+      .catch(err => {
+        toast.dismiss(loadingToast)
+        toast.error(err.response?.data?.message || 'Failed to upload profile picture')
+      })
+  }
+
+  const handleRemoveImage = () => {
+    const loadingToast = toast.loading('Removing profile picture...')
+    const formData = new FormData()
+    formData.append('remove_profile_image', 'true')
+
+    api.put('/auth/update-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+      .then(res => {
+        toast.dismiss(loadingToast)
+        const updatedUser = res?.data?.data?.user
+        if (updatedUser) {
+          setLocalUser(updatedUser)
+          queryClient.setQueryData('profile', { user: updatedUser })
+          queryClient.setQueryData('currentUser', updatedUser)
+          if (updateUser) updateUser(updatedUser)
+        }
+        queryClient.invalidateQueries('profile')
+        queryClient.invalidateQueries('userProfile')
+        queryClient.invalidateQueries('currentUser')
+        refetchProfile()
+        setSelectedImage(null)
+        setPreviewImage(null)
+        setRemoveImage(true)
+        toast.success('Profile picture removed permanently!')
+      })
+      .catch(err => {
+        toast.dismiss(loadingToast)
+        toast.error(err.response?.data?.message || 'Failed to remove profile picture')
+      })
   }
 
   const handleImageClick = () => {
@@ -364,30 +440,47 @@ const Profile = () => {
           
           {/* Avatar + Main Info */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
-            <div className="relative flex-shrink-0">
-              {(previewImage || profile?.profile_image) ? (
-                <img
-                  src={previewImage || profile?.profile_image}
-                  alt="Profile"
-                  className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-white/15 shadow-xl"
-                />
-              ) : (
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600 flex items-center justify-center border-2 border-white/15 shadow-xl">
-                  <span className="text-3xl sm:text-4xl font-black text-white">
-                    {profile?.name?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
+            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+              <div className="relative">
+                {(!removeImage && (previewImage || profile?.profile_image)) ? (
+                  <img
+                    src={previewImage || profile?.profile_image}
+                    alt="Profile"
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-white/15 shadow-xl"
+                  />
+                ) : (
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600 flex items-center justify-center border-2 border-white/15 shadow-xl">
+                    <span className="text-3xl sm:text-4xl font-black text-white">
+                      {profile?.name?.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+              </div>
 
-              {isEditing && (
+              {/* Action Buttons for Avatar */}
+              <div className="flex items-center gap-1.5 justify-center">
                 <button
+                  type="button"
                   onClick={handleImageClick}
-                  className="absolute -bottom-2 -right-2 p-2 bg-orange-500 rounded-xl text-white hover:bg-orange-600 transition-colors shadow-lg"
-                  title="Upload profile picture"
+                  className="px-2.5 py-1 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 border border-orange-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                  title="Upload & Crop Profile Picture"
                 >
-                  <Camera className="w-4 h-4" />
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>{(!removeImage && (profile?.profile_image || previewImage)) ? 'Crop / Change' : 'Upload Image'}</span>
                 </button>
-              )}
+
+                {(!removeImage && (previewImage || profile?.profile_image)) && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="px-2 py-1 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-sm"
+                    title="Remove Profile Picture"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Remove</span>
+                  </button>
+                )}
+              </div>
 
               <input
                 ref={fileInputRef}
@@ -1154,6 +1247,14 @@ const Profile = () => {
         isOpen={isTermsOpen}
         onClose={() => setIsTermsOpen(false)}
         initialTab={termsTab}
+      />
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={cropModalOpen}
+        imageSrc={tempImageSrc}
+        onCancel={() => setCropModalOpen(false)}
+        onCropComplete={handleCropComplete}
       />
 
     </div>

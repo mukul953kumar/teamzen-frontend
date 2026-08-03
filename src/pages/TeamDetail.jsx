@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
 import { 
   Users, 
@@ -20,7 +20,13 @@ import {
   ArrowLeft,
   Mail,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  ExternalLink,
+  Tag,
+  Check,
+  X,
+  Trophy
 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 import api from '../services/authAPI'
@@ -39,20 +45,14 @@ const TeamDetail = () => {
   // Fetch team details
   const { data: teamData, isLoading } = useQuery(
     ['team', id],
-    () => api.get(`/teams/${id}`).then(res => {
-      console.log('Team API Response:', res.data)
-      return res.data
-    }),
+    () => api.get(`/teams/${id}`).then(res => res.data),
     { enabled: !!id }
   )
 
   // Fetch join requests (for team leader)
   const { data: joinRequestsData } = useQuery(
     ['teamJoinRequests', id],
-    () => api.get(`/teams/${id}/join-requests`).then(res => {
-      console.log('Join Requests Response:', res.data)
-      return res.data
-    }),
+    () => api.get(`/teams/${id}/join-requests`).then(res => res.data),
     { 
       enabled: !!id && teamData?.data?.team?.leader_id?._id === user?._id
     }
@@ -182,7 +182,6 @@ const TeamDetail = () => {
   }
 
   const handleStartChat = (userId) => {
-    // Navigate to chat with this user
     navigate(`/chat?user=${userId}`)
   }
 
@@ -194,39 +193,27 @@ const TeamDetail = () => {
     )
   }
 
-  console.log('Team Data in component:', teamData)
-  console.log('Team Data Structure:', JSON.stringify(teamData, null, 2))
-  console.log('teamData?.data?.team:', teamData?.data?.team)
-  console.log('teamData?.data:', teamData?.data)
-
   if (!teamData?.data?.team) {
     return (
-      <div className="text-center py-12">
-        <Users className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-white mb-2">Team Not Found</h3>
-        <p className="text-gray-400 mb-6">
+      <div className="text-center py-16 space-y-4">
+        <Users className="w-16 h-16 text-gray-500 mx-auto" />
+        <h3 className="text-xl font-bold text-white">Team Not Found</h3>
+        <p className="text-sm text-gray-400">
           The team you're looking for doesn't exist or has been removed.
         </p>
-        <button onClick={() => navigate('/teams')} className="btn-primary">
-          Back to Teams
+        <button onClick={() => navigate('/teams')} className="btn-primary text-xs px-5 py-2.5 rounded-xl font-bold">
+          Back to All Teams
         </button>
       </div>
     )
   }
 
   const team = teamData.data.team
-  const isLeader = team.leader_id._id === user?._id
-  const isMember = team.members?.some(member => member.user_id._id === user?._id)
+  const isLeader = team.leader_id?._id === user?._id
+  const isMember = team.members?.some(member => member.user_id?._id === user?._id || member.user_id === user?._id)
   const isFull = team.current_members >= team.max_members
   const canJoin = team.status === 'Open' && !isFull && !isMember
-
-  console.log('Team Debug:', {
-    teamLeaderId: team.leader_id._id,
-    userId: user?._id,
-    isLeader,
-    activeTab,
-    joinRequestsData
-  })
+  const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
 
   const getDeadlineBadge = (deadline) => {
     if (!deadline) return null
@@ -241,7 +228,7 @@ const TeamDetail = () => {
     if (diffTime < 0) {
       return (
         <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 flex items-center gap-1.5">
-          <XCircle className="w-4 h-4 text-red-400" />
+          <XCircle className="w-3.5 h-3.5 text-red-400" />
           Recruitment Closed
         </span>
       )
@@ -249,8 +236,8 @@ const TeamDetail = () => {
 
     if (diffDays <= 1) {
       return (
-        <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse flex items-center gap-1.5 shadow-lg shadow-rose-500/20">
-          <Clock className="w-4 h-4 text-rose-400 flex-shrink-0 animate-bounce" />
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-500/25 text-rose-300 border border-rose-500/50 animate-pulse flex items-center gap-1.5 shadow-lg">
+          <Clock className="w-3.5 h-3.5 text-rose-400 flex-shrink-0 animate-bounce" />
           🔥 Closes Today!
         </span>
       )
@@ -258,493 +245,486 @@ const TeamDetail = () => {
 
     if (diffDays <= 3) {
       return (
-        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse flex items-center gap-1.5 shadow-md shadow-amber-500/15">
-          <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse flex items-center gap-1.5">
+          <AlertCircle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
           ⚡ {diffDays} Days Left!
         </span>
       )
     }
 
     return (
-      <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
-        <Calendar className="w-4 h-4 text-purple-400 flex-shrink-0" />
+      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1.5">
+        <Calendar className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
         {diffDays}d left ({target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })})
       </span>
     )
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden pb-12">
+      
+      {/* Top Header Navigation & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3 sm:space-x-4 min-w-0">
+        <div className="flex items-center space-x-3 min-w-0">
           <button
             onClick={() => navigate('/teams')}
-            className="btn-secondary flex items-center justify-center text-xs sm:text-sm py-2 px-3 flex-shrink-0"
+            className="btn-secondary flex items-center justify-center text-xs sm:text-sm py-2 px-3.5 rounded-xl font-semibold flex-shrink-0"
           >
             <ArrowLeft className="w-4 h-4 mr-1.5" />
-            Back
+            Back to Teams
           </button>
-          <h1 className="text-xl sm:text-3xl font-bold text-white truncate">Team Details</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white truncate tracking-tight">Team Workspace Details</h1>
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end flex-wrap">
           {canJoin && (
             <button
               onClick={() => setShowJoinModal(true)}
-              className="btn-primary flex items-center justify-center text-xs sm:text-sm w-full sm:w-auto"
+              className="btn-sunset flex items-center justify-center text-xs sm:text-sm px-5 py-2.5 rounded-xl font-bold shadow-lg w-full sm:w-auto"
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Join Team
             </button>
           )}
-          
+
+          {isMember && (
+            <Link
+              to="/chat"
+              className="btn-secondary text-xs sm:text-sm px-4 py-2.5 rounded-xl font-semibold flex items-center justify-center gap-1.5 text-emerald-400 border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Open Team Chat
+            </Link>
+          )}
+
           {isMember && !isLeader && (
             <button
               onClick={handleLeaveTeam}
               disabled={leaveTeamMutation.isLoading}
-              className="btn-danger flex items-center justify-center text-xs sm:text-sm w-full sm:w-auto"
+              className="btn-danger flex items-center justify-center text-xs sm:text-sm px-4 py-2.5 rounded-xl font-semibold w-full sm:w-auto"
             >
-            <XCircle className="w-4 h-4 mr-2" />
-            Leave Team
-          </button>
-        )}
+              <XCircle className="w-4 h-4 mr-2" />
+              Leave Team
+            </button>
+          )}
 
-        {isLeader && (
-          <button
-            onClick={handleDeleteTeam}
-            disabled={deleteTeamMutation.isLoading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-400 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 transition-all duration-200"
-          >
-            <Trash2 className="w-4 h-4" />
-            {deleteTeamMutation.isLoading ? 'Deleting...' : 'Delete Team'}
-          </button>
-        )}
+          {isLeader && (
+            <button
+              onClick={handleDeleteTeam}
+              disabled={deleteTeamMutation.isLoading}
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-red-400 border border-red-500/40 bg-red-500/10 hover:bg-red-500/20 transition-all shadow-sm cursor-pointer"
+            >
+              <Trash2 className="w-4 h-4" />
+              {deleteTeamMutation.isLoading ? 'Deleting...' : 'Delete Team'}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Team Overview Card */}
-      <div className="card">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Team Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3.5 flex-1 min-w-0 mr-4">
+      {/* Hero Team Banner Card */}
+      <div className="card relative overflow-hidden p-6 sm:p-8 border border-white/10 shadow-2xl space-y-6"
+        style={{
+          background: 'linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%)'
+        }}>
+        {/* Ambient Glow Blobs */}
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+        
+        <div className="flex flex-col lg:flex-row gap-8 relative z-10">
+          
+          {/* Main Info */}
+          <div className="flex-1 min-w-0 space-y-5">
+            
+            {/* Header info */}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-4 min-w-0 flex-1">
                 {team.leader_id?.profile_image ? (
                   <div className="relative flex-shrink-0" title={`Leader: ${team.leader_id?.name || 'Leader'}`}>
                     <img
                       src={team.leader_id.profile_image}
                       alt={team.leader_id?.name || team.team_name}
-                      className="w-12 h-12 rounded-2xl object-cover border-2 border-primary-400/40 shadow-lg"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-white/20 shadow-xl"
                     />
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] shadow-sm border border-black/40">
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px] shadow-md border border-black">
                       👑
                     </div>
                   </div>
                 ) : (
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0 border border-white/10"
-                    style={{ background: 'linear-gradient(135deg, #3b82f6, #6366f1)' }}
+                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-xl flex-shrink-0 border border-white/20 bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600"
                   >
                     {team.team_name?.charAt(0).toUpperCase() || 'T'}
                   </div>
                 )}
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-1 break-words">{team.team_name}</h2>
-                  <div className="flex items-center space-x-4 text-sm text-gray-400">
-                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      team.status === 'Open' ? 'bg-green-400/20 text-green-400' :
-                      team.status === 'Full' ? 'bg-yellow-400/20 text-yellow-400' :
-                      team.status === 'Closed' ? 'bg-red-400/20 text-red-400' :
-                      'bg-blue-400/20 text-blue-400'
+                
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight break-words">{team.team_name}</h2>
+                    <span className={`px-3 py-0.5 rounded-full text-xs font-bold ${
+                      team.status === 'Open' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                      team.status === 'Full' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                      'bg-red-500/20 text-red-400 border border-red-500/30'
                     }`}>
-                      {team.status}
-                    </div>
-                    {isFull && <span className="text-orange-400">Team Full</span>}
+                      {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
+                    </span>
                   </div>
+
+                  <p className="text-sm font-semibold text-orange-400 truncate">{team.project_title}</p>
                 </div>
               </div>
+            </div>
+
+            {/* Description */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Project Overview & Objectives</h3>
+              <p className="text-xs sm:text-sm text-gray-200 leading-relaxed whitespace-pre-line">{team.description}</p>
+            </div>
+
+            {/* Stat Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               
-              {isLeader && (
-                <div className="flex items-center space-x-2">
-                  <Crown className="w-5 h-5 text-yellow-400" />
-                  <span className="text-yellow-400 text-sm font-medium">Leader</span>
+              {/* Capacity Card */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-400 font-semibold flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-orange-400" /> Member Capacity
+                  </span>
+                  <span className="font-bold text-white">{memberPercent}%</span>
+                </div>
+                <p className="text-xl font-black text-white">
+                  {team.current_members} / {team.max_members} <span className="text-xs text-gray-400 font-normal">Members</span>
+                </p>
+                <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${memberPercent}%`,
+                      background: memberPercent === 100 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #f97316, #6366f1)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Hackathon Name Card */}
+              {team.hackathon_name ? (
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                  <span className="text-xs font-semibold text-gray-400 flex items-center gap-1.5">
+                    <Trophy className="w-4 h-4 text-amber-400" /> Hackathon Event
+                  </span>
+                  <p className="text-sm font-bold text-white truncate">{team.hackathon_name}</p>
+                </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                  <span className="text-xs font-semibold text-gray-400 flex items-center gap-1.5">
+                    <Code className="w-4 h-4 text-blue-400" /> Category
+                  </span>
+                  <p className="text-sm font-bold text-white truncate">Academic / Personal Project</p>
                 </div>
               )}
-            </div>
 
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Project</h3>
-                <p className="text-xl text-primary-400 break-words">{team.project_title}</p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Description</h3>
-                <p className="text-gray-300 leading-relaxed break-words">{team.description}</p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl glass">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <Users className="w-5 h-5 text-primary-400" />
-                    <span className="font-medium text-white">Members</span>
-                  </div>
-                  <p className="text-2xl font-bold text-white">
-                    {team.current_members}/{team.max_members}
-                  </p>
-                </div>
-
-                {team.hackathon_name && (
-                  <div className="p-4 rounded-xl glass">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <Calendar className="w-5 h-5 text-primary-400" />
-                      <span className="font-medium text-white">Hackathon</span>
-                    </div>
-                    <p className="text-gray-300">{team.hackathon_name}</p>
-                  </div>
-                )}
-
-                {team.deadline && (
-                  <div className="p-4 rounded-xl glass border border-white/10 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Clock className="w-5 h-5 text-primary-400" />
-                        <span className="font-medium text-white">Deadline</span>
-                      </div>
-                    </div>
-                    <div>
-                      {getDeadlineBadge(team.deadline)}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Required Skills */}
-              {team.required_skills && team.required_skills.length > 0 && (
+              {/* Deadline Card */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+                <span className="text-xs font-semibold text-gray-400 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-purple-400" /> Deadline Status
+                </span>
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-3">Required Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {team.required_skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-primary-600/20 text-primary-400 rounded-full border border-primary-400/30 text-sm break-all"
-                      >
-                        {skill.skill_name}
-                      </span>
-                    ))}
-                  </div>
+                  {team.deadline ? getDeadlineBadge(team.deadline) : <span className="text-xs text-gray-400 font-semibold">No Deadline Set</span>}
                 </div>
-              )}
+              </div>
+
             </div>
+
+            {/* Required Skills Tags */}
+            {team.required_skills?.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Required Skills & Tech Stack</h3>
+                <div className="flex flex-wrap gap-2">
+                  {team.required_skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-orange-500/15 text-orange-300 rounded-xl border border-orange-500/30 text-xs font-semibold shadow-sm"
+                    >
+                      {skill.skill_name || skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Team Leader */}
-          <div className="lg:w-80">
-            <div className="p-6 rounded-xl glass">
-              <h3 className="text-lg font-semibold text-white mb-4">Team Leader</h3>
-              <div className="flex items-center space-x-4">
-                {team.leader_id.profile_image ? (
+          {/* Right Sidebar Widget: Team Leader Card */}
+          <div className="lg:w-80 shrink-0 space-y-4">
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                  <Crown className="w-4 h-4 text-amber-400" /> Team Leader
+                </h3>
+                {isLeader && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">YOU</span>}
+              </div>
+
+              <div className="flex items-center space-x-3">
+                {team.leader_id?.profile_image ? (
                   <img
                     src={team.leader_id.profile_image}
                     alt={team.leader_id.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
+                    className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20 shadow-md flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl font-bold text-white">
-                      {team.leader_id.name?.charAt(0).toUpperCase()}
-                    </span>
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-orange-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0 shadow-md">
+                    {team.leader_id?.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-medium text-white truncate">{team.leader_id.name}</h4>
-                  <p className="text-sm text-gray-400 truncate">{team.leader_id.college}</p>
-                  <p className="text-sm text-gray-500 truncate">{team.leader_id.branch} • {team.leader_id.year}yr</p>
+                  <h4 className="font-bold text-white text-sm truncate">{team.leader_id?.name}</h4>
+                  <p className="text-xs text-gray-400 truncate">{team.leader_id?.college || 'KNIT Sultanpur'}</p>
+                  <p className="text-[11px] text-gray-400 truncate mt-0.5">{team.leader_id?.branch} • Year {team.leader_id?.year}</p>
                 </div>
               </div>
-              
+
               {isMember && !isLeader && (
                 <button
                   onClick={() => handleStartChat(team.leader_id._id)}
-                  className="w-full mt-4 btn-primary flex items-center justify-center"
+                  className="w-full btn-sunset text-xs py-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-md"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className="w-4 h-4" />
                   Chat with Leader
                 </button>
               )}
             </div>
           </div>
+
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="card">
-        <div className="flex border-b border-white/20 overflow-x-auto">
+      {/* Main Interactive Tabs Section */}
+      <div className="card space-y-6 border border-white/10 p-5 sm:p-6">
+        
+        {/* Navigation Tab Bar */}
+        <div className="flex items-center gap-2 border-b border-white/10 pb-4 overflow-x-auto custom-scrollbar">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
+            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'overview'
-                ? 'text-white border-b-2 border-primary-400'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            Overview
+            📌 Overview & Stats
           </button>
           <button
             onClick={() => setActiveTab('members')}
-            className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
+            className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
               activeTab === 'members'
-                ? 'text-white border-b-2 border-primary-400'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            Members ({team.current_members})
+            <span>👥 Team Members</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-extrabold">
+              {team.current_members}
+            </span>
           </button>
           {isLeader && (
             <button
               onClick={() => setActiveTab('requests')}
-              className={`px-4 md:px-6 py-3 font-medium transition-colors whitespace-nowrap ${
+              className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 ${
                 activeTab === 'requests'
-                  ? 'text-white border-b-2 border-primary-400'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              Requests ({joinRequestsData?.joinRequests?.length || 0})
+              <span>📬 Join Requests</span>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                (joinRequestsData?.joinRequests?.length || 0) > 0 ? 'bg-orange-500 text-white animate-pulse' : 'bg-white/20 text-white'
+              }`}>
+                {joinRequestsData?.joinRequests?.length || 0}
+              </span>
             </button>
           )}
         </div>
 
-        <div className="p-4 md:p-6">
-          {/* Overview Tab */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-4">Team Statistics</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl glass">
-                    <div className="flex items-center justify-between mb-2">
-                      <Users className="w-5 h-5 text-primary-400" />
-                      <span className="text-2xl font-bold text-white">{team.current_members}</span>
-                    </div>
-                    <p className="text-gray-400">Current Members</p>
-                  </div>
-                  <div className="p-4 rounded-xl glass">
-                    <div className="flex items-center justify-between mb-2">
-                      <Shield className="w-5 h-5 text-primary-400" />
-                      <span className="text-2xl font-bold text-">{team.max_members}</span>
-                    </div>
-                    <p className="text-gray-400">Max Members</p>
-                  </div>
-                  <div className="p-4 rounded-xl glass">
-                    <div className="flex items-center justify-between mb-2">
-                      <Code className="w-5 h-5 text-primary-400" />
-                      <span className="text-2xl font-bold text-white">{team.required_skills?.length || 0}</span>
-                    </div>
-                    <p className="text-gray-400">Required Skills</p>
-                  </div>
+        {/* Tab 1: Overview */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold">Recruitment Status</span>
+                <p className="text-lg font-bold text-white">{team.status}</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold">Max Members Limit</span>
+                <p className="text-lg font-bold text-white">{team.max_members} Teammates</p>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                <span className="text-xs text-gray-400 font-semibold">Required Tech Skills</span>
+                <p className="text-lg font-bold text-white">{team.required_skills?.length || 0} Skills</p>
+              </div>
+            </div>
+
+            {team.tags?.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Project Tags</h3>
+                <div className="flex flex-wrap gap-2">
+                  {team.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-white/5 text-gray-300 rounded-xl text-xs font-semibold border border-white/10"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
               </div>
+            )}
+          </div>
+        )}
 
-              {team.tags && team.tags.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-4">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {team.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-white/10 text-gray-300 rounded-lg text-sm"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Tab 2: Members */}
+        {activeTab === 'members' && (
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <Users className="w-5 h-5 text-orange-400" /> Active Team Members
+            </h3>
 
-          {/* Members Tab */}
-          {activeTab === 'members' && (
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Team Members</h3>
-              {team.members && team.members.length > 0 ? (
-                <div className="space-y-4">
-                  {team.members.map((member, index) => {
-                    console.log(`Member ${index}:`, member)
-                    console.log(`Member user_id:`, member.user_id)
-                    
-                    // Safety check for member data
-                    if (!member.user_id) {
-                      console.warn('Member missing user_id:', member)
-                      return (
-                        <div key={member._id || index} className="flex items-center justify-between p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 rounded-full bg-gray-500 flex items-center justify-center">
-                              <span className="text-lg font-bold text-white">?</span>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-white">Unknown Member</h4>
-                              <p className="text-sm text-gray-400">Data not available</p>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    }
-                    
-                    const user = member.user_id || {}
-                    
-                    // Handle the actual data structure we're getting
-                    const userId = user._id || user
-                    const userSkills = user.skills || []
+            {team.members?.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {team.members.map((member, index) => {
+                  const userObj = member.user_id || {}
+                  const userId = userObj._id || userObj
+                  const displayName = userObj.name || `Teammate ${index + 1}`
+                  const displayCollege = userObj.college || 'KNIT Student'
+                  const displayBranch = userObj.branch || 'Tech'
+                  const displayYear = userObj.year || '3'
 
-                    
-                    // Create a more meaningful display from available data
-                    const displayName = user.name || `Team Member ${index + 1}`
-                    const displayEmail = user.email || `${userId?.slice(-6)}@teamzen.com`
-                    const displayCollege = user.college || 'Team Member'
-                    const displayBranch = user.branch || 'Tech'
-                    const displayYear = user.year || '2024'
-                    const profileImage = user.profile_image
-                    
-                    console.log('Processed member data:', {
-                        userId,
-                        displayName,
-                        displayEmail,
-                        displayCollege,
-                        userSkills: userSkills.length
-                    })
-                    
-                    return (
-                    <div key={member._id || index} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <div className="flex items-center space-x-4 min-w-0 flex-1">
-                        {profileImage ? (
+                  return (
+                    <div key={member._id || index} className="p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-between gap-3 shadow-md">
+                      <div className="flex items-center space-x-3.5 min-w-0 flex-1">
+                        {userObj.profile_image ? (
                           <img
-                            src={profileImage}
+                            src={userObj.profile_image}
                             alt={displayName}
-                            className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
+                            className="w-11 h-11 rounded-xl object-cover border border-white/20 shadow-md flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                            <span className="text-lg font-bold text-white">
-                              {displayName.charAt(0).toUpperCase()}
-                            </span>
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-orange-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
+                            {displayName.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-medium text-white truncate">{displayName}</h4>
-                          <p className="text-sm text-gray-400 truncate">{displayCollege} • {displayBranch} • {displayYear}</p>
+                          <h4 className="font-bold text-white text-sm truncate flex items-center gap-1.5">
+                            <span className="truncate">{displayName}</span>
+                            {member.role === 'Leader' && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">👑 LEADER</span>}
+                          </h4>
+                          <p className="text-xs text-gray-400 truncate">{displayCollege}</p>
+                          <p className="text-[11px] text-gray-500 font-medium truncate">{displayBranch} • Year {displayYear}</p>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`px-2 py-1 rounded-lg text-xs font-medium whitespace-nowrap ${
-                          member.role === 'Leader' ? 'bg-yellow-400/20 text-yellow-400' :
-                          'bg-blue-400/20 text-blue-400'
-                        }`}>
-                          {member.role}
-                        </span>
-                        
-                        {member.user_id._id !== user?._id && isMember && (
+
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {userId !== user?._id && isMember && (
                           <button
-                            onClick={() => handleStartChat(member.user_id._id)}
-                            className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
+                            onClick={() => handleStartChat(userId)}
+                            className="btn-secondary text-xs px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1"
                           >
-                            <Mail className="w-3 h-3 mr-1" />
-                            Message
+                            <Mail className="w-3.5 h-3.5 text-orange-400" />
+                            <span>Chat</span>
                           </button>
                         )}
-                        
-                        {isLeader && member.user_id._id !== user?._id && member.role !== 'Leader' && (
+
+                        {isLeader && userId !== user?._id && member.role !== 'Leader' && (
                           <button
                             onClick={() => handleRemoveMember(member._id, displayName)}
                             disabled={removeMemberMutation.isLoading}
-                            className="btn-danger text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
+                            className="btn-danger text-xs px-2.5 py-1.5 rounded-xl font-semibold flex items-center gap-1"
+                            title="Remove member"
                           >
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Remove
+                            <XCircle className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
                     </div>
                   )
                 })}
-                </div>
-              ) : (
-                <p className="text-gray-400">No members yet.</p>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">No members found.</p>
+            )}
+          </div>
+        )}
 
-          {/* Join Requests Tab (Leader Only) */}
-          {activeTab === 'requests' && isLeader && (
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Join Requests</h3>
-              {joinRequestsData?.data?.joinRequests && joinRequestsData.data.joinRequests.length > 0 ? (
-                <div className="space-y-4">
-                  {joinRequestsData.data.joinRequests.map((request) => (
-                    <div key={request._id} className="p-4 rounded-xl glass hover:bg-white/10 transition-colors">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-start space-x-4 min-w-0 flex-1">
-                          {request.user_id.profile_image ? (
-                            <img
-                              src={request.user_id.profile_image}
-                              alt={request.user_id.name}
-                              className="w-12 h-12 rounded-full object-cover border-2 border-primary-400/30 flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                              <span className="text-lg font-bold text-white">
-                                {request.user_id.name?.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <h4 className="font-medium text-white truncate">{request.user_id.name}</h4>
-                            <p className="text-sm text-gray-400 truncate">{request.user_id.college}</p>
-                            <p className="text-sm text-gray-500 truncate">{request.user_id.branch} • {request.user_id.year}yr</p>
-                            {request.message && (
-                              <p className="text-sm text-gray-300 mt-1 italic break-words">"{request.message}"</p>
-                            )}
+        {/* Tab 3: Join Requests (Leader Only) */}
+        {activeTab === 'requests' && isLeader && (
+          <div className="space-y-4">
+            <h3 className="text-base font-bold text-white flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-orange-400" /> Pending Candidate Join Requests
+            </h3>
+
+            {joinRequestsData?.data?.joinRequests?.length > 0 ? (
+              <div className="space-y-3">
+                {joinRequestsData.data.joinRequests.map((request) => (
+                  <div key={request._id} className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-orange-500/30 transition-all space-y-3 shadow-md">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-start space-x-3.5 min-w-0 flex-1">
+                        {request.user_id?.profile_image ? (
+                          <img
+                            src={request.user_id.profile_image}
+                            alt={request.user_id.name}
+                            className="w-11 h-11 rounded-xl object-cover border border-white/20 shadow-md flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-orange-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
+                            {request.user_id?.name?.charAt(0).toUpperCase()}
                           </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <button
-                            onClick={() => handleAcceptRequest(request._id)}
-                            disabled={acceptRequestMutation.isLoading}
-                            className="btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
-                          >
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Accept
-                          </button>
-                          <button
-                            onClick={() => handleRejectRequest(request._id)}
-                            disabled={rejectRequestMutation.isLoading}
-                            className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1.5 flex items-center whitespace-nowrap"
-                          >
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Reject
-                          </button>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-bold text-white text-sm truncate">{request.user_id?.name}</h4>
+                          <p className="text-xs text-gray-400 truncate">{request.user_id?.college || 'KNIT Student'}</p>
+                          <p className="text-[11px] text-gray-500 truncate">{request.user_id?.branch} • Year {request.user_id?.year}</p>
                         </div>
                       </div>
+                      
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => handleAcceptRequest(request._id)}
+                          disabled={acceptRequestMutation.isLoading}
+                          className="btn-sunset text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1 shadow-md"
+                        >
+                          <Check className="w-3.5 h-3.5" /> Accept
+                        </button>
+                        <button
+                          onClick={() => handleRejectRequest(request._id)}
+                          disabled={rejectRequestMutation.isLoading}
+                          className="btn-secondary text-xs px-4 py-2 rounded-xl font-semibold flex items-center gap-1 text-red-400 border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                        >
+                          <X className="w-3.5 h-3.5" /> Reject
+                        </button>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-400">No join requests yet.</p>
-              )}
-            </div>
-          )}
-        </div>
+
+                    {request.message && (
+                      <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-xs text-gray-300 italic">
+                        "{request.message}"
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400">No pending join requests for this team.</p>
+            )}
+          </div>
+        )}
+
       </div>
 
       {/* Join Team Modal */}
       {showJoinModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/50">
-          <div className="w-full max-w-md card">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Join Team</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="w-full max-w-md card p-6 space-y-5 border border-white/15 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-orange-400" /> Apply to Join Team
+              </h2>
               <button
                 onClick={() => setShowJoinModal(false)}
                 className="text-gray-400 hover:text-white"
@@ -754,43 +734,46 @@ const TeamDetail = () => {
             </div>
 
             <div className="space-y-4">
-              <div>
-                <h3 className="font-medium text-white mb-2">{team.team_name}</h3>
-                <p className="text-sm text-gray-400">{team.project_title}</p>
+              <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
+                <h3 className="font-bold text-white text-sm">{team.team_name}</h3>
+                <p className="text-xs text-orange-400 font-semibold">{team.project_title}</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Message (optional)
+                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                  Applicant Note / Introduction (Optional)
                 </label>
                 <textarea
-                  className="input w-full resize-none"
+                  className="input w-full resize-none text-xs"
                   rows={3}
-                  placeholder="Why do you want to join this team?"
+                  placeholder="Introduce yourself, your skills, and why you want to join this project team..."
                   value={joinMessage}
                   onChange={(e) => setJoinMessage(e.target.value)}
                 />
               </div>
 
-              <div className="flex items-center justify-end space-x-4">
+              <div className="flex items-center justify-end space-x-3 pt-2">
                 <button
+                  type="button"
                   onClick={() => setShowJoinModal(false)}
-                  className="btn-secondary"
+                  className="btn-secondary text-xs px-4 py-2.5 rounded-xl font-semibold"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleJoinTeam}
                   disabled={joinTeamMutation.isLoading}
-                  className="btn-primary"
+                  className="btn-sunset text-xs px-5 py-2.5 rounded-xl font-bold shadow-md"
                 >
-                  {joinTeamMutation.isLoading ? 'Sending...' : 'Send Request'}
+                  {joinTeamMutation.isLoading ? 'Sending Request...' : 'Submit Request'}
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
+
     </div>
   )
 }
