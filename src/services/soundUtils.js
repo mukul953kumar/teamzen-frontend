@@ -77,6 +77,33 @@ class SoundController {
       // Guarded
     }
   }
+
+  // Heart / like pop sound
+  playLikeSound() {
+    try {
+      const ctx = this.getAudioContext()
+      if (!ctx) return
+
+      const now = ctx.currentTime
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(600, now)
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1)
+
+      gain.gain.setValueAtTime(0.12, now)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15)
+
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+
+      osc.start(now)
+      osc.stop(now + 0.15)
+    } catch (_) {
+      // Guarded
+    }
+  }
 }
 
 export const soundManager = new SoundController()

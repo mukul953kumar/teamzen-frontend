@@ -46,6 +46,27 @@ import ImageCropModal from '../components/ImageCropModal'
 import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 import { getDomainBadgeStyle, POPULAR_DOMAINS } from '../utils/domainUtils'
+import { soundManager } from '../services/soundUtils'
+
+const getTypeColor = (type) => {
+  switch (type) {
+    case 'Hackathon': return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+    case 'Competition': return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
+    case 'Certification': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+    case 'Award': return 'bg-rose-500/20 text-rose-400 border-rose-500/30'
+    default: return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+  }
+}
+
+const getPositionColor = (pos) => {
+  switch (pos) {
+    case '1st':
+    case 'Winner': return 'bg-amber-400/20 text-amber-300 border-amber-400/30'
+    case '2nd': return 'bg-slate-300/20 text-slate-200 border-slate-300/30'
+    case '3rd': return 'bg-amber-600/20 text-amber-400 border-amber-600/30'
+    default: return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+  }
+}
 
 // Visual Developer Skill Matrix & Proficiency Bar Chart
 const SkillProficiencyChart = ({ skills = [] }) => {
@@ -118,6 +139,8 @@ const Profile = () => {
   const [termsTab, setTermsTab] = useState('terms')
   const [selectedProject, setSelectedProject] = useState(null)
   const [selectedAchievement, setSelectedAchievement] = useState(null)
+  const [projectLikesState, setProjectLikesState] = useState({})
+  const [achievementLikesState, setAchievementLikesState] = useState({})
   const fileInputRef = useRef(null)
 
   const { data: profileData, isLoading, refetch: refetchProfile } = useQuery(
@@ -159,6 +182,72 @@ const Profile = () => {
       retry: false
     }
   )
+
+  const projectLikeMutation = useMutation(
+    (projectId) => api.post(`/projects/like/${projectId}`),
+    {
+      onSuccess: (res, projectId) => {
+        const newLiked = res.data.liked
+        const newCount = res.data.likesCount
+        setProjectLikesState(prev => ({
+          ...prev,
+          [projectId]: { liked: newLiked, count: newCount }
+        }))
+        setSelectedProject(prev => {
+          if (!prev || prev._id !== projectId) return prev
+          return {
+            ...prev,
+            likesCount: newCount,
+            likedBy: newLiked
+              ? [...(prev.likedBy || []), user?._id]
+              : (prev.likedBy || []).filter(id => String(typeof id === 'object' ? id._id : id) !== String(user?._id))
+          }
+        })
+        queryClient.invalidateQueries(['userProjects', user?._id])
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like project')
+    }
+  )
+
+  const achievementLikeMutation = useMutation(
+    (achievementId) => api.post(`/achievements/like/${achievementId}`),
+    {
+      onSuccess: (res, achievementId) => {
+        const newLiked = res.data.liked
+        const newCount = res.data.likesCount
+        setAchievementLikesState(prev => ({
+          ...prev,
+          [achievementId]: { liked: newLiked, count: newCount }
+        }))
+        setSelectedAchievement(prev => {
+          if (!prev || prev._id !== achievementId) return prev
+          return {
+            ...prev,
+            likesCount: newCount,
+            likedBy: newLiked
+              ? [...(prev.likedBy || []), user?._id]
+              : (prev.likedBy || []).filter(id => String(typeof id === 'object' ? id._id : id) !== String(user?._id))
+          }
+        })
+        queryClient.invalidateQueries('userAchievements')
+        toast.success(res.data.message)
+      },
+      onError: (error) => toast.error(error.response?.data?.message || 'Failed to like achievement')
+    }
+  )
+
+  const getProjectLikeInfo = (proj) => {
+    if (projectLikesState[proj._id]) return projectLikesState[proj._id]
+    const liked = user && proj.likedBy?.some(id => String(typeof id === 'object' ? id._id : id) === String(user._id))
+    return { liked: !!liked, count: proj.likesCount || (proj.likedBy?.length || 0) }
+  }
+
+  const getAchievementLikeInfo = (ach) => {
+    if (achievementLikesState[ach._id]) return achievementLikesState[ach._id]
+    const liked = user && ach.likedBy?.some(id => String(typeof id === 'object' ? id._id : id) === String(user._id))
+    return { liked: !!liked, count: ach.likesCount || (ach.likedBy?.length || 0) }
+  }
 
   const deleteAccountMutation = useMutation(
     () => api.delete('/users/account'),
@@ -636,10 +725,20 @@ const Profile = () => {
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Full Name</label>
-                    <input type="text" className="input w-full" placeholder="Your Name"
-                      {...register('name', { required: 'Name is required' })} />
-                    {errors.name && <p className="mt-1 text-xs text-red-400">{errors.name.message}</p>}
+                    <label className="block text-xs font-semibold text-gray-300 mb-1 flex items-center justify-between">
+                      <span>Full Name</span>
+                      <span className="text-[10px] text-amber-400/90 font-semibold flex items-center gap-1">
+                        <ShieldAlert className="w-3 h-3 text-amber-400" /> Locked (From Email)
+                      </span>
+                    </label>
+                    <input 
+                      type="text" 
+                      className="input w-full bg-white/5 border-white/10 text-gray-400 cursor-not-allowed select-none" 
+                      value={profile?.name || ''} 
+                      disabled 
+                      readOnly 
+                      title="Name is retrieved from email and cannot be changed"
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-300 mb-1">Availability Status</label>
@@ -903,47 +1002,107 @@ const Profile = () => {
 
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projects.map((project) => (
-                  <div key={project._id} className="p-5 rounded-2xl glass hover:bg-white/10 transition-all border border-white/10 flex flex-col justify-between space-y-4 shadow-lg">
-                    <div>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h4 className="font-bold text-white text-base truncate">{project.title}</h4>
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 ${
-                          project.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                        }`}>
-                          {project.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-300 line-clamp-2 mb-3 leading-relaxed">{project.description}</p>
-                      
-                      {project.tech_stack?.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                          {project.tech_stack.map((tech, idx) => (
-                            <span key={idx} className="px-2 py-0.5 bg-blue-500/15 text-blue-300 text-[10px] font-semibold rounded-md border border-blue-500/25">
-                              {tech}
-                            </span>
-                          ))}
+                {projects.map((project) => {
+                  const { liked, count } = getProjectLikeInfo(project)
+                  return (
+                    <div
+                      key={project._id}
+                      onClick={() => setSelectedProject(project)}
+                      className="p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer flex flex-col justify-between space-y-4 shadow-lg group relative"
+                    >
+                      <div>
+                        {/* Title & Status */}
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-bold text-white text-base truncate group-hover:text-orange-400 transition-colors">
+                            {project.title}
+                          </h4>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 ${
+                            project.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                            project.status === 'In Progress' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                            'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          }`}>
+                            {project.status || 'Completed'}
+                          </span>
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs text-gray-400">
-                      <span className="font-medium">Year {project.year}</span>
-                      <div className="flex items-center gap-3">
-                        {project.github_link && (
-                          <a href={project.github_link.startsWith('http') ? project.github_link : `https://${project.github_link}`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors flex items-center gap-1 font-semibold" title="GitHub Repo">
-                            <Github className="w-3.5 h-3.5 text-gray-300" /> Code
-                          </a>
-                        )}
-                        {project.demo_link && (
-                          <a href={project.demo_link.startsWith('http') ? project.demo_link : `https://${project.demo_link}`} target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1 font-semibold" title="Live Demo">
-                            <ExternalLink className="w-3.5 h-3.5" /> Demo
-                          </a>
+                        {/* Description */}
+                        <p className="text-xs text-gray-300 line-clamp-2 mb-3 leading-relaxed">
+                          {project.description}
+                        </p>
+
+                        {/* Tech Stack */}
+                        {project.tech_stack?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            {project.tech_stack.map((tech, idx) => (
+                              <span key={idx} className="px-2 py-0.5 bg-blue-500/15 text-blue-300 text-[10px] font-semibold rounded-md border border-blue-500/25">
+                                {tech}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </div>
+
+                      {/* Footer Bar */}
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs text-gray-400">
+                        <div className="flex items-center gap-2">
+                          {/* Like Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              try { soundManager.playLikeSound?.() } catch (_) {}
+                              projectLikeMutation.mutate(project._id)
+                            }}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all border ${
+                              liked
+                                ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-sm'
+                                : 'bg-white/5 text-gray-400 border-white/10 hover:text-white hover:bg-white/10'
+                            }`}
+                            title={liked ? 'Unlike Project' : 'Like Project'}
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                            <span>{count}</span>
+                          </button>
+
+                          {project.year && (
+                            <span className="font-semibold text-[11px] text-gray-400">Year {project.year}</span>
+                          )}
+                        </div>
+
+                        {/* Links & View Details */}
+                        <div className="flex items-center gap-3">
+                          {project.github_link && (
+                            <a
+                              href={project.github_link.startsWith('http') ? project.github_link : `https://${project.github_link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="hover:text-white transition-colors flex items-center gap-1 font-semibold text-[11px]"
+                              title="GitHub Repo"
+                            >
+                              <Github className="w-3.5 h-3.5 text-gray-300" /> Code
+                            </a>
+                          )}
+                          {project.demo_link && (
+                            <a
+                              href={project.demo_link.startsWith('http') ? project.demo_link : `https://${project.demo_link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1 font-semibold text-[11px]"
+                              title="Live Demo"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" /> Demo
+                            </a>
+                          )}
+                          <span className="text-[11px] font-bold text-amber-400 group-hover:translate-x-0.5 transition-transform">
+                            View details →
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <div className="p-8 rounded-2xl bg-white/5 border border-dashed border-white/15 text-center space-y-3">
@@ -970,21 +1129,95 @@ const Profile = () => {
 
             {achievements.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {achievements.map((achievement) => (
-                  <div key={achievement._id} className="p-5 rounded-2xl glass hover:bg-white/10 transition-all border border-white/10 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="font-bold text-white text-base">{achievement.title}</h4>
-                      <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-400 text-[10px] font-bold rounded-full border border-amber-500/30 flex-shrink-0">
-                        {achievement.type}
-                      </span>
+                {achievements.map((achievement) => {
+                  const { liked, count } = getAchievementLikeInfo(achievement)
+                  return (
+                    <div
+                      key={achievement._id}
+                      onClick={() => setSelectedAchievement(achievement)}
+                      className="p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer flex flex-col justify-between space-y-4 shadow-lg group relative"
+                    >
+                      <div>
+                        {/* Title & Position & Type */}
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h4 className="font-bold text-white text-base truncate group-hover:text-amber-400 transition-colors">
+                            {achievement.title}
+                          </h4>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {achievement.type && (
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getTypeColor(achievement.type)}`}>
+                                {achievement.type}
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getPositionColor(achievement.position)}`}>
+                              {achievement.position || 'Winner'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-xs text-gray-300 line-clamp-2 mb-3 leading-relaxed">
+                          {achievement.description}
+                        </p>
+
+                        {/* Organization / Issuer */}
+                        {(achievement.organization || achievement.issued_by) && (
+                          <p className="text-[11px] text-gray-400 font-semibold flex items-center gap-1">
+                            <Award className="w-3.5 h-3.5 text-amber-400" />
+                            <span>{achievement.organization || achievement.issued_by}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Footer Bar */}
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10 text-xs text-gray-400">
+                        <div className="flex items-center gap-2">
+                          {/* Like Button */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              try { soundManager.playLikeSound?.() } catch (_) {}
+                              achievementLikeMutation.mutate(achievement._id)
+                            }}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all border ${
+                              liked
+                                ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-sm'
+                                : 'bg-white/5 text-gray-400 border-white/10 hover:text-white hover:bg-white/10'
+                            }`}
+                            title={liked ? 'Unlike Achievement' : 'Like Achievement'}
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${liked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                            <span>{count}</span>
+                          </button>
+
+                          {achievement.year && (
+                            <span className="font-semibold text-[11px] text-gray-400">{achievement.year}</span>
+                          )}
+                        </div>
+
+                        {/* Proof Link & View Details */}
+                        <div className="flex items-center gap-3">
+                          {(achievement.certificate_url || achievement.proof_link) && (
+                            <a
+                              href={(achievement.certificate_url || achievement.proof_link).startsWith('http') ? (achievement.certificate_url || achievement.proof_link) : `https://${achievement.certificate_url || achievement.proof_link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 font-semibold text-[11px]"
+                              title="Certificate Link"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" /> Proof
+                            </a>
+                          )}
+                          <span className="text-[11px] font-bold text-amber-400 group-hover:translate-x-0.5 transition-transform">
+                            View details →
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-300 leading-relaxed">{achievement.description}</p>
-                    <div className="flex items-center justify-between pt-2 text-[11px] text-gray-400">
-                      <span>{achievement.organization || 'TeamZen Community'}</span>
-                      <span className="font-semibold text-amber-400">{achievement.year}</span>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             ) : (
               <div className="p-8 rounded-2xl bg-white/5 border border-dashed border-white/15 text-center space-y-2">
@@ -1256,6 +1489,205 @@ const Profile = () => {
         onCancel={() => setCropModalOpen(false)}
         onCropComplete={handleCropComplete}
       />
+
+      {/* Project Detail Modal */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-xl card p-6 space-y-5 border border-white/15 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-white/10 pb-4 gap-3">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    selectedProject.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                  }`}>
+                    {selectedProject.status || 'Completed'}
+                  </span>
+                  {selectedProject.year && (
+                    <span className="text-xs text-gray-400 font-semibold">Year {selectedProject.year}</span>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-orange-400" /> {selectedProject.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Project Overview & Description</h4>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs sm:text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedProject.description}
+              </div>
+            </div>
+
+            {/* Tech Stack */}
+            {selectedProject.tech_stack?.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Technologies & Frameworks Used</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.tech_stack.map((tech, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-blue-500/15 text-blue-300 text-xs font-semibold rounded-xl border border-blue-500/30">
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Project Links & Actions */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Links & Interactive Actions</h4>
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Like Button */}
+                {(() => {
+                  const { liked, count } = getProjectLikeInfo(selectedProject)
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try { soundManager.playLikeSound?.() } catch (_) {}
+                        projectLikeMutation.mutate(selectedProject._id)
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                        liked
+                          ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-md scale-102'
+                          : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 ${liked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                      <span>{liked ? 'Liked' : 'Like Project'} ({count})</span>
+                    </button>
+                  )
+                })()}
+
+                {selectedProject.github_link && (
+                  <a
+                    href={selectedProject.github_link.startsWith('http') ? selectedProject.github_link : `https://${selectedProject.github_link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-secondary text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-2"
+                  >
+                    <Github className="w-4 h-4" /> GitHub Repository
+                  </a>
+                )}
+
+                {selectedProject.demo_link && (
+                  <a
+                    href={selectedProject.demo_link.startsWith('http') ? selectedProject.demo_link : `https://${selectedProject.demo_link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-sunset text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-2"
+                  >
+                    <ExternalLink className="w-4 h-4" /> Live Demo
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Achievement Detail Modal */}
+      {selectedAchievement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="w-full max-w-xl card p-6 space-y-5 border border-white/15 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-white/10 pb-4 gap-3">
+              <div>
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  {selectedAchievement.type && (
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getTypeColor(selectedAchievement.type)}`}>
+                      {selectedAchievement.type}
+                    </span>
+                  )}
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getPositionColor(selectedAchievement.position)}`}>
+                    {selectedAchievement.position || 'Winner'}
+                  </span>
+                  {selectedAchievement.year && (
+                    <span className="text-xs text-gray-400 font-semibold">{selectedAchievement.year}</span>
+                  )}
+                </div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-amber-400" /> {selectedAchievement.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedAchievement(null)}
+                className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Organization / Issued By */}
+            {(selectedAchievement.organization || selectedAchievement.issued_by) && (
+              <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <Award className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Issued / Organized By</span>
+                  <p className="text-sm font-bold text-white">{selectedAchievement.organization || selectedAchievement.issued_by}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Achievement Details & Story</h4>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs sm:text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                {selectedAchievement.description}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2 pt-2 border-t border-white/10">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Interactive Actions</h4>
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Like Button */}
+                {(() => {
+                  const { liked, count } = getAchievementLikeInfo(selectedAchievement)
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try { soundManager.playLikeSound?.() } catch (_) {}
+                        achievementLikeMutation.mutate(selectedAchievement._id)
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                        liked
+                          ? 'bg-rose-500/20 text-rose-400 border-rose-500/30 shadow-md scale-102'
+                          : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      <Heart className={`w-4 h-4 ${liked ? 'fill-rose-500 text-rose-500' : ''}`} />
+                      <span>{liked ? 'Liked' : 'Like Achievement'} ({count})</span>
+                    </button>
+                  )
+                })()}
+
+                {(selectedAchievement.certificate_url || selectedAchievement.proof_link) && (
+                  <a
+                    href={(selectedAchievement.certificate_url || selectedAchievement.proof_link).startsWith('http') ? (selectedAchievement.certificate_url || selectedAchievement.proof_link) : `https://${selectedAchievement.certificate_url || selectedAchievement.proof_link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-sunset text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-2"
+                  >
+                    <ExternalLink className="w-4 h-4" /> View Certificate / Proof
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )
