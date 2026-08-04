@@ -169,3 +169,4 @@ test-results.xml
 
 # Kubernetes (if using)
 *.kubeconfig
+INTERVIEW_GUIDE.md

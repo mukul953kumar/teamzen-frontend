@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from 'react-query'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams, useLocation } from 'react-router-dom'
 import { 
   MessageCircle, 
   Send, 
@@ -126,18 +126,34 @@ const Chat = () => {
 
   const conversations = conversationsData?.data?.conversations || []
   const messages = messagesData?.data?.messages || []
-  const { user: urlUser } = useParams()
+  const [searchParams] = useSearchParams()
+  const pathParams = useParams()
+  const urlUser = searchParams.get('user') || searchParams.get('userId') || pathParams.user
 
   // Handle URL parameter for direct chat
   useEffect(() => {
-    if (urlUser && conversations.length > 0) {
-      const userConversation = conversations.find(conv => 
-        (conv.type === 'private' && conv.partner._id === urlUser) ||
-        (conv.type === 'team' && conv.members?.some(member => member.user_id._id === urlUser))
-      )
-      if (userConversation) {
-        setSelectedConversation(userConversation)
-      }
+    if (!urlUser) return
+
+    const userConversation = conversations.find(conv => 
+      (conv.type === 'private' && conv.partner?._id === urlUser) ||
+      (conv.type === 'team' && (conv.team_id === urlUser || conv.members?.some(member => member.user_id?._id === urlUser)))
+    )
+
+    if (userConversation) {
+      setSelectedConversation(userConversation)
+    } else {
+      // Fetch target user details to start a direct chat if no prior conversation exists
+      api.get(`/users/${urlUser}`)
+        .then(res => {
+          if (res.data?.user) {
+            setSelectedConversation({
+              type: 'private',
+              partner: res.data.user,
+              unread_count: 0
+            })
+          }
+        })
+        .catch(err => console.error('Error fetching user for chat:', err))
     }
   }, [urlUser, conversations])
 
@@ -210,7 +226,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-[85vh] sm:h-[88vh] flex-1 flex relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#09090e]"
+    <div className="h-full w-full flex-1 flex relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#09090e] min-h-0"
       style={{
         boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
       }}>
@@ -223,8 +239,8 @@ const Chat = () => {
 
         {/* Conversations Sidebar */}
         <div className={`${
-          selectedConversation ? 'hidden md:flex' : 'flex'
-        } w-full md:w-88 border-r border-white/10 flex-col bg-[#0d0d14]/90 backdrop-blur-xl h-full overflow-hidden shrink-0`}>
+          selectedConversation ? 'hidden lg:flex' : 'flex'
+        } w-full lg:w-80 xl:w-96 border-r border-white/10 flex-col bg-[#0d0d14]/90 backdrop-blur-xl h-full overflow-hidden shrink-0`}>
           
           {/* Sidebar Header */}
           <div className="p-4 border-b border-white/10 space-y-3">
@@ -402,7 +418,7 @@ const Chat = () => {
 
         {/* Chat Main Area */}
         <div className={`${
-          selectedConversation ? 'flex' : 'hidden md:flex'
+          selectedConversation ? 'flex' : 'hidden lg:flex'
         } flex-1 flex-col h-full overflow-hidden bg-black/40 backdrop-blur-md`}>
           
           {selectedConversation ? (
@@ -414,7 +430,7 @@ const Chat = () => {
                   {/* Mobile Back Button */}
                   <button
                     type="button"
-                    className="md:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10 flex items-center justify-center shrink-0 active:scale-95 shadow-sm cursor-pointer"
+                    className="lg:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10 flex items-center justify-center shrink-0 active:scale-95 shadow-sm cursor-pointer"
                     onClick={() => setSelectedConversation(null)}
                     title="Back to conversations"
                   >
