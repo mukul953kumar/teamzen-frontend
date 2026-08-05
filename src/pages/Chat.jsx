@@ -226,7 +226,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-full w-full flex-1 flex relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#09090e] min-h-0"
+    <div className="h-full w-full flex-1 flex relative rounded-2xl lg:rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-[#09090e] min-h-0"
       style={{
         boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
       }}>
@@ -608,7 +608,7 @@ const Chat = () => {
               )}
 
               {/* Floating Glass Input Dock */}
-              <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0d0d14]/95 backdrop-blur-xl shrink-0 z-20">
+              <div className="p-2.5 sm:p-4 border-t border-white/10 bg-[#0d0d14]/95 backdrop-blur-xl shrink-0 z-20">
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
@@ -621,7 +621,7 @@ const Chat = () => {
 
                   <input
                     type="text"
-                    className="flex-1 min-w-0 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
+                    className="flex-1 min-w-0 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs sm:text-sm placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
                     placeholder={`Message ${selectedConversation.type === 'team' ? 'team members' : selectedConversation.partner?.name?.split(' ')[0] || ''}...`}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

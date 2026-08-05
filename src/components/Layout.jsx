@@ -174,7 +174,7 @@ const Layout = () => {
         {/* Page Content */}
         <main className={`flex-1 ${
           isChatPage 
-            ? 'p-2 sm:p-4 pb-0 lg:pb-4 flex flex-col h-[calc(100dvh-64px-72px)] lg:h-full overflow-hidden' 
+            ? 'p-1.5 sm:p-4 pb-[72px] lg:pb-4 flex flex-col min-h-0 overflow-hidden' 
             : 'p-4 md:p-6 pb-24 lg:pb-6 overflow-y-auto'
         } overflow-x-hidden w-full max-w-full`} style={{
           backgroundImage: getBackgroundImage(),
