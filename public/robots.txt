@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://teamzenconnect.vercel.app/sitemap.xml
