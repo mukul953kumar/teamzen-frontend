@@ -260,6 +260,10 @@ const LandingPage = () => {
 
   const faqs = [
     {
+      q: 'Who is the founder of TeamZen?',
+      a: 'Mukul Kumar is the Founder and Lead Architect of TeamZen. He is a Full-Stack developer and engineering student from KNIT Sultanpur who designed TeamZen to solve the challenge BTech students face when finding balanced teammates for hackathons, major projects, and tech startups.'
+    },
+    {
       q: 'How does skill-based teammate matching work?',
       a: 'TeamZen compares your target project skills, branch, and experience level with other students to highlight profiles with complementary tech stacks and zero skill overlap.'
     },
@@ -422,6 +426,7 @@ const LandingPage = () => {
             <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">How It Works</a>
             <a href="#who-its-for" onClick={(e) => { e.preventDefault(); document.querySelector('#who-its-for')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Who It's For</a>
             <a href="#stories" onClick={(e) => { e.preventDefault(); document.querySelector('#stories')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Stories</a>
+            <Link to="/about" className="text-xs font-semibold uppercase tracking-wider text-orange-400 hover:text-orange-300 transition-colors">About Founder</Link>
             <a href="#faq" onClick={(e) => { e.preventDefault(); document.querySelector('#faq')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">FAQ</a>
           </nav>
 
@@ -966,6 +971,79 @@ const LandingPage = () => {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* ── MEET THE FOUNDER SECTION ── */}
+      <section id="about-founder" className="relative py-28 border-t border-white/5 overflow-hidden" style={{ background: '#0a0a10' }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-bold uppercase tracking-widest text-orange-400 px-3 py-1 rounded-full border border-orange-500/20 bg-orange-500/10">
+              Meet The Architect
+            </span>
+            <h2 className="text-4xl font-extrabold text-white mt-4">
+              Who is behind <span className="gradient-accent-text">TeamZen?</span>
+            </h2>
+            <p className="text-slate-400 text-sm sm:text-base mt-2">
+              Designed and built by Mukul Kumar to help BTech engineering students connect, collaborate, and ship real projects.
+            </p>
+          </div>
+
+          <div className="bento-card rounded-3xl p-8 sm:p-12 border border-orange-500/20 relative overflow-hidden">
+            <div className="grid md:grid-cols-12 gap-8 items-center">
+              
+              <div className="md:col-span-4 flex flex-col items-center text-center">
+                <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-tr from-orange-500 to-purple-600 p-1 shadow-xl mb-4 overflow-hidden">
+                  <div className="w-full h-full rounded-[14px] bg-[#0d0d16] overflow-hidden flex items-center justify-center border border-white/10">
+                    <img
+                      src="/images/mukul2.png"
+                      alt="Mukul Kumar - Founder of TeamZen"
+                      className="w-full h-full object-cover rounded-[14px]"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-extrabold text-white">Mukul Kumar</h3>
+                <p className="text-xs text-orange-400 font-semibold mb-2">Founder & Lead Architect</p>
+                <span className="text-[11px] text-slate-400 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  KNIT Sultanpur (BTech IT)
+                </span>
+              </div>
+
+              <div className="md:col-span-8 space-y-5">
+                <h4 className="text-xl sm:text-2xl font-bold text-white">
+                  "Solving BTech team matching with intelligent matrix algorithms."
+                </h4>
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  Mukul created TeamZen to fix a problem every BTech student faces: finding reliable teammates for Hackathons, Major Projects, and Startups without skill overlap or WhatsApp group clutter.
+                </p>
+
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Link
+                    to="/about"
+                    className="shimmer-btn text-xs px-5 py-3 rounded-xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 text-white flex items-center gap-2 shadow-lg shadow-orange-500/20"
+                  >
+                    <span>Read Full Founder Story</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+
+                  <a
+                    href="https://github.com/mukul953kumar"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-5 py-3 rounded-xl font-semibold bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 hover:text-white transition-all flex items-center gap-2"
+                  >
+                    <span>GitHub Profile</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
       </section>
 

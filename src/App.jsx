@@ -5,6 +5,7 @@ import { NotificationProvider } from './contexts/NotificationContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import Layout from './components/Layout'
 import LandingPage from './pages/LandingPage'
+import AboutFounder from './pages/AboutFounder'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
@@ -34,6 +35,8 @@ function AppContent() {
   return (
     <Routes>
       <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LandingPage />} />
+      <Route path="/about" element={<AboutFounder />} />
+      <Route path="/about-founder" element={<AboutFounder />} />
       <Route path="/login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       
