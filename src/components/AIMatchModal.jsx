@@ -78,7 +78,25 @@ const AIMatchModal = ({ isOpen, onClose, candidate, currentUser, onInvite }) => 
                   </div>
                 )}
                 <div>
-                  <h4 className="text-base font-bold text-white">{candidate.name}</h4>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-base font-bold text-white">{candidate.name}</h4>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border flex items-center gap-1 shrink-0 ${
+                      (candidate.availability_status || 'Available') === 'Available'
+                        ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                        : candidate.availability_status === 'Open to work'
+                        ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+                        : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        (candidate.availability_status || 'Available') === 'Available'
+                          ? 'bg-emerald-400 animate-pulse'
+                          : candidate.availability_status === 'Open to work'
+                          ? 'bg-cyan-400 animate-pulse'
+                          : 'bg-rose-400'
+                      }`} />
+                      {candidate.availability_status || 'Available'}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-400">{candidate.college} · {candidate.branch} ({candidate.year} Year)</p>
                 </div>
               </div>

@@ -374,9 +374,18 @@ const UserProfile = () => {
                     ⭐ Top Contributor
                   </span>
                 )}
-                {user.availability_status === 'Available' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    ⚡ Fast Responder
+                {user.availability_status && (
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border shadow-sm ${
+                    user.availability_status === 'Available' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                    user.availability_status === 'Open to work' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' :
+                    'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                  }`}>
+                    <span className={`w-2 h-2 rounded-full ${
+                      user.availability_status === 'Available' ? 'bg-emerald-400 animate-pulse' :
+                      user.availability_status === 'Open to work' ? 'bg-cyan-400 animate-pulse' :
+                      'bg-rose-400'
+                    }`} />
+                    {user.availability_status}
                   </span>
                 )}
                 <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/30">

@@ -501,7 +501,25 @@ const Dashboard = () => {
                         </div>
                         <div className="min-w-0">
                           <h4 className="text-xs font-bold text-white group-hover:text-orange-300 truncate">{teammate.name}</h4>
-                          <p className="text-[11px] text-gray-400 truncate">{teammate.branch} · Year {teammate.year}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-[11px] text-gray-400 truncate">{teammate.branch} · Year {teammate.year}</p>
+                            <span className={`px-1.5 py-0.2 rounded-full text-[9px] font-bold border flex items-center gap-1 shrink-0 ${
+                              (teammate.availability_status || 'Available') === 'Available'
+                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                : teammate.availability_status === 'Open to work'
+                                ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+                                : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                            }`}>
+                              <span className={`w-1 h-1 rounded-full ${
+                                (teammate.availability_status || 'Available') === 'Available'
+                                  ? 'bg-emerald-400'
+                                  : teammate.availability_status === 'Open to work'
+                                  ? 'bg-cyan-400'
+                                  : 'bg-rose-400'
+                              }`} />
+                              {teammate.availability_status || 'Available'}
+                            </span>
+                          </div>
                         </div>
                       </Link>
 

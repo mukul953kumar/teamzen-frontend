@@ -116,7 +116,7 @@ const staticEvents = [
 const sampleSkills = ['React', 'Node.js', 'Python', 'ML', 'UI/UX', 'Flutter', 'MongoDB', 'Docker']
 
 const mockCandidates = [
-  { name: 'Garv R.', branch: 'IT · 4th Year', skills: ['React', 'Node.js', 'AWS'], match: 98, role: 'Full Stack Dev', avatar: 'G' },
+  { name: 'Shivam R.', branch: 'IT · 4th Year', skills: ['React', 'Node.js', 'AWS'], match: 98, role: 'Full Stack Dev', avatar: 'S' },
   { name: 'Ananya S.', branch: 'CS · 3rd Year', skills: ['Python', 'ML', 'FastAPI'], match: 94, role: 'AI / ML Engineer', avatar: 'A' },
   { name: 'Kavya M.', branch: 'ECE · 4th Year', skills: ['UI/UX', 'Figma', 'React'], match: 91, role: 'Product Designer', avatar: 'K' },
   { name: 'Rohan T.', branch: 'IT · 4th Year', skills: ['Flutter', 'Firebase', 'Dart'], match: 88, role: 'Mobile Dev', avatar: 'R' },
@@ -387,9 +387,9 @@ const LandingPage = () => {
       project: 'HealthAI Platform'
     },
     {
-      name: 'Garv Rajora',
+      name: 'Shivam Rajora',
       role: 'IT, KNIT Sultanpur',
-      initial: 'G',
+      initial: 'S',
       color: 'from-blue-500 to-cyan-500',
       content: 'Built our SIH squad through TeamZen. Skipped thousands of spam WhatsApp messages and got real developers.',
       project: 'Smart Agriculture System'

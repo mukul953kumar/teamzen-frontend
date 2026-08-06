@@ -315,9 +315,9 @@ const TeammateFinder = () => {
                             </div>
                           )}
                           <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#09090e] ${
-                            u.availability_status === 'Available' ? 'bg-emerald-400' :
-                            u.availability_status === 'Open to work' ? 'bg-cyan-400' : 'bg-gray-500'
-                          }`} />
+                            (u.availability_status || 'Available') === 'Available' ? 'bg-emerald-400' :
+                            u.availability_status === 'Open to work' ? 'bg-cyan-400' : 'bg-rose-500'
+                          }`} title={`Status: ${u.availability_status || 'Available'}`} />
                         </div>
 
                         <div className="min-w-0 flex-1 space-y-0.5">
@@ -338,7 +338,27 @@ const TeammateFinder = () => {
                           </div>
 
                           <p className="text-xs text-gray-400 truncate">{u.college || 'KNIT Student'}</p>
-                          <p className="text-[11px] text-gray-500 font-medium truncate">{u.branch || 'Tech'} • Year {u.year || '3'}</p>
+                          <div className="flex items-center justify-between gap-2 flex-wrap text-[11px] text-gray-400 font-medium pt-0.5">
+                            <span className="truncate">{u.branch || 'Tech'} • Year {u.year || '3'}</span>
+                            
+                            {/* Availability Status Badge Tag */}
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border flex items-center gap-1.5 shrink-0 ${
+                              (u.availability_status || 'Available') === 'Available'
+                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                : u.availability_status === 'Open to work'
+                                ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
+                                : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                            }`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${
+                                (u.availability_status || 'Available') === 'Available'
+                                  ? 'bg-emerald-400 animate-pulse'
+                                  : u.availability_status === 'Open to work'
+                                  ? 'bg-cyan-400 animate-pulse'
+                                  : 'bg-rose-400'
+                              }`} />
+                              {u.availability_status || 'Available'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
