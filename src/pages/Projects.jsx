@@ -234,10 +234,10 @@ const Projects = () => {
         </form>
 
         {/* Projects Grid */}
-        <div>
-          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+        <div className="font-mono">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Layers className="w-5 h-5 text-orange-400" />
+              <Layers className="w-5 h-5 text-emerald-400" />
               <span>Published Projects ({projects.length})</span>
             </h2>
             {Object.keys(filters).length > 0 && (
@@ -266,25 +266,25 @@ const Projects = () => {
                   <div
                     key={project._id}
                     onClick={() => setSelectedProject(project)}
-                    className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col justify-between space-y-4 shadow-xl cursor-pointer"
+                    className="relative group rounded-xl p-5 transition-all duration-300 overflow-hidden bg-slate-900/80 hover:bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4 shadow-xl hover:border-emerald-500/40 cursor-pointer"
                   >
                     <div className="space-y-3">
                       
                       {/* Top Header */}
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-white text-base group-hover:text-orange-300 transition-colors truncate">
+                          <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors truncate">
                             {project.title}
                           </h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                              project.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                              project.status === 'In Progress' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
-                              'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              project.status === 'Completed' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' :
+                              project.status === 'In Progress' ? 'bg-cyan-950/80 text-cyan-400 border border-cyan-500/30' :
+                              'bg-amber-950/80 text-amber-400 border border-amber-500/30'
                             }`}>
                               {project.status || 'Completed'}
                             </span>
-                            <span className="text-[11px] text-gray-400 font-semibold">{project.year || '2024'}</span>
+                            <span className="text-[10px] text-slate-400 font-semibold">{project.year || '2024'}</span>
                           </div>
                         </div>
 
@@ -293,14 +293,14 @@ const Projects = () => {
                           <div className="flex items-center space-x-1 shrink-0" onClick={(e) => e.stopPropagation()}>
                             <button
                               onClick={() => onEditProject(project)}
-                              className="p-1.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 transition-colors"
+                              className="p-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 transition-colors"
                               title="Edit project"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => onDeleteProject(project._id)}
-                              className="p-1.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 transition-colors"
+                              className="p-1.5 rounded-lg bg-rose-950/80 border border-rose-900/40 hover:bg-rose-900/80 text-rose-400 transition-colors"
                               title="Delete project"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -310,7 +310,7 @@ const Projects = () => {
                       </div>
 
                       {/* Description */}
-                      <p className="text-xs text-gray-300 line-clamp-3 leading-relaxed">
+                      <p className="text-xs text-slate-300 line-clamp-3 leading-relaxed">
                         {project.description}
                       </p>
 
@@ -318,13 +318,12 @@ const Projects = () => {
                       {project.tech_stack?.length > 0 && (
                         <div className="flex flex-wrap gap-1.5">
                           {project.tech_stack.slice(0, 4).map((tech, index) => (
-                            <span key={index} className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/10 text-orange-300 border border-orange-500/20">
+                            <span key={index} className="px-2 py-0.5 text-[9px] font-semibold rounded bg-slate-800 text-slate-300 border border-slate-700">
                               {tech}
                             </span>
                           ))}
                         </div>
                       )}
-
                     </div>
 
                     {/* Footer Actions */}

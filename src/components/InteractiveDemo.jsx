@@ -99,21 +99,21 @@ const InteractiveDemo = () => {
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest text-orange-400 border border-orange-500/30 bg-orange-500/10">
-            <Sparkles className="w-3.5 h-3.5" />
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-14 space-y-2.5 sm:space-y-4 px-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-orange-400 border border-orange-500/30 bg-orange-500/10">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400" />
             <span>Interactive Product Preview</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-            See How <span className="text-sunset">TeamZen Works</span>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">
+            See How <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">TeamZen Works</span>
           </h2>
-          <p className="text-gray-400 text-base">
+          <p className="text-slate-400 text-xs sm:text-base">
             Click through the interactive tabs below to experience our core platform features in action.
           </p>
         </div>
 
-        {/* Tab Navigation Controls */}
-        <div className="flex flex-wrap justify-center items-center gap-3 mb-10">
+        {/* Tab Navigation Controls (Mobile Friendly Grid) */}
+        <div className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-3 mb-6 sm:mb-10 px-1">
           {demoTabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
@@ -124,17 +124,17 @@ const InteractiveDemo = () => {
                   setActiveTab(tab.id)
                   setIsAutoPlay(false)
                 }}
-                className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs md:text-sm font-semibold transition-all duration-300 cursor-pointer ${
+                className={`flex items-center gap-1.5 sm:gap-2.5 px-3 py-2 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs md:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'text-white shadow-lg border border-white/20'
-                    : 'text-gray-400 hover:text-white bg-white/5 border border-white/5 hover:bg-white/10'
+                    : 'text-slate-400 hover:text-white bg-slate-900/60 border border-slate-800 hover:bg-slate-900'
                 }`}
                 style={{
                   background: isActive ? `linear-gradient(135deg, ${tab.color}35, rgba(255,255,255,0.05))` : undefined,
                   boxShadow: isActive ? `0 10px 30px ${tab.color}25` : undefined
                 }}
               >
-                <Icon className="w-4 h-4" style={{ color: isActive ? '#ffffff' : tab.color }} />
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" style={{ color: isActive ? '#ffffff' : tab.color }} />
                 <span>{tab.label}</span>
               </button>
             )
@@ -143,46 +143,42 @@ const InteractiveDemo = () => {
           {/* Autoplay Pause/Play Toggle */}
           <button
             onClick={() => setIsAutoPlay(!isAutoPlay)}
-            className="p-3 rounded-2xl bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-colors"
+            className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-400 hover:text-white transition-colors"
             title={isAutoPlay ? 'Pause Auto Tour' : 'Start Auto Tour'}
           >
-            {isAutoPlay ? <Pause className="w-4 h-4 text-amber-400 animate-pulse" /> : <Play className="w-4 h-4 text-emerald-400" />}
+            {isAutoPlay ? <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 animate-pulse" /> : <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />}
           </button>
         </div>
 
         {/* Mac-Style Glass Window Container */}
-        <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
-          style={{
-            background: 'rgba(15, 15, 23, 0.92)',
-            backdropFilter: 'blur(20px)'
-          }}>
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-slate-950/95 backdrop-blur-2xl">
 
           {/* Mac Top Bar */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-red-500/80 inline-block" />
-              <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
-              <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+          <div className="px-3 sm:px-6 py-2.5 sm:py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/40">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/80 inline-block" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80 inline-block" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80 inline-block" />
             </div>
 
             {/* Address Bar */}
-            <div className="flex-1 max-w-md mx-2 sm:mx-4 px-3 sm:px-4 py-1.5 rounded-xl bg-white/5 border border-white/10 text-center text-[11px] sm:text-xs text-gray-400 truncate">
-              🔒 teamzen.app/demo/<span className="text-white font-medium">{activeTab}</span>
+            <div className="flex-1 max-w-md mx-2 sm:mx-4 px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-lg sm:rounded-xl bg-slate-900 border border-slate-800 text-center text-[10px] sm:text-xs text-slate-400 font-mono truncate">
+              🔒 teamzen.app/demo/<span className="text-emerald-400 font-medium">{activeTab}</span>
             </div>
 
-            <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-widest hidden sm:block">
-              Live Interactive Demo
+            <div className="text-[10px] font-mono font-semibold text-slate-500 uppercase tracking-widest hidden sm:block">
+              LIVE_DEMO_V2
             </div>
           </div>
 
           {/* Interactive Screen Display Area */}
-          <div className="p-4 sm:p-6 md:p-10 min-h-[400px] flex flex-col justify-center">
+          <div className="p-3 sm:p-6 md:p-10 flex flex-col justify-center min-h-[340px] sm:min-h-[400px]">
             
             {/* Header info for current active feature */}
-            <div className="mb-6">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Feature Highlight</span>
-              <h3 className="text-xl md:text-2xl font-bold text-white mt-0.5">{currentTabInfo.title}</h3>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">{currentTabInfo.description}</p>
+            <div className="mb-4 sm:mb-6">
+              <span className="text-[10px] sm:text-xs font-mono font-semibold text-emerald-400 uppercase tracking-wider">FEATURE_HIGHLIGHT</span>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mt-0.5">{currentTabInfo.title}</h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">{currentTabInfo.description}</p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -196,46 +192,51 @@ const InteractiveDemo = () => {
                 
                 {/* 1. TEAMMATE FINDER DEMO CARD */}
                 {activeTab === 'finder' && (
-                  <div className="max-w-xl mx-auto rounded-2xl p-6 relative overflow-hidden border border-white/10"
-                    style={{ background: 'rgba(255, 255, 255, 0.03)', backdropFilter: 'blur(16px)' }}>
+                  <div className="max-w-xl mx-auto rounded-2xl p-5 relative overflow-hidden border border-slate-800 bg-slate-950/90 shadow-2xl"
+                    style={{ backdropFilter: 'blur(16px)' }}>
                     
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500" />
+                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-amber-400 to-emerald-500" />
                     
                     <div className="flex items-start gap-4">
                       <div className="relative">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xl font-bold ring-2 ring-blue-400/50">
+                        <div className="w-14 h-14 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400 text-xl font-bold font-mono ring-2 ring-emerald-500/30">
                           A
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-[#0d0d14]" />
+                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-slate-950" />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-base font-bold text-white">Aryan Sharma</h4>
-                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-base font-bold text-white font-mono">Aryan Sharma</h4>
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 font-mono border border-amber-500/30">
+                              ☕ Chai & Code
+                            </span>
+                          </div>
+                          <span className="px-2.5 py-0.5 rounded text-xs font-bold font-mono bg-emerald-950/80 text-emerald-400 border border-emerald-500/40">
                             ⚡ 96% Match
                           </span>
                         </div>
-                        <p className="text-xs text-gray-400">KNIT Sultanpur · BTech IT (3rd Year)</p>
+                        <p className="text-xs text-slate-400 font-mono mt-0.5">KNIT Sultanpur · IT (3rd Year) · Hostel No. 5</p>
                         
                         {/* Skills */}
                         <div className="flex flex-wrap gap-1.5 mt-3">
                           {['React.js', 'Node.js', 'Python', 'Tailwind'].map((skill) => (
-                            <span key={skill} className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-blue-500/15 text-blue-300 border border-blue-500/30">
+                            <span key={skill} className="px-2.5 py-1 text-[11px] font-mono rounded bg-slate-900 text-slate-300 border border-slate-800">
                               {skill}
                             </span>
                           ))}
                         </div>
 
                         {/* Interactive Invite Action */}
-                        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
-                          <span className="text-xs text-gray-400">Status: <strong className="text-emerald-400">🟢 Available for SIH</strong></span>
+                        <div className="mt-5 flex items-center justify-between border-t border-slate-800/80 pt-4">
+                          <span className="text-xs text-slate-400 font-mono">Status: <strong className="text-emerald-400">🟢 Ready for SIH 2026</strong></span>
                           <button
                             onClick={() => setInvitedUser(!invitedUser)}
                             className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                               invitedUser
-                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                                : 'btn-sunset'
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-mono'
+                                : 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40'
                             }`}
                           >
                             {invitedUser ? (
@@ -246,7 +247,7 @@ const InteractiveDemo = () => {
                             ) : (
                               <>
                                 <Send className="w-3.5 h-3.5" />
-                                <span>Invite to Team</span>
+                                <span>Invite Teammate</span>
                               </>
                             )}
                           </button>

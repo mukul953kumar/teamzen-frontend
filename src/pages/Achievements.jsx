@@ -189,14 +189,9 @@ const Achievements = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden pb-12">
       
-      {/* Glassmorphic Hero Header */}
-      <div className="relative rounded-3xl overflow-hidden border border-white/10 p-6 sm:p-8 shadow-2xl space-y-4"
-        style={{
-          background: 'linear-gradient(135deg, rgba(13, 13, 20, 0.95) 0%, rgba(20, 20, 35, 0.85) 100%)',
-          backdropFilter: 'blur(20px)'
-        }}>
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+      {/* Hero Header Card */}
+      <div className="relative rounded-2xl overflow-hidden border border-slate-800 p-6 sm:p-8 shadow-2xl space-y-4 bg-slate-950/90 font-mono">
+        <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="space-y-1">
@@ -204,12 +199,12 @@ const Achievements = () => {
               <Trophy className="w-7 h-7 text-amber-400" />
               <span>Student Achievements & Honor Roll</span>
             </h1>
-            <p className="text-xs sm:text-sm text-gray-400">Showcase hackathon wins, certifications, awards, and honor achievements.</p>
+            <p className="text-xs sm:text-sm text-slate-400">Showcase hackathon wins, certifications, awards, and honor achievements.</p>
           </div>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            className="btn-sunset flex items-center justify-center text-xs sm:text-sm px-5 py-3 rounded-xl font-bold shadow-lg shrink-0 cursor-pointer"
+            className="px-5 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white flex items-center justify-center text-xs sm:text-sm rounded-xl font-bold shadow-lg shrink-0 cursor-pointer hover:scale-105 transition-transform"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Achievement
@@ -218,36 +213,36 @@ const Achievements = () => {
       </div>
 
       {/* Filter Tabs & Search Container */}
-      <div className="card space-y-5 border border-white/10 p-5 sm:p-6">
+      <div className="rounded-2xl space-y-5 border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-2xl font-mono">
         
         {/* Toggle Filters & Search Bar */}
         <form onSubmit={handleSubmit(onSearch)} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                className="input pl-10 w-full text-xs sm:text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
                 placeholder="Search achievements by title, event, or organization..."
                 {...register('search')}
               />
             </div>
             <button
               type="submit"
-              className="btn-sunset text-xs sm:text-sm px-6 py-2.5 rounded-xl font-bold shadow-md cursor-pointer flex items-center justify-center gap-2"
+              className="px-6 py-2.5 bg-slate-900 border border-slate-800 text-slate-200 hover:border-emerald-500/40 text-xs sm:text-sm rounded-xl font-bold shadow-md cursor-pointer flex items-center justify-center gap-2"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 text-emerald-400" />
               <span>Search</span>
             </button>
           </div>
         </form>
 
         {/* Quick Filter Pill Buttons */}
-        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1">
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 text-xs">
           <button
             onClick={() => { setFilters({}); reset() }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-              !filters.user_id && !filters.type ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md' : 'bg-white/5 text-gray-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap cursor-pointer ${
+              !filters.user_id && !filters.type ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
             }`}
           >
             All Community Achievements
@@ -255,8 +250,8 @@ const Achievements = () => {
           {user && (
             <button
               onClick={() => setFilters(prev => ({ ...prev, user_id: user._id }))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                filters.user_id === user._id ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md' : 'bg-white/5 text-gray-400 hover:text-white'
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap cursor-pointer ${
+                filters.user_id === user._id ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
               My Achievements
@@ -266,8 +261,8 @@ const Achievements = () => {
             <button
               key={type}
               onClick={() => setFilters(prev => ({ ...prev, type }))}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                filters.type === type ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md' : 'bg-white/5 text-gray-400 hover:text-white'
+              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all whitespace-nowrap cursor-pointer ${
+                filters.type === type ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
               }`}
             >
               {type}
@@ -277,10 +272,10 @@ const Achievements = () => {
 
         {/* Achievements Grid */}
         <div>
-          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-orange-400" />
-              <span>Achievements ({achievements.length})</span>
+              <Award className="w-5 h-5 text-emerald-400" />
+              <span>Community Achievements ({achievements.length})</span>
             </h2>
           </div>
 

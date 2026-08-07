@@ -33,33 +33,27 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12"
-      style={{
-        backgroundImage: 'url("/images/image2.png")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        position: 'relative'
-      }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 0 }} />
+    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[#0B0D17] text-slate-100 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
 
       {/* Error Popup */}
       {showError && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm">
-          <div className="flex items-start gap-3 bg-red-500/20 border border-red-500/50 backdrop-blur-md rounded-xl p-4 shadow-xl">
-            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm font-mono">
+          <div className="flex items-start gap-3 bg-rose-950/90 border border-rose-500/50 backdrop-blur-md rounded-xl p-4 shadow-xl">
+            <XCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-white font-semibold text-sm">Access Denied</p>
-              <p className="text-red-300 text-xs mt-1">Only <span className="font-bold">@knit.ac.in</span> email addresses are allowed. Please use your college email.</p>
+              <p className="text-white font-bold text-sm">Access Denied</p>
+              <p className="text-rose-300 text-xs mt-1">Only <span className="font-bold font-mono">@knit.ac.in</span> email addresses are allowed. Please use your college email.</p>
             </div>
-            <button onClick={() => setShowError(false)} className="text-gray-400 hover:text-white flex-shrink-0">
+            <button onClick={() => setShowError(false)} className="text-slate-400 hover:text-white flex-shrink-0">
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="card text-center space-y-6">
+      <div className="relative z-10 w-full max-w-md font-mono">
+        <div className="rounded-2xl p-6 sm:p-8 border border-slate-800 bg-slate-950/90 shadow-2xl text-center space-y-6">
           
           {/* Header & Logo */}
           <div>
@@ -68,8 +62,7 @@ const Login = () => {
           </div>
 
           {/* Interactive Checkbox */}
-          <button
-            type="button"
+          <div
             onClick={() => setHasAgreed(!hasAgreed)}
             className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all text-left w-full cursor-pointer"
           >
@@ -81,9 +74,9 @@ const Login = () => {
               )}
             </div>
             <span className="text-xs text-gray-300 leading-relaxed">
-              I accept TeamZen <button type="button" onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true) }} className="text-orange-400 underline hover:text-orange-300 font-semibold">Terms of Service & Privacy Policy</button>.
+              I accept TeamZen <span onClick={(e) => { e.stopPropagation(); setIsTermsOpen(true) }} className="text-orange-400 underline hover:text-orange-300 font-semibold cursor-pointer">Terms of Service & Privacy Policy</span>.
             </span>
-          </button>
+          </div>
 
           {/* Google Sign In Button */}
           <button

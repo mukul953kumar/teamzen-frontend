@@ -65,7 +65,7 @@ const AboutFounder = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-[#08080c] text-white selection:bg-orange-500 selection:text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#0B0D17] text-white selection:bg-orange-500 selection:text-white font-sans overflow-x-hidden">
 
       {/* ── SEO Schema JSON-LD Script ── */}
       <script type="application/ld+json">

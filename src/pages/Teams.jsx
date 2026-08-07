@@ -249,68 +249,68 @@ const Teams = () => {
 
       {/* My Teams Section */}
       {myTeams.length > 0 && (
-        <div className="card space-y-5 border border-white/10 p-5 sm:p-6">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="rounded-2xl space-y-5 border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4 font-mono">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <Crown className="w-5 h-5 text-amber-400" />
               <span>My Active Teams</span>
             </h2>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-gray-300 border border-white/10">{myTeams.length} Teams</span>
+            <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800">{myTeams.length} Teams</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 font-mono">
             {myTeams.map((team) => {
               const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
               return (
                 <div key={team._id} className="relative group">
                   <Link to={`/teams/${team._id}`} className="block">
-                    <div className="relative rounded-2xl p-5 transition-all duration-300 overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 space-y-3.5 shadow-xl">
+                    <div className="relative rounded-xl p-5 transition-all duration-300 overflow-hidden bg-slate-900/80 hover:bg-slate-900 border border-slate-800 space-y-3.5 shadow-xl hover:border-emerald-500/40">
                       
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-md flex-shrink-0 border border-white/20 bg-gradient-to-tr from-orange-500 to-purple-600">
+                          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-emerald-400 font-bold text-base shadow-md flex-shrink-0 border border-slate-700 bg-slate-950">
                             {team.team_name?.charAt(0).toUpperCase() || 'T'}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-bold text-white text-base group-hover:text-orange-300 transition-colors truncate">
+                            <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors truncate">
                               {team.team_name}
                             </h3>
-                            <p className="text-xs text-gray-400 truncate font-medium">{team.project_title || 'Project'}</p>
+                            <p className="text-xs text-slate-400 truncate font-medium">{team.project_title || 'Project'}</p>
                           </div>
                         </div>
 
                         {(team.user_role === 'Leader' || team.user_role === 'leader') && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-500/30">
                             👑 Leader
                           </span>
                         )}
                       </div>
 
-                      <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
                         {team.description || 'No description provided.'}
                       </p>
 
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs gap-2">
-                          <span className="text-gray-400 font-medium flex items-center gap-1.5 min-w-0">
-                            <Users className="w-3.5 h-3.5 text-orange-400" />
+                          <span className="text-slate-400 font-medium flex items-center gap-1.5 min-w-0">
+                            <Users className="w-3.5 h-3.5 text-emerald-400" />
                             <span className="text-white font-bold">{team.current_members || 1}</span> / {team.max_members || 4} Members
                           </span>
-                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                            team.status === 'Open' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                            team.status === 'Full' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                            'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                          <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                            team.status === 'Open' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' :
+                            team.status === 'Full' ? 'bg-amber-950/80 text-amber-400 border border-amber-500/30' :
+                            'bg-blue-950/80 text-blue-400 border border-blue-500/30'
                           }`}>
                             {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
                           </span>
                         </div>
 
-                        <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                        <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
                               width: `${memberPercent}%`,
-                              background: memberPercent === 100 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #f97316, #6366f1)'
+                              background: memberPercent === 100 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #10b981, #3b82f6)'
                             }}
                           />
                         </div>
@@ -326,34 +326,34 @@ const Teams = () => {
       )}
 
       {/* All Available Teams Section */}
-      <div className="card space-y-6 border border-white/10 p-5 sm:p-6">
-        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-4">
+      <div className="rounded-2xl space-y-6 border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-2xl">
+        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-4 font-mono">
           <div>
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <Target className="w-5 h-5 text-orange-400" /> Explore Teams
+              <Target className="w-5 h-5 text-emerald-400" /> Explore Teams
             </h2>
-            <p className="text-xs text-gray-400">Discover teams looking for students with your skills</p>
+            <p className="text-xs text-slate-400">Discover teams looking for students with your skills</p>
           </div>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-gray-300 border border-white/10">{teams.length} Teams Available</span>
+          <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800">{teams.length} Teams Available</span>
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSubmit(onSearch)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSearch)} className="space-y-4 font-mono">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                className="input pl-10 w-full text-xs sm:text-sm"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
                 placeholder="Search by team name, required skills, or project title..."
                 {...register('search')}
               />
             </div>
             <button
               type="submit"
-              className="btn-sunset text-xs sm:text-sm px-6 py-2.5 rounded-xl font-bold shadow-md cursor-pointer flex items-center justify-center gap-2"
+              className="px-6 py-2.5 bg-slate-900 border border-slate-800 text-slate-200 hover:border-emerald-500/40 text-xs sm:text-sm rounded-xl font-bold shadow-md cursor-pointer flex items-center justify-center gap-2 font-mono"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 text-emerald-400" />
               <span>Search Teams</span>
             </button>
           </div>
@@ -361,11 +361,11 @@ const Teams = () => {
 
         {/* Teams Grid */}
         {teams.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 font-mono">
             {teams.map((team) => {
               const memberPercent = Math.min(100, Math.round(((team.current_members || 1) / (team.max_members || 4)) * 100))
               return (
-                <div key={team._id} className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col justify-between space-y-4 shadow-xl">
+                <div key={team._id} className="relative group rounded-xl p-5 transition-all duration-300 overflow-hidden bg-slate-900/80 hover:bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4 shadow-xl hover:border-emerald-500/40">
                   
                   <div className="space-y-3.5">
                     {/* Header */}
@@ -376,32 +376,32 @@ const Teams = () => {
                             <img
                               src={team.leader_id.profile_image}
                               alt={team.leader_id?.name || team.team_name}
-                              className="w-11 h-11 rounded-xl object-cover border border-white/20 shadow-md shrink-0"
+                              className="w-11 h-11 rounded-xl object-cover border border-slate-700 shadow-md shrink-0"
                             />
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] shadow-sm border border-black">
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center text-[9px] shadow-sm border border-slate-950">
                               👑
                             </div>
                           </div>
                         ) : (
-                          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-base shadow-md shrink-0 border border-white/20 bg-gradient-to-tr from-orange-500 to-purple-600">
+                          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-emerald-400 font-bold text-base shadow-md shrink-0 border border-slate-700 bg-slate-950">
                             {team.team_name?.charAt(0).toUpperCase() || 'T'}
                           </div>
                         )}
 
                         <div className="min-w-0 flex-1 space-y-0.5">
                           <div className="flex items-start justify-between gap-2 flex-wrap sm:flex-nowrap">
-                            <h3 className="font-bold text-white text-base group-hover:text-orange-300 transition-colors leading-snug break-words flex-1">
+                            <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors leading-snug break-words flex-1">
                               {team.team_name}
                             </h3>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 self-start ${
-                              team.status === 'Open' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-                              team.status === 'Full' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
-                              'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold shrink-0 self-start ${
+                              team.status === 'Open' ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' :
+                              team.status === 'Full' ? 'bg-amber-950/80 text-amber-400 border border-amber-500/30' :
+                              'bg-blue-950/80 text-blue-400 border border-blue-500/30'
                             }`}>
                               {team.status === 'Open' ? '🟢 Recruiting' : team.status === 'Full' ? '🟡 Full' : team.status}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-400 font-medium truncate">{team.project_title || 'Academic Project'}</p>
+                          <p className="text-xs text-slate-400 font-medium truncate">{team.project_title || 'Academic Project'}</p>
                         </div>
                       </div>
                     </div>
@@ -414,30 +414,30 @@ const Teams = () => {
                     )}
 
                     {/* Description */}
-                    <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
                       {team.description || 'No project description provided.'}
                     </p>
 
                     {/* Capacity Progress Bar */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs gap-2">
-                        <span className="text-gray-300 font-medium flex items-center gap-1.5 min-w-0">
-                          <Users className="w-3.5 h-3.5 text-orange-400" />
+                        <span className="text-slate-400 font-medium flex items-center gap-1.5 min-w-0">
+                          <Users className="w-3.5 h-3.5 text-emerald-400" />
                           <span className="text-white font-bold">{team.current_members || 1}</span> / {team.max_members || 4} Members
                         </span>
                         {team.hackathon_name && (
-                          <span className="text-[10px] font-bold text-purple-300 px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 truncate max-w-[120px]">
+                          <span className="text-[10px] font-bold text-purple-300 px-2 py-0.5 rounded bg-purple-950/80 border border-purple-500/30 truncate max-w-[120px]">
                             🏆 {team.hackathon_name}
                           </span>
                         )}
                       </div>
 
-                      <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                      <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
                         <div
                           className="h-full rounded-full transition-all duration-500"
                           style={{
                             width: `${memberPercent}%`,
-                            background: memberPercent === 100 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #f97316, #6366f1)'
+                            background: memberPercent === 100 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' : 'linear-gradient(90deg, #10b981, #3b82f6)'
                           }}
                         />
                       </div>
