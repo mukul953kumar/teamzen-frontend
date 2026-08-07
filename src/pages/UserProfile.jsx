@@ -32,6 +32,7 @@ import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/useAuth'
 import { soundManager } from '../services/soundUtils'
 import { getDomainBadgeStyle } from '../utils/domainUtils'
+import { getAcademicStatus } from '../utils/academicUtils'
 
 // Visual Developer Skill Matrix & Proficiency Bar Chart
 const SkillProficiencyChart = ({ skills = [] }) => {
@@ -310,15 +311,10 @@ const UserProfile = () => {
       </div>
 
       {/* Main Profile Header Hero Card */}
-      <div className="card relative overflow-hidden p-6 sm:p-8 border border-white/10 shadow-2xl space-y-6"
-        style={{
-          background: 'linear-gradient(135deg, rgba(13, 13, 20, 0.95) 0%, rgba(20, 20, 35, 0.85) 100%)',
-          backdropFilter: 'blur(20px)'
-        }}>
+      <div className="rounded-2xl relative overflow-hidden p-6 sm:p-8 border border-slate-800 shadow-2xl space-y-6 bg-slate-950/90 font-mono">
         
-        {/* Ambient Lighting Blobs */}
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none" />
+        {/* Ambient Grid Background */}
+        <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 relative z-10">
           
@@ -329,17 +325,17 @@ const UserProfile = () => {
                 <img
                   src={user.profile_image}
                   alt={user.name}
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl object-cover border-2 border-white/20 shadow-xl"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl object-cover border-2 border-emerald-500/40 shadow-xl"
                 />
               ) : (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600 flex items-center justify-center shadow-xl border border-white/20">
-                  <span className="text-3xl sm:text-4xl font-bold text-white">
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-slate-950 flex items-center justify-center shadow-xl border-2 border-emerald-500/40">
+                  <span className="text-3xl sm:text-4xl font-bold text-emerald-400">
                     {user.name?.charAt(0).toUpperCase()}
                   </span>
                 </div>
               )}
               {user.isVerified && (
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-[#0d0d14] shadow-md">
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center border-2 border-slate-950 shadow-md">
                   <span className="text-white text-xs font-bold">✓</span>
                 </div>
               )}
@@ -348,7 +344,7 @@ const UserProfile = () => {
             <div className="flex flex-col space-y-2 w-full sm:w-auto">
               <button
                 onClick={handleInviteToTeam}
-                className="btn-sunset flex items-center justify-center text-xs sm:text-sm py-2.5 px-5 rounded-xl font-bold shadow-lg"
+                className="px-5 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white flex items-center justify-center text-xs sm:text-sm rounded-xl font-bold shadow-lg hover:scale-105 transition-transform"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invite to Team
@@ -362,37 +358,43 @@ const UserProfile = () => {
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">{user.name}</h2>
               
               {/* Badges */}
-              <div className="flex flex-wrap gap-2 my-2.5">
-                {(user.email?.endsWith('@knit.ac.in') || user.isVerified) && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    <CheckCircle className="w-3.5 h-3.5" />
-                    KNIT Verified Student
-                  </span>
-                )}
-                {user.skills?.length >= 3 && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                    ⭐ Top Contributor
-                  </span>
-                )}
-                {user.availability_status && (
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 border shadow-sm ${
-                    user.availability_status === 'Available' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                    user.availability_status === 'Open to work' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' :
-                    'bg-rose-500/20 text-rose-400 border-rose-500/30'
-                  }`}>
-                    <span className={`w-2 h-2 rounded-full ${
-                      user.availability_status === 'Available' ? 'bg-emerald-400 animate-pulse' :
-                      user.availability_status === 'Open to work' ? 'bg-cyan-400 animate-pulse' :
-                      'bg-rose-400'
-                    }`} />
-                    {user.availability_status}
-                  </span>
-                )}
-                <span className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                  <Flame className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
-                  {user.loginStreak || 1}d Streak ({user.zenPoints || 10} Pts)
-                </span>
-              </div>
+              {(() => {
+                const academic = getAcademicStatus(user)
+                return (
+                  <div className="flex flex-wrap gap-2 my-2.5 text-xs font-mono">
+                    {(user.email?.endsWith('@knit.ac.in') || user.isVerified) && (
+                      <span className="px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        KNIT Verified Student
+                      </span>
+                    )}
+                    <span className={`px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 border ${
+                      academic.isPassedOut ? 'bg-amber-950/80 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-200 border-slate-800'
+                    }`}>
+                      🎓 {academic.isPassedOut ? `Graduate (Batch ${academic.batchRange})` : `Batch: ${academic.batchRange} (Year ${academic.calculatedYear})`}
+                    </span>
+                    {user.skills?.length >= 3 && (
+                      <span className="px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 bg-amber-950/80 text-amber-300 border border-amber-500/40">
+                        ⭐ Top Contributor
+                      </span>
+                    )}
+                    {user.availability_status && (
+                      <span className={`px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 border shadow-sm ${
+                        user.availability_status === 'Available' ? 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40' :
+                        user.availability_status === 'Open to work' ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40' :
+                        'bg-rose-500/20 text-rose-400 border-rose-500/30'
+                      }`}>
+                        <span className={`w-2 h-2 rounded-full ${
+                          user.availability_status === 'Available' ? 'bg-emerald-400 animate-pulse' :
+                          user.availability_status === 'Open to work' ? 'bg-cyan-400 animate-pulse' :
+                          'bg-rose-400'
+                        }`} />
+                        {user.availability_status}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-gray-300 mt-3 text-xs sm:text-sm">
                 <div className="flex items-center space-x-2 min-w-0">
