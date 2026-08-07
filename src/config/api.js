@@ -21,7 +21,8 @@ export const getBackendURL = () => {
   }
 
   if (envUrl) {
-    return envUrl.replace(/\/+$/, '');
+    const cleanUrl = envUrl.replace(/\/+$/, '');
+    return cleanUrl.replace(/\/api$/i, '');
   }
 
   return 'https://teamzen-backend-1.onrender.com';
