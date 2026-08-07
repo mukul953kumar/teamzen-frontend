@@ -12,6 +12,7 @@ import toast from 'react-hot-toast'
 import { soundManager } from '../services/soundUtils'
 import AIMatchModal from '../components/AIMatchModal'
 import { getDomainBadgeStyle } from '../utils/domainUtils'
+import { getAcademicStatus } from '../utils/academicUtils'
 
 const TeammateFinder = () => {
   const { user } = useAuth()
@@ -253,10 +254,10 @@ const TeammateFinder = () => {
       </div>
 
       {/* Candidate Grid Section */}
-      <div className="card space-y-6 border border-white/10 p-5 sm:p-6">
-        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/10 pb-4">
+      <div className="rounded-2xl space-y-6 border border-slate-800 bg-slate-950/90 p-5 sm:p-6 shadow-2xl">
+        <div className="flex items-center justify-between flex-wrap gap-2 border-b border-slate-800 pb-4 font-mono">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-orange-400" />
+            <Users className="w-5 h-5 text-emerald-400" />
             <span>Matched Students ({pagination.total || 0})</span>
           </h2>
 
@@ -268,7 +269,7 @@ const TeammateFinder = () => {
                 setFilters(prev => ({ ...prev, sortBy: newSort }))
                 setCurrentPage(1)
               }}
-              className="input text-xs py-1.5 px-3 rounded-xl border border-white/10 bg-white/5 text-gray-200 focus:outline-none"
+              className="input text-xs py-1.5 px-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 focus:outline-none font-mono"
             >
               <option value="">Sort: Newest</option>
               <option value="most_popular">🔥 Sort: Most Popular</option>
@@ -281,7 +282,7 @@ const TeammateFinder = () => {
             <LoadingSpinner size="large" />
           </div>
         ) : users.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 font-mono">
             {users.map((u) => {
               const matchPercentage = filters.skills
                 ? calculateMatch(u.skills, filters.skills.split(',').map(s => s.trim()))
@@ -297,8 +298,11 @@ const TeammateFinder = () => {
               const likeCount = userLikesInfo.count
 
               return (
-                <div key={u._id} className="relative group rounded-2xl p-5 transition-all duration-300 overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 flex flex-col justify-between space-y-4 shadow-xl">
+                <div key={u._id} className="relative group rounded-xl p-4 sm:p-5 transition-all duration-300 overflow-hidden bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-emerald-500/40 flex flex-col justify-between space-y-4 shadow-xl">
                   
+                  {/* Digital Student ID Top Metallic Border */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-500" />
+
                   <div className="space-y-3.5">
                     
                     {/* Header Top Row */}
@@ -308,13 +312,13 @@ const TeammateFinder = () => {
                         {/* Avatar */}
                         <div className="relative shrink-0 w-14 h-14">
                           {u.profile_image ? (
-                            <img src={u.profile_image} alt={u.name} className="w-14 h-14 rounded-2xl object-cover border border-white/20 shadow-md shrink-0" />
+                            <img src={u.profile_image} alt={u.name} className="w-14 h-14 rounded-xl object-cover border border-slate-700 shadow-md shrink-0" />
                           ) : (
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-md border border-white/20 bg-gradient-to-tr from-orange-500 to-purple-600 shrink-0">
+                            <div className="w-14 h-14 rounded-xl flex items-center justify-center text-emerald-400 font-bold text-lg shadow-md border border-slate-700 bg-slate-950 shrink-0">
                               {u.name?.charAt(0).toUpperCase()}
                             </div>
                           )}
-                          <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#09090e] ${
+                          <span className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-slate-950 ${
                             (u.availability_status || 'Available') === 'Available' ? 'bg-emerald-400' :
                             u.availability_status === 'Open to work' ? 'bg-cyan-400' : 'bg-rose-500'
                           }`} title={`Status: ${u.availability_status || 'Available'}`} />
@@ -322,7 +326,7 @@ const TeammateFinder = () => {
 
                         <div className="min-w-0 flex-1 space-y-0.5">
                           <div className="flex items-start justify-between gap-2 flex-wrap sm:flex-nowrap">
-                            <h3 className="font-bold text-white text-base group-hover:text-orange-300 transition-colors leading-snug break-words flex-1">
+                            <h3 className="font-bold text-white text-base group-hover:text-emerald-300 transition-colors leading-snug break-words flex-1">
                               {u.name}
                             </h3>
 
@@ -330,35 +334,28 @@ const TeammateFinder = () => {
                             <button
                               type="button"
                               onClick={() => setAiMatchUser({ ...u, matchPercentage: matchPercentage || 94 })}
-                              className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0 cursor-pointer hover:bg-emerald-500/30 transition-all self-start"
+                              className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 shrink-0 cursor-pointer hover:bg-emerald-900/80 transition-all self-start"
                               title="View AI Match Breakdown"
                             >
                               ⚡ {matchPercentage || 94}% Match
                             </button>
                           </div>
 
-                          <p className="text-xs text-gray-400 truncate">{u.college || 'KNIT Student'}</p>
-                          <div className="flex items-center justify-between gap-2 flex-wrap text-[11px] text-gray-400 font-medium pt-0.5">
-                            <span className="truncate">{u.branch || 'Tech'} • Year {u.year || '3'}</span>
-                            
-                            {/* Availability Status Badge Tag */}
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border flex items-center gap-1.5 shrink-0 ${
-                              (u.availability_status || 'Available') === 'Available'
-                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                                : u.availability_status === 'Open to work'
-                                ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30'
-                                : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
-                            }`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${
-                                (u.availability_status || 'Available') === 'Available'
-                                  ? 'bg-emerald-400 animate-pulse'
-                                  : u.availability_status === 'Open to work'
-                                  ? 'bg-cyan-400 animate-pulse'
-                                  : 'bg-rose-400'
-                              }`} />
-                              {u.availability_status || 'Available'}
-                            </span>
-                          </div>
+                          {(() => {
+                            const academic = getAcademicStatus(u)
+                            return (
+                              <div className="flex items-center gap-1.5 flex-wrap pt-0.5 font-mono">
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                                  {u.college || 'KNIT Sultanpur'}
+                                </span>
+                                <span className={`text-[10px] px-1.5 py-0.2 rounded border font-bold ${
+                                  academic.isPassedOut ? 'bg-amber-950/80 text-amber-300 border-amber-500/40' : 'text-slate-300 border-slate-800'
+                                }`}>
+                                  {u.branch || 'CSE'} · {academic.yearDisplay}
+                                </span>
+                              </div>
+                            )
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -369,7 +366,7 @@ const TeammateFinder = () => {
                         {u.hackathon_interests.slice(0, 3).map((interest, idx) => {
                           const style = getDomainBadgeStyle(interest)
                           return (
-                            <span key={idx} className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${style.color}`}>
+                            <span key={idx} className={`px-2 py-0.5 text-[9px] font-bold rounded border ${style.color}`}>
                               {style.icon} {interest}
                             </span>
                           )
@@ -381,18 +378,18 @@ const TeammateFinder = () => {
                     <div className="flex flex-wrap gap-1.5">
                       {u.skills?.length > 0 ? (
                         u.skills.slice(0, 4).map((skill, index) => (
-                          <span key={index} className="px-2 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/10 text-orange-300 border border-orange-500/20">
+                          <span key={index} className="px-2 py-0.5 text-[9px] font-semibold rounded bg-slate-800 text-slate-300 border border-slate-700">
                             {typeof skill === 'string' ? skill : skill.skill_name}
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-gray-500">No skills listed</span>
+                        <span className="text-xs text-slate-500">No skills listed</span>
                       )}
                     </div>
                   </div>
 
                   {/* Actions Footer */}
-                  <div className="flex items-center justify-between pt-3 border-t border-white/10 gap-2">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-800 gap-2 font-mono text-xs">
                     {/* Heart Like Button */}
                     <button
                       type="button"
@@ -402,10 +399,10 @@ const TeammateFinder = () => {
                         likeMutation.mutate(u._id)
                       }}
                       disabled={likeMutation.isLoading}
-                      className={`px-2 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
+                      className={`px-2 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer ${
                         isLiked
-                          ? 'bg-rose-500/20 border-rose-500/40 text-rose-400'
-                          : 'bg-white/5 border-white/10 text-gray-400 hover:text-rose-400'
+                          ? 'bg-rose-950/80 border-rose-500/40 text-rose-400'
+                          : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-rose-400'
                       }`}
                       title={isLiked ? 'Unlike profile' : 'Like profile'}
                     >
@@ -415,8 +412,8 @@ const TeammateFinder = () => {
 
                     <button
                       onClick={() => bookmarkMutation.mutate(u._id)}
-                      className={`p-2 rounded-xl border transition-all cursor-pointer ${
-                        isBookmarked ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' : 'bg-white/5 border-white/10 text-gray-400 hover:text-white'
+                      className={`p-2 rounded-lg border transition-all cursor-pointer ${
+                        isBookmarked ? 'bg-amber-950/80 border-amber-500/40 text-amber-400' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
                       }`}
                       title={isBookmarked ? 'Bookmarked' : 'Bookmark candidate'}
                     >
@@ -425,7 +422,7 @@ const TeammateFinder = () => {
 
                     <button
                       onClick={() => navigate(`/user/${u._id}`)}
-                      className="btn-secondary text-xs py-2 px-2.5 flex-1 flex items-center justify-center gap-1 rounded-xl font-semibold min-w-0"
+                      className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-200 text-xs flex-1 flex items-center justify-center gap-1 rounded-lg font-semibold min-w-0"
                     >
                       <User className="w-3.5 h-3.5" />
                       <span>Profile</span>
@@ -433,7 +430,7 @@ const TeammateFinder = () => {
 
                     <button
                       onClick={() => handleInviteClick(u)}
-                      className="btn-sunset text-xs py-2 px-2.5 flex-1 flex items-center justify-center gap-1 rounded-xl font-bold shadow-md min-w-0"
+                      className="px-2.5 py-1.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs py-2 px-2.5 flex-1 flex items-center justify-center gap-1 rounded-lg font-bold shadow-md min-w-0"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>Invite</span>
