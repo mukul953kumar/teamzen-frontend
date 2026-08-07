@@ -44,7 +44,11 @@ export const NotificationProvider = ({ children }) => {
     fetchNotifications()
 
     const socket = io(getBackendURL(), {
-      transports: ['websocket', 'polling']
+      transports: ['polling', 'websocket'],
+      withCredentials: true,
+      autoConnect: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
     })
     socketRef.current = socket
 
