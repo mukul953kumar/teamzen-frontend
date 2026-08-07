@@ -29,7 +29,8 @@ import {
   Check,
   ShieldCheck,
   Layers,
-  Cpu
+  Cpu,
+  Flame
 } from 'lucide-react'
 
 // ── Smooth Animated Counter Component ──
@@ -116,21 +117,21 @@ const staticEvents = [
 const sampleSkills = ['React', 'Node.js', 'Python', 'ML', 'UI/UX', 'Flutter', 'MongoDB', 'Docker']
 
 const mockCandidates = [
-  { name: 'Shivam R.', branch: 'IT · 4th Year', skills: ['React', 'Node.js', 'AWS'], match: 98, role: 'Full Stack Dev', avatar: 'S' },
-  { name: 'Ananya S.', branch: 'CS · 3rd Year', skills: ['Python', 'ML', 'FastAPI'], match: 94, role: 'AI / ML Engineer', avatar: 'A' },
-  { name: 'Kavya M.', branch: 'ECE · 4th Year', skills: ['UI/UX', 'Figma', 'React'], match: 91, role: 'Product Designer', avatar: 'K' },
-  { name: 'Rohan T.', branch: 'IT · 4th Year', skills: ['Flutter', 'Firebase', 'Dart'], match: 88, role: 'Mobile Dev', avatar: 'R' },
-  { name: 'Divya P.', branch: 'CSE · 3rd Year', skills: ['Node.js', 'MongoDB', 'Docker'], match: 95, role: 'Backend Engineer', avatar: 'D' },
-  { name: 'Yash V.', branch: 'IT · 4th Year', skills: ['React', 'TypeScript', 'Tailwind'], match: 92, role: 'Frontend Engineer', avatar: 'Y' },
-  { name: 'Prateek K.', branch: 'ECE · 4th Year', skills: ['Python', 'PyTorch', 'OpenCV'], match: 89, role: 'Computer Vision Engineer', avatar: 'P' },
-  { name: 'Simran C.', branch: 'CSE · 2nd Year', skills: ['Figma', 'UI/UX', 'CSS'], match: 87, role: 'UI/UX Designer', avatar: 'S' },
-  { name: 'Varun N.', branch: 'MECH · 4th Year', skills: ['Python', 'Django', 'PostgreSQL'], match: 86, role: 'Backend Developer', avatar: 'V' },
-  { name: 'Neha B.', branch: 'IT · 3rd Year', skills: ['React Native', 'Firebase'], match: 93, role: 'App Developer', avatar: 'N' },
-  { name: 'Siddharth R.', branch: 'CSE · 4th Year', skills: ['Go', 'Kubernetes', 'Docker'], match: 90, role: 'DevOps Engineer', avatar: 'S' },
-  { name: 'Muskan A.', branch: 'ECE · 3rd Year', skills: ['C++', 'Embedded C', 'IoT'], match: 88, role: 'Embedded Systems Dev', avatar: 'M' },
-  { name: 'Chirag L.', branch: 'IT · 4th Year', skills: ['Next.js', 'GraphQL', 'Prisma'], match: 96, role: 'Full Stack Dev', avatar: 'C' },
-  { name: 'Aditi W.', branch: 'CSE · 3rd Year', skills: ['Data Science', 'Pandas', 'SQL'], match: 91, role: 'Data Analyst', avatar: 'A' },
-  { name: 'Tanmay J.', branch: 'IT · 4th Year', skills: ['Flutter', 'Dart', 'BLoC'], match: 89, role: 'Mobile Architect', avatar: 'T' }
+  { name: 'Shivam R.', branch: 'IT · 4th Year', skills: ['React', 'Node.js', 'AWS'], match: 98, role: 'Full Stack Dev', avatar: 'S', statusTag: '⚡ Open for Teammates', campusTag: 'KNIT Sultanpur' },
+  { name: 'Ananya S.', branch: 'CS · 3rd Year', skills: ['Python', 'ML', 'FastAPI'], match: 94, role: 'AI / ML Engineer', avatar: 'A', statusTag: '🚀 SIH 2026 Ready', campusTag: 'Campus Verified' },
+  { name: 'Kavya M.', branch: 'ECE · 4th Year', skills: ['UI/UX', 'Figma', 'React'], match: 91, role: 'Product Designer', avatar: 'K', statusTag: '🎨 Design Lead', campusTag: 'KNIT Sultanpur' },
+  { name: 'Rohan T.', branch: 'IT · 4th Year', skills: ['Flutter', 'Firebase', 'Dart'], match: 88, role: 'Mobile Dev', avatar: 'R', statusTag: '📱 Mobile Lead', campusTag: 'Campus Verified' },
+  { name: 'Divya P.', branch: 'CSE · 3rd Year', skills: ['Node.js', 'MongoDB', 'Docker'], match: 95, role: 'Backend Engineer', avatar: 'D', statusTag: '🛡️ Backend Architect', campusTag: 'KNIT Sultanpur' },
+  { name: 'Yash V.', branch: 'IT · 4th Year', skills: ['React', 'TypeScript', 'Tailwind'], match: 92, role: 'Frontend Engineer', avatar: 'Y', statusTag: '⭐ 100+ LeetCode Solved', campusTag: 'Campus Verified' },
+  { name: 'Prateek K.', branch: 'ECE · 4th Year', skills: ['Python', 'PyTorch', 'OpenCV'], match: 89, role: 'Computer Vision Engineer', avatar: 'P', statusTag: '🤖 AI Researcher', campusTag: 'KNIT Sultanpur' },
+  { name: 'Simran C.', branch: 'CSE · 2nd Year', skills: ['Figma', 'UI/UX', 'CSS'], match: 87, role: 'UI/UX Designer', avatar: 'S', statusTag: '✨ UI/UX Specialist', campusTag: 'Campus Verified' },
+  { name: 'Varun N.', branch: 'MECH · 4th Year', skills: ['Python', 'Django', 'PostgreSQL'], match: 86, role: 'Backend Developer', avatar: 'V', statusTag: '⚡ Major Project Ready', campusTag: 'KNIT Sultanpur' },
+  { name: 'Neha B.', branch: 'IT · 3rd Year', skills: ['React Native', 'Firebase'], match: 93, role: 'App Developer', avatar: 'N', statusTag: '📱 App Developer', campusTag: 'Campus Verified' },
+  { name: 'Siddharth R.', branch: 'CSE · 4th Year', skills: ['Go', 'Kubernetes', 'Docker'], match: 90, role: 'DevOps Engineer', avatar: 'S', statusTag: '🚀 DevOps Lead', campusTag: 'KNIT Sultanpur' },
+  { name: 'Muskan A.', branch: 'ECE · 3rd Year', skills: ['C++', 'Embedded C', 'IoT'], match: 88, role: 'Embedded Systems Dev', avatar: 'M', statusTag: '⚡ Hardware Developer', campusTag: 'Campus Verified' },
+  { name: 'Chirag L.', branch: 'IT · 4th Year', skills: ['Next.js', 'GraphQL', 'Prisma'], match: 96, role: 'Full Stack Dev', avatar: 'C', statusTag: '🏆 Hackathon Finalist', campusTag: 'KNIT Sultanpur' },
+  { name: 'Aditi W.', branch: 'CSE · 3rd Year', skills: ['Data Science', 'Pandas', 'SQL'], match: 91, role: 'Data Analyst', avatar: 'A', statusTag: '📊 Data Specialist', campusTag: 'Campus Verified' },
+  { name: 'Tanmay J.', branch: 'IT · 4th Year', skills: ['Flutter', 'Dart', 'BLoC'], match: 89, role: 'Mobile Architect', avatar: 'T', statusTag: '📱 Mobile Lead', campusTag: 'KNIT Sultanpur' }
 ]
 
 const LandingPage = () => {
@@ -409,20 +410,33 @@ const LandingPage = () => {
   ]
 
   return (
-    <div className="min-h-screen text-slate-100 selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden w-full max-w-full" style={{ backgroundColor: '#08080c' }}>
+    <div className="min-h-screen text-slate-100 selection:bg-orange-500/30 selection:text-orange-200 overflow-x-hidden w-full max-w-full" style={{ backgroundColor: '#0B0D17' }}>
 
       {/* ── TOP FLOATING NAVBAR ── */}
       <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 px-2 sm:px-4 md:px-8">
         <div className="max-w-6xl mx-auto h-14 sm:h-16 rounded-2xl flex items-center justify-between px-3 sm:px-6 border border-white/10 backdrop-blur-xl bg-[#0a0a12]/80 shadow-2xl">
           
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <a
+            href="#hero"
+            onClick={(e) => {
+              e.preventDefault()
+              document.querySelector('#hero')?.scrollIntoView({ behavior: 'smooth' })
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            className="flex items-center gap-3 group cursor-pointer"
+            title="TeamZen Home"
+          >
             <img src="/images/logo26.png" alt="TeamZen" className="h-7 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105" />
-          </Link>
+          </a>
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" onClick={(e) => { e.preventDefault(); document.querySelector('#features')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Features</a>
+            <a href="#hackathons" onClick={(e) => { e.preventDefault(); document.querySelector('#hackathons')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-bold uppercase tracking-wider text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1">
+              <span>Hackathons</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            </a>
             <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.querySelector('#how-it-works')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">How It Works</a>
             <a href="#who-its-for" onClick={(e) => { e.preventDefault(); document.querySelector('#who-its-for')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Who It's For</a>
             <a href="#stories" onClick={(e) => { e.preventDefault(); document.querySelector('#stories')?.scrollIntoView({ behavior: 'smooth' }) }} className="text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">Stories</a>
@@ -500,7 +514,7 @@ const LandingPage = () => {
       </AnimatePresence>
 
       {/* ── HERO SECTION WITH TECH GRID ── */}
-      <section className="relative min-h-screen flex items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden laser-border-top max-w-full">
+      <section id="hero" className="relative min-h-screen flex items-center justify-center pt-24 sm:pt-32 pb-16 sm:pb-20 overflow-hidden laser-border-top max-w-full">
         {/* Background Grid & Spotlight */}
         <div className="absolute inset-0 tech-grid-bg pointer-events-none" />
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[350px] rounded-full pointer-events-none overflow-hidden"
@@ -512,19 +526,21 @@ const LandingPage = () => {
             {/* Left Content */}
             <motion.div variants={fadeUp} initial="hidden" animate="show" className="lg:col-span-7 flex flex-col items-start w-full overflow-hidden">
               
-              {/* Glowing Live Indicator Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5 sm:mb-8 border border-emerald-500/30 bg-emerald-500/10 backdrop-blur-md max-w-full">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-                <span className="text-emerald-300 text-[10px] sm:text-xs font-semibold tracking-wide uppercase truncate">247 Students Active Right Now</span>
+              {/* Tactical Developer Live Indicator Pill */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl mb-5 sm:mb-8 border border-emerald-500/30 bg-slate-900/90 backdrop-blur-md max-w-full shadow-lg shadow-emerald-950/20 font-mono">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0 shadow-[0_0_8px_#10B981]" />
+                <span className="text-emerald-300 text-[10px] sm:text-xs font-semibold tracking-wide uppercase truncate">
+                  DB_STATUS: LIVE · 🎓 KNIT SULTANPUR HUB · ⚡ SIH 2026 READY
+                </span>
               </div>
 
               <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.15] mb-5 max-w-full overflow-hidden">
-                <span className="gradient-heading block sm:inline">Stop searching in </span>
-                <span className="gradient-accent-text block sm:inline">WhatsApp groups.</span>
+                <span className="text-white block sm:inline">Stop searching in </span>
+                <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-amber-500 bg-clip-text text-transparent block sm:inline">WhatsApp groups.</span>
                 <br className="hidden sm:block" />
                 <span className="text-slate-300 text-xl sm:text-3xl md:text-5xl font-semibold mt-2 block sm:inline-block">
                   <span className="block sm:inline">Build teams for</span>{' '}
-                  <span className="relative inline-block text-purple-400 font-bold min-w-0 sm:min-w-[220px]">
+                  <span className="relative inline-block text-emerald-400 font-bold font-mono min-w-0 sm:min-w-[220px]">
                     <AnimatePresence mode="wait">
                       <motion.span
                         key={wordIndex}
@@ -547,60 +563,78 @@ const LandingPage = () => {
 
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                <Link to="/login" className="shimmer-btn inline-flex items-center justify-center gap-2 text-sm sm:text-base px-5 sm:px-7 py-3 rounded-xl font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40">
-                  <span>Get Started Free</span>
+                <Link to="/login" className="shimmer-btn inline-flex items-center justify-center gap-2 text-sm sm:text-base px-6 sm:px-8 py-3.5 rounded-xl font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white shadow-xl shadow-orange-500/25 hover:shadow-orange-500/40 transition-all hover:scale-[1.02]">
+                  <span>Find Teammates Now</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <a href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 border border-white/10 hover:border-white/20 bg-white/[0.03] hover:bg-white/[0.08] transition-all">
-                  See Match Engine
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-300 border border-slate-700/80 hover:border-emerald-500/40 bg-slate-900/60 hover:bg-slate-900 transition-all font-mono">
+                  <span>./explore_engine</span>
                 </a>
               </div>
 
-              {/* Live Proof */}
-              <div className="flex items-center gap-3 sm:gap-4 mt-8 pt-5 border-t border-white/5 w-full">
+              {/* Live Student Proof */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-8 pt-5 border-t border-slate-800/80 w-full">
                 <div className="flex -space-x-2.5 flex-shrink-0">
                   {['A','P','R','M','S'].map((letter, i) => (
-                    <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-[#08080c] flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shadow-md"
+                    <div key={i} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-[#0B0D17] flex items-center justify-center text-[10px] sm:text-xs font-bold text-white shadow-md"
                       style={{ background: ['#FF6B35','#9D4EDD','#00A896','#FF6B9D','#52B788'][i] }}>
                       {letter}
                     </div>
                   ))}
                 </div>
-                <p className="text-slate-400 text-xs sm:text-sm">
-                  Joined by <span className="text-white font-bold">500+ BTech builders</span> this week
-                </p>
+                <div className="flex flex-col">
+                  <p className="text-slate-300 text-xs sm:text-sm font-medium">
+                    Joined by <span className="text-emerald-400 font-bold font-mono">500+ BTech builders</span> this week
+                  </p>
+                  <span className="text-[10px] text-slate-500 font-mono">🎓 KNIT Sultanpur Verified Campus Network</span>
+                </div>
               </div>
 
             </motion.div>
 
-            {/* Right — Interactive Hero Skill Match Sandbox */}
-            <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2} className="lg:col-span-5 w-full overflow-hidden">
-              <div className="bento-card rounded-3xl p-3.5 sm:p-6 relative overflow-hidden border border-purple-500/20 shadow-2xl max-w-full">
+            {/* Right — Interactive Hero Skill Match Sandbox (Clean Developer Studio Window & Student Pass Cards) */}
+            <motion.div 
+              variants={fadeUp} 
+              initial="hidden" 
+              animate="show" 
+              custom={2} 
+              className="lg:col-span-5 w-full overflow-hidden"
+            >
+              <div className="rounded-2xl p-3.5 sm:p-5 relative overflow-hidden border border-slate-800 bg-slate-950/95 shadow-2xl backdrop-blur-2xl max-w-full">
                 
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-orange-500 animate-ping flex-shrink-0" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300">Live Match Simulator</span>
+                {/* Background Accent Blur */}
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br from-emerald-500/10 via-amber-500/5 to-transparent rounded-full blur-2xl pointer-events-none" />
+
+                {/* VS Code Window Header (Mobile Responsive) */}
+                <div className="flex items-center justify-between mb-3.5 pb-2.5 border-b border-slate-800/80 gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500/80 inline-block shadow-sm" />
+                      <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500/80 inline-block shadow-sm" />
+                      <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-500/80 inline-block shadow-sm" />
+                    </div>
+                    <span className="text-[10px] sm:text-[11px] font-mono text-slate-300 font-bold tracking-tight truncate ml-1">
+                      KNIT_STUDENT_PASS_MATRIX.exe
+                    </span>
                   </div>
-                  <span className="text-[10px] uppercase tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                    Interactive
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-bold flex-shrink-0">
+                    MATCH_V2
                   </span>
                 </div>
 
                 {/* Skill selector */}
-                <p className="text-xs text-slate-400 mb-3">Select your target stack to preview team matches:</p>
-                <div className="flex flex-wrap gap-1.5 mb-6">
+                <p className="text-[11px] sm:text-xs font-mono text-slate-400 mb-2">Select target stack filter:</p>
+                <div className="flex flex-wrap gap-1.5 mb-3.5">
                   {sampleSkills.map((sk) => (
                     <button
                       key={sk}
                       type="button"
                       onClick={() => setSelectedSkill(sk)}
-                      className={`text-[11px] sm:text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border font-medium transition-all ${
+                      className={`text-[10px] sm:text-[11px] font-mono px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md border transition-all ${
                         selectedSkill === sk
-                          ? 'bg-orange-500/20 text-orange-300 border-orange-500/50 shadow-sm shadow-orange-500/20'
-                          : 'bg-white/[0.03] text-slate-400 border-white/10 hover:border-white/20'
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-md shadow-emerald-500/20 scale-105'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
                       }`}
                     >
                       {sk}
@@ -608,38 +642,71 @@ const LandingPage = () => {
                   ))}
                 </div>
 
-                {/* Dynamic Auto-Scrolling Candidates Preview List */}
-                <div className="space-y-3 min-h-[280px] relative overflow-hidden">
+                {/* Dynamic Candidates Alternative Card Layout: Responsive Holographic Student ID Pass Cards */}
+                <div className="space-y-2.5 min-h-[300px] relative overflow-hidden">
                   <AnimatePresence mode="popLayout">
                     {visibleCandidates.map((c, i) => (
                       <motion.div
                         key={c._id || `${c.name}-${c.role}`}
                         layout
-                        initial={{ opacity: 0, y: -20, scale: 0.96 }}
+                        initial={{ opacity: 0, y: -15, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.96 }}
+                        exit={{ opacity: 0, y: 15, scale: 0.98 }}
                         transition={{ duration: 0.45, ease: 'easeOut' }}
-                        className="p-2.5 sm:p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-purple-500/30 flex items-center justify-between gap-2 sm:gap-3 transition-colors max-w-full"
+                        className="p-2.5 sm:p-3.5 rounded-xl bg-gradient-to-r from-slate-900/90 via-slate-900/80 to-slate-950/90 border border-slate-800 hover:border-emerald-500/50 flex flex-col gap-2 transition-all max-w-full group shadow-lg hover:shadow-emerald-950/40 relative overflow-hidden"
                       >
-                        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
-                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center font-bold text-white text-xs flex-shrink-0 shadow-md">
-                            {c.avatar || (c.name ? c.name[0] : 'U')}
+                        {/* Metallic Holographic Top Border Accent Bar */}
+                        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-400 via-amber-300 via-cyan-400 to-emerald-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+
+                        {/* Top ID Header Bar */}
+                        <div className="flex items-center justify-between text-[9px] font-mono text-slate-500 pb-1 border-b border-slate-800/60">
+                          <span className="flex items-center gap-1 text-slate-400 truncate">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
+                            ID: <strong className="text-slate-300">KNIT-2026-0{i + 1}</strong>
+                          </span>
+                          <span className="text-slate-500 hidden sm:inline">||| | || ||||| |</span>
+                        </div>
+
+                        {/* Middle Student Profile Details */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-br from-slate-800 to-slate-950 border border-emerald-500/30 flex items-center justify-center font-mono font-black text-emerald-400 text-xs sm:text-sm flex-shrink-0 shadow-md ring-2 ring-emerald-500/10">
+                              {c.avatar || (c.name ? c.name[0] : 'U')}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                                <p className="text-xs font-black text-white truncate font-mono tracking-tight">
+                                  {c.name}
+                                </p>
+                                <span className="text-[8px] sm:text-[9px] px-1.5 py-0.2 rounded bg-emerald-950/60 text-emerald-300 font-mono border border-emerald-500/30 truncate">
+                                  {c.campusTag || 'Verified Student'}
+                                </span>
+                              </div>
+                              <p className="text-[10px] sm:text-[11px] text-slate-400 truncate mt-0.5 font-mono">
+                                {c.role ? `${c.role} · ${c.branch}` : c.branch}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-bold text-white truncate">
-                              {c.name}
-                            </p>
-                            <p className="text-[11px] text-slate-400 truncate">
-                              {c.role ? `${c.role} · ${c.branch}` : c.branch}
-                            </p>
+
+                          <div className="text-right flex flex-col items-end flex-shrink-0">
+                            <span className="text-[10px] sm:text-xs font-mono font-black text-emerald-400 flex items-center gap-1 bg-emerald-950/80 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md sm:rounded-lg border border-emerald-500/40 shadow-sm shadow-emerald-950/50">
+                              <Check className="w-3 h-3 text-emerald-400" /> {c.match}%
+                            </span>
                           </div>
                         </div>
 
-                        <div className="text-right flex flex-col items-end flex-shrink-0">
-                          <span className="text-[11px] sm:text-xs font-black text-emerald-400 flex items-center gap-1 whitespace-nowrap">
-                            <Check className="w-3 h-3" /> {c.match}% Match
+                        {/* Student Status Tag & Stack Pills */}
+                        <div className="flex flex-wrap items-center justify-between pt-1.5 border-t border-slate-800/60 text-[9px] sm:text-[10px] gap-1">
+                          <span className="text-amber-400 font-medium truncate font-mono max-w-[65%]">
+                            {c.statusTag || '⚡ Open for Teammates'}
                           </span>
-                          <span className="text-[9px] sm:text-[10px] text-slate-500 hidden sm:block">Zero skill overlap</span>
+                          <div className="flex gap-1 flex-shrink-0">
+                            {(c.skills || []).slice(0, 2).map((sk, sidx) => (
+                              <span key={sidx} className="px-1 py-0.2 sm:px-1.5 sm:py-0.5 rounded bg-slate-800/90 text-emerald-300 font-mono text-[8px] sm:text-[9px] border border-slate-700">
+                                {sk}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       </motion.div>
                     ))}
@@ -647,13 +714,13 @@ const LandingPage = () => {
                 </div>
 
                 {/* Footer status */}
-                <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+                <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
                   <span className="flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
-                    <span>Match accuracy: <strong className="text-slate-200">96.4%</strong></span>
+                    <span>MATCH_ACCURACY: <strong className="text-emerald-400">96.4%</strong></span>
                   </span>
                   <Link to="/login" className="text-orange-400 hover:text-orange-300 font-semibold flex items-center gap-1">
-                    Find squad <ArrowRight className="w-3 h-3" />
+                    Connect <ArrowRight className="w-3 h-3" />
                   </Link>
                 </div>
 
@@ -664,10 +731,57 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* ── HIGH-IMPACT TERMINAL CLI BANNER STRIP ── */}
+      <section className="relative z-20 max-w-6xl mx-auto px-3 sm:px-6 -mt-6 mb-12">
+        <div className="bg-slate-950/90 border border-slate-800/90 rounded-2xl p-3 sm:p-4 font-mono text-xs text-slate-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-2xl backdrop-blur-xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-emerald-500 font-bold">$</span>
+            <span className="text-slate-100 font-bold">teamzen match</span>
+            <span className="text-amber-400 font-medium">--campus</span>
+            <span className="text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30 font-semibold">"KNIT Sultanpur"</span>
+            <span className="text-purple-400 font-medium">--event</span>
+            <span className="text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30 font-semibold">"SIH 2026 & Major Projects"</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-slate-400 border-t md:border-t-0 md:border-l border-slate-800/80 pt-2 md:pt-0 md:pl-4 w-full md:w-auto justify-between md:justify-start">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping inline-block" />
+              STATUS: READY
+            </span>
+            <span className="text-slate-500">|</span>
+            <span className="text-slate-300">0% Skill Overlap Match Engine</span>
+          </div>
+        </div>
+      </section>
+
       {/* ── INTERACTIVE PRODUCT PREVIEW ── */}
       <InteractiveDemo />
 
-      {/* ── METRICS STRIP ── */}
+      {/* ── LIVE CAMPUS ACTIVITY TICKER ── */}
+      <section className="relative py-4 bg-slate-950 border-y border-slate-800/80 overflow-hidden font-mono text-xs">
+        <div className="flex items-center gap-6 animate-pulse whitespace-nowrap px-6">
+          <span className="text-amber-400 font-bold flex items-center gap-1.5">
+            <span>⚡ CAMPUS FEED:</span>
+          </span>
+          <span className="text-slate-300">
+            <strong className="text-white">Mukul K. (IT 4th Yr)</strong> requested ML Engineer for SIH 
+            <span className="text-emerald-400 ml-1 font-sans">(KNIT Sultanpur)</span>
+          </span>
+          <span className="text-slate-600">•</span>
+          <span className="text-slate-300">
+            <strong className="text-white">Priya M. (CS 3rd Yr)</strong> joined HealthAI Squad 
+            <span className="text-emerald-400 ml-1 font-sans">(Verified Student)</span>
+          </span>
+          <span className="text-slate-600">•</span>
+          <span className="text-slate-300">
+            <strong className="text-white">Shivam R. (ECE 4th Yr)</strong> published React Native Project 
+            <span className="text-emerald-400 ml-1 font-sans">(BTech Major Project)</span>
+          </span>
+          <span className="text-slate-600">•</span>
+          <span className="text-slate-300">
+            <strong className="text-emerald-400">98% Synergy Match</strong> generated for BTech Major Project
+          </span>
+        </div>
+      </section>
       <section className="relative py-16 border-y border-white/5" style={{ background: '#0a0a10' }}>
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -709,109 +823,128 @@ const LandingPage = () => {
           {/* Bento Grid Layout */}
           <div className="grid md:grid-cols-12 gap-6">
 
-            {/* Bento 1: Skill Matrix (Col 7) */}
-            <div className="md:col-span-7 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-purple-500/20 transition-all" />
+            {/* Bento 1: 3-Pillar Synergy Skill Matrix (Col 7) */}
+            <div className="md:col-span-7 rounded-3xl p-5 sm:p-8 flex flex-col justify-between relative overflow-hidden group border border-slate-800 bg-slate-950/80 shadow-2xl">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/20 transition-all" />
               
               <div>
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-cyan-500/20">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20">
                   <Users className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Complementary Skill Matching</h3>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 font-mono">3-Pillar Synergy Match Engine</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-md">
-                  Stop teaming up with 4 React developers. TeamZen automatically pair Frontend with Backend, ML, and UI/UX specialists.
+                  Stop teaming up with 4 React developers. TeamZen automatically calculates zero skill overlap across 3 core pillars.
                 </p>
               </div>
 
-              {/* Visual Tech Matrix Pills */}
-              <div className="p-3 sm:p-4 rounded-2xl bg-[#08080d] border border-white/10 space-y-3">
-                <div className="flex items-center justify-between text-xs text-slate-300 font-semibold">
-                  <span>Stack Balance Index</span>
-                  <span className="text-emerald-400">Optimal (100%)</span>
+              {/* 3-Pillar Visual Progress Breakdown */}
+              <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 font-mono text-xs">
+                <div className="flex items-center justify-between text-slate-300 font-bold border-b border-slate-800 pb-2">
+                  <span>TOTAL SYNERGY ACCURACY</span>
+                  <span className="text-emerald-400 font-extrabold text-sm">96.8% SCORE</span>
                 </div>
-                <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-center">
-                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">Frontend</p>
-                    <p className="text-[11px] sm:text-xs font-bold text-blue-300 truncate">React / Vite</p>
+                
+                {/* Pillar 1 */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-slate-300">1. Skill Complementarity (40%)</span>
+                    <span className="text-emerald-400">100% Match</span>
                   </div>
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center">
-                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">Backend</p>
-                    <p className="text-[11px] sm:text-xs font-bold text-purple-300 truncate">Node / Mongo</p>
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-emerald-400 h-full rounded-full w-[100%]" />
                   </div>
-                  <div className="p-2 sm:p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
-                    <p className="text-[9px] sm:text-[10px] text-slate-400 uppercase">AI / ML</p>
-                    <p className="text-[11px] sm:text-xs font-bold text-orange-300 truncate">Python / ML</p>
+                </div>
+
+                {/* Pillar 2 */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-slate-300">2. Campus & Academic Fit (30%)</span>
+                    <span className="text-amber-400">94% Match</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-amber-400 h-full rounded-full w-[94%]" />
+                  </div>
+                </div>
+
+                {/* Pillar 3 */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className="text-slate-300">3. Hackathon Goals & Velocity (30%)</span>
+                    <span className="text-purple-400">96% Match</span>
+                  </div>
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-purple-400 h-full rounded-full w-[96%]" />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Bento 2: Smart Filters (Col 5) */}
-            <div className="md:col-span-5 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-5 rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group border border-slate-800 bg-slate-950/80 shadow-2xl hover:border-purple-500/40 transition-all hover:-translate-y-1">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white mb-6 shadow-lg shadow-purple-500/20">
                   <Sliders className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Hyper-Targeted Filters</h3>
+                <h3 className="text-xl font-bold text-white mb-3 font-mono">Hyper-Targeted Campus Filters</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6">
                   Filter candidates by exact college, BTech branch (IT, CS, ECE), year of study, and verified skills.
                 </p>
               </div>
 
               {/* Filter pill preview */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <span className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-slate-300 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-orange-400" /> KNIT Sultanpur
+              <div className="flex flex-wrap gap-2 pt-2 font-mono text-xs">
+                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> KNIT Sultanpur
                 </span>
-                <span className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-slate-300 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-orange-400" /> IT & CS Branch
+                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> IT & CS Branch
                 </span>
-                <span className="px-3 py-1.5 rounded-xl text-xs font-medium bg-white/5 border border-white/10 text-slate-300 flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-orange-400" /> 4th Year
+                <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" /> 4th Year
                 </span>
               </div>
             </div>
 
             {/* Bento 3: Built-in Chat (Col 5) */}
-            <div className="md:col-span-5 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-5 rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group border border-slate-800 bg-slate-950/80 shadow-2xl hover:border-emerald-500/40 transition-all hover:-translate-y-1">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20">
                   <MessageCircle className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Real-Time Team Rooms</h3>
+                <h3 className="text-xl font-bold text-white mb-3 font-mono">Real-Time Team Rooms</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6">
                   Direct messages and project group chats. Discuss code, share links, and coordinate without leaking phone numbers.
                 </p>
               </div>
 
               {/* Mini Chat Widget */}
-              <div className="p-3.5 rounded-2xl bg-[#08080d] border border-white/10 space-y-2">
-                <div className="p-2 rounded-xl bg-purple-500/10 text-xs text-purple-200 w-3/4">
-                  <span className="font-bold block text-[10px] text-purple-400">Aryan (Frontend)</span>
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 font-mono">
+                <div className="p-2 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-200 w-4/5">
+                  <span className="font-bold block text-[10px] text-purple-400">Aryan (Frontend · Hostel 5)</span>
                   Hey! Connected MongoDB to the express server.
                 </div>
-                <div className="p-2 rounded-xl bg-emerald-500/10 text-xs text-emerald-200 w-3/4 ml-auto text-right">
-                  <span className="font-bold block text-[10px] text-emerald-400">Sneha (UI/UX)</span>
+                <div className="p-2 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-xs text-emerald-200 w-4/5 ml-auto text-right">
+                  <span className="font-bold block text-[10px] text-emerald-400">Sneha (UI/UX · Gargi)</span>
                   Awesome! Uploaded Figma dev specs.
                 </div>
               </div>
             </div>
 
             {/* Bento 4: Showcase & Proof (Col 7) */}
-            <div className="md:col-span-7 bento-card rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group">
+            <div className="md:col-span-7 rounded-3xl p-4 sm:p-8 flex flex-col justify-between relative overflow-hidden group border border-slate-800 bg-slate-950/80 shadow-2xl hover:border-amber-500/40 transition-all hover:-translate-y-1">
               <div>
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-orange-500/20">
                   <Trophy className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">Verified Project Showcase</h3>
+                <h3 className="text-2xl font-bold text-white mb-3 font-mono">Verified Project Showcase</h3>
                 <p className="text-slate-400 text-sm leading-relaxed mb-6">
                   Display your GitHub repos, live project URLs, hackathon certificates, and departmental badges directly on your profile.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2.5 font-mono text-xs">
                 {['🏆 SIH 2025 Finalist', '⭐ Top Department Project', '⚡ 15+ Verified Skills', '🚀 4 Completed Projects'].map((b, idx) => (
-                  <span key={idx} className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-2">
+                  <span key={idx} className="px-3.5 py-2 rounded-xl bg-amber-950/40 text-amber-300 border border-amber-500/30 flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" /> {b}
                   </span>
                 ))}
@@ -819,6 +952,114 @@ const LandingPage = () => {
             </div>
 
           </div>
+        </div>
+      </section>
+
+      {/* ── LIVE HACKATHONS & FLAGSHIP COMPETITIONS SHOWCASE ── */}
+      <section id="hackathons" className="py-20 max-w-7xl mx-auto px-4 md:px-8 relative z-20 border-t border-white/5" style={{ background: '#0B0D17' }}>
+        <div className="text-center max-w-3xl mx-auto mb-14 space-y-4">
+          <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold uppercase tracking-wider bg-orange-950/80 text-orange-400 border border-orange-500/40 inline-flex items-center gap-1.5 shadow-md animate-pulse">
+            <Flame className="w-3.5 h-3.5 fill-orange-400" /> Live Automated Hackathons Engine
+          </span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+            Discover Live Student Hackathons & Flagship Competitions
+          </h2>
+          <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            Real-time active student competitions synced directly from Unstop, SIH 2026, Google Solution Challenge, Flipkart GRiD & Devfolio. Find teammates & apply in 1-click!
+          </p>
+        </div>
+
+        {/* Sample Live Hackathon Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 font-mono">
+          {/* Card 1: SIH 2026 */}
+          <div className="rounded-2xl p-6 bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 transition-all shadow-xl space-y-4 relative group hover:-translate-y-1">
+            <div className="flex items-center justify-between">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-500/40">
+                🏆 National Flagship
+              </span>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-500/40 animate-pulse">
+                ⚡ 22d left
+              </span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+                Smart India Hackathon (SIH 2026)
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">Ministry of Education & AICTE</p>
+            </div>
+            <div className="text-xs text-slate-300 space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="flex justify-between"><span>Prize Pool:</span><strong className="text-emerald-400">₹1,00,000 / Problem</strong></div>
+              <div className="flex justify-between"><span>Mode:</span><strong className="text-white">Hybrid (Internal + Grand Finale)</strong></div>
+            </div>
+            <div className="flex items-center gap-2 pt-2 text-xs">
+              <Link to="/login" className="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl text-center shadow-md hover:scale-[1.02] transition-transform">
+                Find SIH Teammates ↗
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 2: Google Solution Challenge */}
+          <div className="rounded-2xl p-6 bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 transition-all shadow-xl space-y-4 relative group hover:-translate-y-1">
+            <div className="flex items-center justify-between">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-blue-950 text-blue-300 border border-blue-500/40">
+                🌐 Global Event
+              </span>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-500/40 animate-pulse">
+                ⚡ Active Registration
+              </span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors">
+                Google Solution Challenge 2026
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">Google Developer Student Clubs</p>
+            </div>
+            <div className="text-xs text-slate-300 space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="flex justify-between"><span>Prize Pool:</span><strong className="text-emerald-400">$10,000 + Google Mentorship</strong></div>
+              <div className="flex justify-between"><span>Mode:</span><strong className="text-white">Online Global</strong></div>
+            </div>
+            <div className="flex items-center gap-2 pt-2 text-xs">
+              <Link to="/login" className="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-lg text-center shadow-md hover:scale-[1.02] transition-transform">
+                Find GDSC Teammates ↗
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Flipkart GRiD 6.0 */}
+          <div className="rounded-2xl p-6 bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 transition-all shadow-xl space-y-4 relative group hover:-translate-y-1">
+            <div className="flex items-center justify-between">
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/40">
+                💻 Software Track
+              </span>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-500/40 animate-pulse">
+                ⚡ IIT / NIT Campus Live
+              </span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
+                Flipkart GRiD 6.0 Software Track
+              </h3>
+              <p className="text-xs text-slate-400 mt-1">Flipkart Engineering</p>
+            </div>
+            <div className="text-xs text-slate-300 space-y-1 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div className="flex justify-between"><span>Prize Pool:</span><strong className="text-emerald-400">₹5,25,000 + PPI Offers</strong></div>
+              <div className="flex justify-between"><span>Mode:</span><strong className="text-white">Online + Onsite Finale</strong></div>
+            </div>
+            <div className="flex items-center gap-2 pt-2 text-xs">
+              <Link to="/login" className="flex-1 py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold rounded-lg text-center shadow-md hover:scale-[1.02] transition-transform">
+                Find GRiD Teammates ↗
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        <div className="text-center">
+          <Link to="/login" className="shimmer-btn inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-500 text-white shadow-2xl hover:scale-105 transition-all">
+            <Rocket className="w-5 h-5 text-white" />
+            <span>Explore All Live Student Hackathons (12+ Active Events)</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 
