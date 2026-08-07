@@ -47,6 +47,7 @@ import api from '../services/authAPI'
 import toast from 'react-hot-toast'
 import { getDomainBadgeStyle, POPULAR_DOMAINS } from '../utils/domainUtils'
 import { soundManager } from '../services/soundUtils'
+import { getAcademicStatus, getStartYearOptions, getEndYearOptions } from '../utils/academicUtils'
 
 const getTypeColor = (type) => {
   switch (type) {
@@ -518,12 +519,8 @@ const Profile = () => {
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4 overflow-x-hidden pb-12">
       
       {/* Top Hero Banner Header */}
-      <div className="relative rounded-3xl overflow-hidden p-6 sm:p-8 border border-white/10"
-        style={{
-          background: 'linear-gradient(135deg, rgba(20, 20, 35, 0.95) 0%, rgba(10, 10, 20, 0.98) 100%)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
-        }}>
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-purple-500 to-emerald-400" />
+      <div className="relative rounded-2xl overflow-hidden p-6 sm:p-8 border border-slate-800 bg-slate-950/90 shadow-2xl font-mono">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-500" />
         
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-6 relative z-10">
           
@@ -535,11 +532,11 @@ const Profile = () => {
                   <img
                     src={previewImage || profile?.profile_image}
                     alt="Profile"
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-white/15 shadow-xl"
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl object-cover border-2 border-emerald-500/40 shadow-xl"
                   />
                 ) : (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-tr from-orange-500 via-pink-500 to-purple-600 flex items-center justify-center border-2 border-white/15 shadow-xl">
-                    <span className="text-3xl sm:text-4xl font-black text-white">
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-slate-950 flex items-center justify-center border-2 border-emerald-500/40 shadow-xl">
+                    <span className="text-3xl sm:text-4xl font-bold text-emerald-400">
                       {profile?.name?.charAt(0).toUpperCase()}
                     </span>
                   </div>
@@ -595,29 +592,40 @@ const Profile = () => {
               </div>
 
               {/* Dynamic Badges */}
-              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-                {(profile?.email?.endsWith('@knit.ac.in') || profile?.isVerified) && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" title="Verified KNIT Student">
-                    <CheckCircle className="w-3 h-3" /> KNIT Verified Student
-                  </span>
-                )}
+              {(() => {
+                const academic = getAcademicStatus(profile)
+                return (
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 font-mono">
+                    {(profile?.email?.endsWith('@knit.ac.in') || profile?.isVerified) && (
+                      <span className="px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 bg-emerald-950/80 text-emerald-300 border border-emerald-500/40" title="Verified KNIT Student">
+                        <CheckCircle className="w-3.5 h-3.5" /> KNIT Verified Student
+                      </span>
+                    )}
 
-                {(profile?.skills?.length >= 3 || profileCompletion >= 75) && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/30">
-                    <Star className="w-3 h-3" /> Top Contributor
-                  </span>
-                )}
+                    <span className={`px-2.5 py-0.5 rounded text-xs font-bold flex items-center gap-1.5 border ${
+                      academic.isPassedOut ? 'bg-amber-950/80 text-amber-300 border-amber-500/40' : 'bg-slate-900 text-slate-200 border-slate-800'
+                    }`}>
+                      🎓 {academic.isPassedOut ? `Graduate (Batch ${academic.batchRange})` : `Batch: ${academic.batchRange} (Year ${academic.calculatedYear})`}
+                    </span>
 
-                {profile?.availability_status === 'Available' && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-                    <Zap className="w-3 h-3" /> Fast Responder
-                  </span>
-                )}
+                    {(profile?.skills?.length >= 3 || profileCompletion >= 75) && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                        <Star className="w-3 h-3" /> Top Contributor
+                      </span>
+                    )}
 
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-amber-500/15 text-orange-400 border border-orange-500/30">
-                  <Flame className="w-3 h-3 fill-orange-400 text-orange-400" /> {profile?.loginStreak || 1}d Streak (⚡ {profile?.zenPoints || 10} Pts)
-                </span>
-              </div>
+                    {profile?.availability_status === 'Available' && (
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                        <Zap className="w-3 h-3" /> Fast Responder
+                      </span>
+                    )}
+
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1 bg-amber-500/15 text-orange-400 border border-orange-500/30">
+                      <Flame className="w-3 h-3 fill-orange-400 text-orange-400" /> {profile?.loginStreak || 1}d Streak (⚡ {profile?.zenPoints || 10} Pts)
+                    </span>
+                  </div>
+                )
+              })()}
 
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-1 text-xs text-gray-300 pt-1">
                 <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-orange-400" /> {profile?.email}</span>
@@ -769,16 +777,16 @@ const Profile = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-300 mb-1">Batch Start Year</label>
-                    <select className="input w-full text-xs" {...register('startYear')} onChange={(e) => { register('startYear').onChange(e); handleStartYearChange(e); }}>
-                      {[2020, 2021, 2022, 2023, 2024, 2025, 2026].map(sy => (
+                    <select className="input w-full text-xs font-mono" {...register('startYear')} onChange={(e) => { register('startYear').onChange(e); handleStartYearChange(e); }}>
+                      {getStartYearOptions().map(sy => (
                         <option key={sy} value={sy}>{sy}</option>
                       ))}
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-300 mb-1">Passout End Year</label>
-                    <select className="input w-full text-xs" {...register('endYear')}>
-                      {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(ey => (
+                    <select className="input w-full text-xs font-mono" {...register('endYear')}>
+                      {getEndYearOptions(watch('startYear')).map(ey => (
                         <option key={ey} value={ey}>{ey}</option>
                       ))}
                     </select>
