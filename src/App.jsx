@@ -17,6 +17,7 @@ import TeamInvitations from './pages/TeamInvitations'
 import Chat from './pages/Chat'
 import Projects from './pages/Projects'
 import Achievements from './pages/Achievements'
+import Hackathons from './pages/Hackathons'
 import AuthCallback from './pages/AuthCallback'
 import CompleteProfile from './pages/CompleteProfile'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -53,6 +54,7 @@ function AppContent() {
         <Route path="chat" element={<Chat />} />
         <Route path="projects" element={<Projects />} />
         <Route path="achievements" element={<Achievements />} />
+        <Route path="hackathons" element={<Hackathons />} />
       </Route>
       
       {/* 404 */}
