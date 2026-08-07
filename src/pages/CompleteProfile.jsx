@@ -21,11 +21,13 @@ import {
   Terminal
 } from 'lucide-react'
 
+import { getStartYearOptions, getEndYearOptions } from '../utils/academicUtils'
+
 const branches = ['CSE', 'ECE', 'EEE', 'MECH', 'CIVIL', 'IT', 'Other']
 const years = [1, 2, 3, 4]
 
-const startYearsList = [2020, 2021, 2022, 2023, 2024, 2025, 2026]
-const endYearsList = [2024, 2025, 2026, 2027, 2028, 2029, 2030]
+const startYearsList = getStartYearOptions()
+const endYearsList = getEndYearOptions()
 
 const skillCategories = [
   {
